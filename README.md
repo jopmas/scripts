@@ -1,3 +1,3 @@
 # scripts
 
-teste
+Códigos usados na minha vida acadêmica
