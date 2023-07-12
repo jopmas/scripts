@@ -1,8 +1,8 @@
-# scripts
+# Scripts for Mandyoc
 
-This repository contains `.py `, `.ipynb` and `shell` scripts to be used to deal with Mandyoc data ([`Sacek et al., 2022`](https://joss.theoj.org/papers/10.21105/joss.04070)).
+This repository contains `.py `, `.ipynb` and `.sh` scripts to be used to deal with Mandyoc data ([`Sacek et al., 2022`](https://joss.theoj.org/papers/10.21105/joss.04070)).
 
-The most important scripts and notebeooks are
+The most important scripts and notebeooks are presented bellow:
 
 ## .ipynb notebooks
 The [`Korenaga_Fig5_custom.py`](https://github.com/jopmas/scripts/blob/master/Korenaga_Fig5_custom.py) script plot the relationship with mantle potential temperature and tectonic style using data from Fig. 5b from [Korenaga (2013)](https://www.annualreviews.org/doi/abs/10.1146/annurev-earth-050212-124208). 
