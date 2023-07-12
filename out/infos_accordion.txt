@@ -1,0 +1,37 @@
+SCENARIO INFOS:
+ 
+Type of experiment: Wilson cycle
+ 
+Viscosity scale factors (C):
+C asthenosphere: 1.0
+C mantle lithosphere: 10.0
+C seed: 1.0
+C lower crust: 1.0
+C upper crust: 1.0
+C air: 1.0
+ 
+Preset of initial temperature field: True
+Seed extra fragil: False
+Use horizontal mean of temperature from preset in lithosphere: True
+Surface process: False
+Climate change: False
+Velocity field: True
+ 
+Domain parameters:
+Lx: 1600.0 km
+Lz: 700.0 km
+Nx: 401
+Nz: 176
+Resolution dx x dz: 4x4 km2
+ 
+Layers thickness (H):
+Air: 40.0 km
+Upper crust: 20.0 km
+Lower crust: 15.0 km
+Lithospheric Mantle: 115.0 km
+Lithosphere: 150.0 km
+Initial temperature field setup:
+Used external scenario: stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/
+Interpolation of temperature field using: interp2d
+Temperature of boundaries: mean
+Interpolation method: linear

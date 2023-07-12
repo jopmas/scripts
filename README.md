@@ -1,3 +1,3 @@
 # scripts
 
-Códigos usados na minha vida acadêmica
+Personal scripts used to process mandyoc data

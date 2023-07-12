@@ -1,0 +1,16 @@
+rm FD*
+rm vel_bc*
+rm velz*
+rm bc_velocity*
+rm velocity*
+rm step*
+rm temperature*
+rm density*
+rm viscosity*
+rm heat*
+rm strain_*
+rm time*
+rm pressure_*
+rm litho_new_temper*.png
+rm *.mp4
+rm sp_surface_global*

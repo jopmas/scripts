@@ -1,0 +1,31 @@
+SCENARIO INFOS:
+ 
+Name: continental_rift
+Scenario kind: This example simulates the evolution of divergent margins, taking into account the plastic rheology and the sin-rift geodynamics.
+ 
+Domain parameters:
+Lx: 1600.0 km
+Lz: 300.0 km
+Nx: 1601
+Nz: 301
+Resolution dx x dz: 1x1 km2
+ 
+Layers thickness (H):
+H air: 40.0 km
+H upper crust: 20.0 km
+H lower crust: 20.0 km
+H mantle lithosphere: 90.0 km
+H lithosphere: 130.0 km
+ 
+Scale factors (C):
+C asthenosphere: 1.0
+C mantle lithosphere: 1.0
+C seed: 1.0
+C lower crust: 1.0
+C upper crust: 1.0
+C air: 1.0
+ 
+Surface process: False
+Velocity field: True
+Climate change: False
+Periodic Boundary: False

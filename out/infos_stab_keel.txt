@@ -1,0 +1,37 @@
+SCENARIO INFOS:
+ 
+Type of experiment: LAB (1300 oC) stability with central cratonic keel
+ 
+Viscosity scale factors (C):
+C asthenosphere: 1.0
+C mantle lithosphere: 10.0
+C seed: 1.0
+C lower crust: 1.0
+C upper crust: 1.0
+C air: 1.0
+ 
+Preset of initial temperature field: False
+Increase in mantle basal temperature (Ta): 0 oC
+Seed extra fragil: False
+Use horizontal mean of temperature from preset in lithosphere: True
+Surface process: False
+Climate change: False
+Velocity field: False
+ 
+Domain parameters:
+Lx: 1600.0 km
+Lz: 700.0 km
+Nx: 161
+Nz: 71
+Resolution dx x dz: 10x10 km2
+ 
+Layers thickness:
+Air: 40.0 km
+Upper crust: 20.0 km
+Lower crust: 15.0 km
+Lithospheric Mantle: 45.0 km
+Lithosphere: 80.0 km
+ 
+Initial temperature field setup:
+Increase in mantle basal temperature (Ta): 0 oC
+Assumed mantle Potential Temperature: 1262 oC
