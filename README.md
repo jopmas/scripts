@@ -4,7 +4,7 @@ This repository contains `.py `, `.ipynb` and `shell` scripts to be used to deal
 
 The most important scripts and notebeooks are
 
-## notebooks
+## .ipynb notebooks
 The [`Korenaga_Fig5_custom.py`](https://github.com/jopmas/scripts/blob/master/Korenaga_Fig5_custom.py) script plot the relationship with mantle potential temperature and tectonic style using data from Fig. 5b from [Korenaga (2013)](https://www.annualreviews.org/doi/abs/10.1146/annurev-earth-050212-124208). 
 
 ## .py scritps
@@ -15,7 +15,7 @@ The [`create_database`](https://github.com/jopmas/scripts/blob/master/create_dat
 
 The [`lr_map_structs.py`](https://github.com/jopmas/scripts/blob/master/lr_map_structs.py) map the evolution of coastal escarpments formed in the rifting scenarios.
 
-The [`isotherms_evolution_extractor.py`](https://github.com/jopmas/scripts/blob/master/isotherms_evolution_extractor.py) script extracts and plot the mean depth evolution of 0,500, 800, 1000 and 1300 oC isotherms from a Mandyoc scenario.
+The [`isotherms_evolution_extractor.py`](https://github.com/jopmas/scripts/blob/master/isotherms_evolution_extractor.py) script extracts and plot the mean depth evolution of 0, 500, 800, 1000 and 1300 oC isotherms from a Mandyoc scenario.
 
 ## shell scritps
 
@@ -31,6 +31,9 @@ The [`clear_plots.sh`](https://github.com/jopmas/scripts/blob/master/clear_plots
 
 <!-- The [`.sh`](https://github.com/jopmas/scripts/blob/master/.sh) -->
 
+## Conda environment
+
+Extracted from [`README.md`](https://github.com/jamisonassuncao/mandyoc-scripts/blob/main/README.md) file of [`mandyoc-scripts`](https://github.com/jamisonassuncao/mandyoc-scripts/tree/main) repository.
 
 The scripts were built with [Jupyter Notebook](https://jupyter.org/) and its environment `mpy` can be replicated with [`conda`](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) by using
 ```
