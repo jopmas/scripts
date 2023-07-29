@@ -1459,7 +1459,7 @@ if(preset == False):
 
     T[T < 0.0] = 0.0
     cond1 = Ta<T #VICTOR
-    T[T > Ta] = Ta[T > Ta]
+    T[T > Ta] = Ta[T > Ta] #apply the temperature of asthenosphere Ta where temperature T is greater than Ta, 
 
     # kappa = 0.75*1.0e-6 #thermal diffusivity
     kappa = 1.0e-6 #thermal diffusivity
