@@ -66,6 +66,41 @@ def read_data(prop, step, Nz, Nx, fpath):
     
     return data
 
+def calc_mean_temperaure_region(data, Nz, xx, begin, end):
+    '''
+    This funcition select a region in x direction in a 2D array and calculates the horizontal mean
+
+    Parameters
+    ----------
+
+    data: `numpy.ndarray`
+
+    Nz: int
+        Number of points in Z direction
+
+    xx: numpy.ndarray
+        2D grid with x cordinates
+
+    begin: float
+        Start point
+
+    end: float
+        End point
+
+    Returns
+    -------
+    arr: `numpy.ndarray`
+        Array containing the horizontal mean of selected region
+    '''
+
+    x_region = (xx >= begin) & (xx <= end)
+    Nx_aux = len(x_region[0][x_region[0]==True])
+    data_sel = data[x_region].reshape(Nz, Nx_aux)
+    data_sel_mean = np.mean(data_sel, axis=1)
+    
+    return data_sel_mean
+
+
 label_size=18
 plt.rc('xtick', labelsize=label_size)
 plt.rc('ytick', labelsize=label_size)
@@ -1543,7 +1578,7 @@ else:
         xx_aux, zz_aux  = np.meshgrid(x_aux, z_aux)
 
         time = dataset.time[-1]
-        Datai = dataset.temperature[-1].T
+        Datai = dataset.temperature[-1].values.T
     else:
         fpath = f"{machine_path}/Doutorado/cenarios/mandyoc/{scenario}/"
         Nx_aux, Nz_aux, Lx_aux, Lz_aux = read_params(fpath)
@@ -1599,11 +1634,36 @@ else:
 
             Data_region = np.asarray(Datai)[region].reshape(Nz_new, Nx_new)
             datai_mean = np.mean(Data_region, axis=1)
+        elif(keel_adjust == True):
+        	xcenter = Lx_aux/2.0
+            region  = (xx_aux >= xcenter - Lcraton/2.0) & (xx_aux <= xcenter + Lcraton/2.0) & (zz_aux >= 0.0e3) & (zz_aux <= Lz_aux)
+
+            datai_mean = calc_mean_temperaure_region(Datai, Nz_aux, xx_aux, 0, Lx_aux)
+
+            Tk_mean = np.copy(datai_mean)
+            cond_mlit = (z_aux <= thickening+thickness_sa) & (z_aux >= thickness_sa + thickness_upper_crust + thickness_lower_crust)
+			         
+			T1 = datai_mean[cond_mlit][0] #bottom
+			T0 = datai_mean[cond_mlit][-1] #top
+			z1 = z[cond_mlit][0]
+			z0  = z[cond_mlit][-1]
+
+			Tk_mean[cond_mlit] = ((T1 - T0) / (z1 - z0)) * (z[cond_mlit] - z0) + T0
+
+			fk = interp1d(z_aux, Tk_mean)
+			Tk_mean_interp = fk(z)
+			Tk_mean_interp[Tk_mean_interp <= 1.0e-7] = 0.0 #dealing with <=0 values inherited from interpolation
+       	 	Tk_mean_interp[zcond] = 0.0
+
+       	 	#Find the keel interval - PAREI AQUI
+       	 	# xcond = 
+
         else:
             datai_mean = np.mean(Datai, axis=1) #horizontal mean
 
         f = interp1d(z_aux, datai_mean) #funcion to interpolate the temperature field
         datai_mean_interp = f(z) #applying the function to obtain the temperature field to the new mesh
+
         zcond = z <= 40.0e3
         datai_mean_interp[datai_mean_interp <= 1.0e-7] = 0.0 #dealing with <=0 values inherited from interpolation
         datai_mean_interp[zcond] = 0.0
