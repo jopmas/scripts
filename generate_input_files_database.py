@@ -110,12 +110,12 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-# scenario_kind = 'rifting'
+scenario_kind = 'rifting'
 # scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
-scenario_kind = 'stab_keel'
+# scenario_kind = 'stab_keel'
 # scenario_kind = 'quiescence'
 
 
@@ -155,6 +155,9 @@ if(scenario_kind == 'rifting'):
     selection_in_preset = True
     # selection_in_preset = False
 
+    # keel_adjust = True
+    keel_adjust = False
+
     # keel_center = True
     keel_center = False
 
@@ -174,9 +177,9 @@ if(scenario_kind == 'rifting'):
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
     
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
 
     # scenario = '/Doutorado/cenarios/mandyoc/keel/stable_DT200_keel_HprodAst/'
 
@@ -274,6 +277,9 @@ if(scenario_kind == 'rifting'):
     scenario_infos.append(' ')
     print('Preset of initial temperature field: ' + str(preset))
     scenario_infos.append('Preset of initial temperature field: '+str(preset))
+
+    print('Force cold cratonic keel: ' + str(keel_adjust))
+    scenario_infos.append('Force cold cratonic keel: '+str(keel_adjust))
     
     if(preset == True):
         print('Selection in preset: ' + str(selection_in_preset))
@@ -909,8 +915,11 @@ elif(scenario_kind == 'stab_keel'):
     preset = True
     # preset = False
 
-    selection_in_preset = True
-    # selection_in_preset = False
+    # selection_in_preset = True
+    selection_in_preset = False
+
+    keel_adjust = True
+    # keel_adjust = False
 
     # keel_center = True
     keel_center = False
@@ -932,6 +941,9 @@ elif(scenario_kind == 'stab_keel'):
     scenario_infos.append(' ')
     print('Preset of initial temperature field: ' + str(preset))
     scenario_infos.append('Preset of initial temperature field: '+str(preset))
+
+    print('Force cold cratonic keel: ' + str(keel_adjust))
+    scenario_infos.append('Force cold cratonic keel: '+str(keel_adjust))
 
     #Convergence criteria
     denok                            = 1.0e-11
@@ -1634,26 +1646,27 @@ else:
 
             Data_region = np.asarray(Datai)[region].reshape(Nz_new, Nx_new)
             datai_mean = np.mean(Data_region, axis=1)
+
         elif(keel_adjust == True):
-        	xcenter = Lx_aux/2.0
-            region  = (xx_aux >= xcenter - Lcraton/2.0) & (xx_aux <= xcenter + Lcraton/2.0) & (zz_aux >= 0.0e3) & (zz_aux <= Lz_aux)
+            xcenter = Lx/2.0
 
             datai_mean = calc_mean_temperaure_region(Datai, Nz_aux, xx_aux, 0, Lx_aux)
 
             Tk_mean = np.copy(datai_mean)
             cond_mlit = (z_aux <= thickening+thickness_sa) & (z_aux >= thickness_sa + thickness_upper_crust + thickness_lower_crust)
-			         
-			T1 = datai_mean[cond_mlit][0] #bottom
-			T0 = datai_mean[cond_mlit][-1] #top
-			z1 = z[cond_mlit][0]
-			z0  = z[cond_mlit][-1]
+                     
+            T1 = datai_mean[cond_mlit][0] #bottom
+            T0 = datai_mean[cond_mlit][-1] #top
+            z1 = z[cond_mlit][0]
+            z0  = z[cond_mlit][-1]
 
-			Tk_mean[cond_mlit] = ((T1 - T0) / (z1 - z0)) * (z[cond_mlit] - z0) + T0
+            Tk_mean[cond_mlit] = ((T1 - T0) / (z1 - z0)) * (z[cond_mlit] - z0) + T0
 
-			fk = interp1d(z_aux, Tk_mean)
-			Tk_mean_interp = fk(z)
-			Tk_mean_interp[Tk_mean_interp <= 1.0e-7] = 0.0 #dealing with <=0 values inherited from interpolation
-       	 	Tk_mean_interp[zcond] = 0.0
+            fk = interp1d(z_aux, Tk_mean)
+            Tk_mean_interp = fk(z)
+            Tk_mean_interp[Tk_mean_interp <= 1.0e-7] = 0.0 #dealing with <=0 values inherited from interpolation
+            zcond = z <= 40.0e3
+            Tk_mean_interp[zcond] = 0.0
 
        	 	#Find the keel interval - PAREI AQUI
        	 	# xcond = 
@@ -1670,8 +1683,14 @@ else:
 
         T = np.zeros((Nx, Nz)) #(Nx, Nz) = transpose of original shape (Nz, Nx)
         
-        for i in range(Nx): #len(Nx)
-            T[i, :] = datai_mean_interp
+        for i in range(Nx): #len(Nx) 
+            if(keel_adjust == True):
+                if((x[i] >= xcenter - Lcraton/2.0) & (x[i] <= xcenter + Lcraton/2.0)):
+                    T[i, :] = Tk_mean_interp
+                else:
+                    T[i, :] = datai_mean_interp
+            else:
+                T[i, :] = datai_mean_interp
 
         T = T.T #(Nz,Nx): transpose T to plot below
         print('shape T: ', np.shape(T))
@@ -1760,7 +1779,13 @@ ax1.set_xlabel("$^\circ$C", fontsize=label_size)
 cbar = fig.colorbar(im, orientation='horizontal', ax=ax0)
 cbar.set_label("Temperature [°C]")
 
-ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "-k")
+
+if(keel_adjust==True):
+    ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "-k", label='mean thermal profile: out of keel')
+    ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='k', label='mean thermal profile: inside of keel')
+else:
+    ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "-k", label='mean thermal profile')
+
 T_xlim = 2000 #oC
 code = 0
 
@@ -1791,7 +1816,13 @@ if(velocity_from_ascii == True):
     fac_air = 10.0e3
 
     # 1 cm/year
-    vL = 0.005 / (365 * 24 * 3600)  # m/s
+    # vL = 0.005 / (365 * 24 * 3600)  # m/s
+
+    # 0.5 cm/year
+    # vL = 0.0025 / (365 * 24 * 3600)  # m/s
+    
+    # 0.25 cm/year
+    vL = 0.00125 / (365 * 24 * 3600)  # m/s
 
     h_v_const = thickness_litho + 20.0e3  #thickness with constant velocity 
     ha = Lz - thickness_sa - h_v_const  # difference
