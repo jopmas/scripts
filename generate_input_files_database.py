@@ -110,8 +110,8 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-scenario_kind = 'rifting'
-# scenario_kind = 'stab'
+# scenario_kind = 'rifting'
+scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
@@ -174,12 +174,12 @@ if(scenario_kind == 'rifting'):
 
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
     
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
 
     # scenario = '/Doutorado/cenarios/mandyoc/keel/stable_DT200_keel_HprodAst/'
 
@@ -262,8 +262,8 @@ if(scenario_kind == 'rifting'):
     # thickness of lower crust (m)
     thickness_lower_crust = 15 * 1.0e3
     # total thickness of lithosphere (m)
-    # thickness_litho = 80 * 1.0e3
-    thickness_litho = 150 * 1.0e3
+    thickness_litho = 80 * 1.0e3
+    # thickness_litho = 150 * 1.0e3
     # seed depth bellow base of lower crust (m)
     seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
 
@@ -319,9 +319,9 @@ elif(scenario_kind == 'stab'):
     scenario_infos.append('C lower crust: '+str(Clc))
 
     # DeltaT = 0
-    DeltaT = 200 #oC incrase in mantle potential temperature
+    # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
     # DeltaT = 290
-    # DeltaT = 350
+    DeltaT = 350
     # DeltaT = 500
     # DeltaT = 600
     # DeltaT = 700
@@ -333,6 +333,9 @@ elif(scenario_kind == 'stab'):
     # keel_center = True
     keel_center = False
     extra_fragil = False
+
+    # keel_adjust = True
+    keel_adjust = False
 
     # high_kappa_in_asthenosphere = True
     high_kappa_in_asthenosphere = False #default
@@ -408,7 +411,8 @@ elif(scenario_kind == 'stab'):
     # thickness of upper crust (m)
     thickness_upper_crust = 20 * 1.0e3
     # thickness of lower crust (m)
-    thickness_lower_crust = 15 * 1.0e3
+    # thickness_lower_crust = 15 * 1.0e3
+    thickness_lower_crust = 20 * 1.0e3
     # total thickness of lithosphere (m)
     # thickness_litho = 80 * 1.0e3
     thickness_litho = 150 * 1.0e3
