@@ -17,6 +17,8 @@ from matplotlib.patches import FancyBboxPatch
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
+import matplotlib.mlab as mlab
+import matplotlib.colors
 
 
 SEG = 365. * 24. * 60. * 60.
@@ -28,7 +30,7 @@ PARAMETERS = {
     "pre-exponential_scale_factor": "A",
     "power_law_exponent": "n",
     "activation_energy": "Q",
-    "activation_volume": "V",
+    "activation_volume": "V"
 }
 
 TEMPERATURE_HEADER = "T1\nT2\nT3\nT4"
@@ -187,7 +189,7 @@ def merge_interfaces(interfaces):
             ds = interfaces[name].to_dataset(name=name)
     return ds
 
-def save_interfaces(interfaces, parameters, path, fname='interfaces.txt'):
+def save_interfaces(interfaces, parameters, path, strain_softening, fname='interfaces.txt'):
     """
     Save the interfaces and the rheological parameters as an ASCII file.
 
@@ -204,14 +206,19 @@ def save_interfaces(interfaces, parameters, path, fname='interfaces.txt'):
             - ``pre-exponential scale factor``,
             - ``power law exponent``,
             - ``activation energy``,
-            - ``activation volume``
+            - ``activation volume``,
+            - ``weakening seed``
+            - ``cohesion max``
+            - ``cohesion min``
+            - ``friction angle min``
+            - ``friction angle max``
     path : str
         Path to save the file.
     fname : str (optional)
         Name to save the interface file. Default ``interface.txt``
     """
     # Check if givens parameters are consistent
-    _check_necessary_parameters(parameters, interfaces)
+    _check_necessary_parameters(parameters, interfaces, strain_softening)
 
     # Generate the header with the layers parameters
     header = []
@@ -294,7 +301,7 @@ def save_temperature(temperatures, path, fname="input_temperature_0.txt"):
         os.path.join(path, fname), temperatures.values.ravel(order="F"), header=TEMPERATURE_HEADER
     )
     
-def read_mandyoc_output(model_path, parameters_file=PARAMETERS_FNAME, datasets=tuple(OUTPUTS.keys()), steps_slice=None, save_big_dataset=False):
+def read_mandyoc_output(model_path, parameters_file=PARAMETERS_FNAME, datasets=tuple(OUTPUTS.keys()), skip=1, steps_slice=None, save_big_dataset=False):
     """
     Read the files  generate by Mandyoc code
     Parameters
@@ -318,6 +325,8 @@ def read_mandyoc_output(model_path, parameters_file=PARAMETERS_FNAME, datasets=t
             - ``velocity``
             - ``surface``
         By default, every dataset will be read.
+    skip: int
+        Reads files every <skip> value to save mamemory.
     steps_slice : tuple
         Slice of steps to generate the step array. If it is None, it is taken
         from the folder where the Mandyoc files are located.
@@ -338,6 +347,8 @@ def read_mandyoc_output(model_path, parameters_file=PARAMETERS_FNAME, datasets=t
     coordinates = np.array(aux_coords["x"]), np.array(aux_coords["z"])
     # Get array of times and steps
     steps, times = _read_times(model_path, parameters["print_step"], parameters["step_max"], steps_slice)
+    steps = steps[::skip]
+    times = times[::skip]
     end = np.size(times)
     # Create the coordinates dictionary containing the coordinates of the nodes
     # and the time and step arrays. Then create data_vars dictionary containing
@@ -421,7 +432,8 @@ def read_datasets(model_path, datasets, save_big_dataset=False):
         print(f'Saving dataset with all Mandyoc data')
         dataset.to_netcdf(f"{model_path}/data.nc", format="NETCDF3_64BIT")
         print(f"Big dataset file saved.")
-        gc.collect()
+        # del dataset
+        # gc.collect()
     
     return dataset
 
@@ -466,6 +478,147 @@ def diffuse_field(field, cond_air, kappa, dx, dz, t_max=1.0E6, fac=100):
         # time increment
         t += dt
     return field
+
+def build_parameter_file(**kwargs):
+    """
+    Creates a parameters dicitionary containing all the parameters that will be
+    necessary fot the simulation.
+
+    Parameters
+    ----------
+    **kwargs : dict
+        Arguments used in the paramenter file.
+
+    Returns
+    -------
+    params : dict
+        Complete parameter file dictionary.
+    """
+    defaults = {
+        'nx' : None,
+        'nz' : None,
+        'lx' : None,
+        'lz' : None, 
+
+        'aux00': '# Simulation options',
+        'solver' : 'direct',
+        'denok' : 1.0e-10,
+        'rtol' : 1.0e-7,
+        'RK4' : 'Euler',
+        'Xi_min' : 1.0e-7,
+        'random_initial_strain' : 0.0,
+        'pressure_const' : -1.0,
+        'initial_dynamic_range' : True,
+        'periodic_boundary' : False,
+        'high_kappa_in_asthenosphere' : False,
+        'basal_heat' : -1.0,
+
+        'aux01': '# Particles options',
+        'particles_per_element' : 81,
+        'particles_per_element_x' : 0,
+        'particles_per_element_z' : 0,
+        'particles_perturb_factor' : 0.7,
+
+        'aux02': '# Surface processes',
+        'sp_surface_tracking' : False,
+        'sea_level' : 0.0,
+        'sp_surface_processes' : False,
+        'sp_dt' : 0,
+        'a2l' : True,
+        'sp_mode' : 1,
+        'free_surface_stab' : True,
+        'theta_FSSA' : 0.5,
+        'sticky_blanket_air' : False,
+        'precipitation_profile_from_ascii' : False,
+        'climate_change_from_ascii' : False,
+
+        'aux03': '# Time constrains',
+        'step_max' : 7000,
+        'time_max' : 10.0e6,
+        'dt_max' : 10.0e3,
+        'step_print' : 10,
+        'sub_division_time_step' : 1.0,
+        'initial_print_step' : 0,
+        'initial_print_max_time' : 1.0e6,
+
+        'aux04': '# Viscosity',
+        'viscosity_reference' : None,
+        'viscosity_max' : None,
+        'viscosity_min' : None,
+        'viscosity_per_element' : 'constant',
+        'viscosity_mean_method' : 'arithmetic',
+        'viscosity_dependence' : 'pressure',
+
+        'aux05': '# External ASCII inputs/outputs',
+        'interfaces_from_ascii' : True,
+        'n_interfaces' : None,
+        'temperature_from_ascii' : True,
+        'velocity_from_ascii' : False,
+        'variable_bcv' : False,
+        'multi_velocity' : False,
+        'binary_output' : False,
+        'print_step_files' : True,
+
+        'aux06': '# Physical parameters',
+        'temperature_difference' : None,
+        'thermal_expansion_coefficient' : None,
+        'thermal_diffusivity_coefficient' : None,
+        'gravity_acceleration' : None,
+        'density_mantle' : 3300.,
+        'heat_capacity' : None,
+        'adiabatic_component' : None,
+        'radiogenic_component' : None,
+
+        'aux07': '# Strain softening',
+        'non_linear_method' : 'on',
+        'plasticity' : 'on',
+        'weakening_min' : 0.05,
+        'weakening_max' : 1.05,
+
+        'aux08': '# Velocity boundary conditions',
+        'top_normal_velocity' : 'fixed',
+        'top_tangential_velocity' : 'free',
+        'bot_normal_velocity' : 'fixed',
+        'bot_tangential_velocity' : 'free',
+        'left_normal_velocity' : 'fixed',
+        'left_tangential_velocity' : 'free',
+        'right_normal_velocity' : 'fixed ',
+        'right_tangential_velocity' : 'free',
+
+        'aux09': '# Temperature boundary conditions',
+        'top_temperature' : 'fixed',
+        'bot_temperature' : 'fixed',
+        'left_temperature' : 'fixed',
+        'right_temperature' : 'free',
+        'rheology_model' : 19,
+        'T_initial' : 0,
+    }
+
+    params = {}
+    for key, value in defaults.items():
+        param = kwargs.get(key, value)
+        if param is None:
+            raise ValueError(f"The parameter '{key}' is mandatory.")
+        params[key] = str(param)
+    return params
+
+def save_parameter_file(params, run_dir):
+    """
+    Saves the parameter dictionary into a file called param.txt
+
+    Parameters
+    ----------
+
+    params : dict
+        Dictionary containing the parameters of the param.txt file.
+    """
+    # Create the parameter file
+    with open(os.path.join(run_dir,"param.txt"), "w") as f:
+        for key, value in params.items():
+            if key[:3] == "aux":
+                f.write(f"\n{value}\n")
+            else:
+                f.write('{:<32} = {}\n'.format(key, value))
 
 def _read_scalars(path, shape, steps, quantity):
     """
@@ -679,10 +832,23 @@ def _read_times(path, print_step, max_steps, steps_slice):
     steps = np.array(steps, dtype=int)
     return steps, times
 
-def _check_necessary_parameters(parameters, interfaces):
+def _check_necessary_parameters(parameters, interfaces, strain_softening):
     """
     Check if there all parameters are given (not checking number).
     """
+    if (strain_softening):
+        PARAMETERS['weakening_seed'] = 'weakening_seed'
+        PARAMETERS['cohesion_min'] = 'cohesion_min'
+        PARAMETERS['cohesion_max'] = 'cohesion_max'
+        PARAMETERS['friction_angle_min'] = 'friction_angle_min'
+        PARAMETERS['friction_angle_max'] = 'friction_angle_max'
+    else:
+        PARAMETERS.pop('weakening_seed', None)
+        PARAMETERS.pop('cohesion_min', None)
+        PARAMETERS.pop('cohesion_max', None)
+        PARAMETERS.pop('friction_angle_min', None)
+        PARAMETERS.pop('friction_angle_max', None)
+
     for parameter in PARAMETERS:
         if parameter not in parameters:
             raise ValueError(
@@ -954,8 +1120,80 @@ def _extract_interface(z, Z, Nx, Rhoi, rho):
 
 def _log_fmt(x, pos):
     return "{:.0f}".format(np.log10(x))
+
+def change_dataset(properties, datasets):
+    '''
+    Create new_datasets based on the properties that will be plotted
     
-def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=True):
+    Parameters
+    ----------
+    properties: list of strings
+        Properties to plot.
+
+    datasets: list of strings
+        List of saved properties.
+
+    Returns
+    -------
+    new_datasets: list of strings
+        New list of properties that will be read.
+    '''
+    
+    new_datasets = []
+    for prop in properties:
+        if (prop in datasets) and (prop not in new_datasets):
+            new_datasets.append(prop)
+        if (prop == "lithology") and ("strain" not in new_datasets):
+            new_datasets.append("strain")
+        if (prop == "temperature_anomaly") and ("temperature" not in new_datasets):
+            new_datasets.append("temperature")
+            
+        if (prop == "lithology" or prop == 'temperature_anomlay') and ("density" not in new_datasets):
+            new_datasets.append("density")
+            
+    return new_datasets
+def _calc_melt_dry(To,Po):
+
+    P=np.asarray(Po)/1.0E6 # Pa -> MPa
+    T=np.asarray(To)+273.15 #oC -> Kelvin
+
+    Tsol = 1394 + 0.132899*P - 0.000005104*P**2
+    cond = P>10000.0
+    Tsol[cond] = 2212 + 0.030819*(P[cond] - 10000.0)
+
+    Tliq = 2073 + 0.114*P
+
+    X = P*0
+
+    cond=(T>Tliq) #melt
+    X[cond]=1.0
+
+    cond=(T<Tliq)&(T>Tsol) #partial melt
+    X[cond] = ((T[cond]-Tsol[cond])/(Tliq[cond]-Tsol[cond]))
+
+    return(X)
+
+def _calc_melt_wet(To,Po):
+    P=np.asarray(Po)/1.0E6 # Pa -> MPa
+    T=np.asarray(To)+273.15 #oC -> Kelvin
+
+    Tsol = 1240 + 49800/(P + 323)
+    cond = P>2400.0
+    Tsol[cond] = 1266 - 0.0118*P[cond] + 0.0000035*P[cond]**2
+
+    Tliq = 2073 + 0.114*P
+
+    X = P*0
+
+    cond=(T>Tliq)
+    X[cond]=1.0
+
+    cond=(T<Tliq)&(T>Tsol)
+    X[cond] = ((T[cond]-Tsol[cond])/(Tliq[cond]-Tsol[cond]))
+
+    return(X)
+
+def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frames=True, plot_isotherms=True, isotherms = [400, 600, 800, 1000, 1300], plot_melt=False, melt_method='dry'):
     '''
     Plot and save data from mandyoc according to a given property and domain limits.
 
@@ -1046,12 +1284,72 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
     plt.rc('xtick', labelsize = label_size)
     plt.rc('ytick', labelsize = label_size)
     
-    fig, ax = plt.subplots(1, 1, figsize=(12, 6), constrained_layout = True)
+    fig, ax = plt.subplots(1, 1, figsize=(12, 12*(Lz/Lx)), constrained_layout = True)
     #plot Time in Myr
-    ax.text(0.8, 0.95, ' {:01} Myr'.format(instant), fontsize = 18, zorder=52, transform=ax.transAxes)
+    ax.text(0.8, 0.92, ' {:01} Myr'.format(instant), fontsize = 18, zorder=52, transform=ax.transAxes)
     
     val_minmax = vals_minmax[prop]
     
+    if(plot_isotherms == True and prop != 'topography'): #Plot isotherms
+        Temperi = dataset.temperature.T
+        
+        isot_colors = []
+        for isotherm in isotherms:
+            isot_colors.append('red')
+            
+        cs = ax.contour(xx, zz, Temperi, 100, levels=isotherms, colors=isot_colors)
+        
+        # if(instant == instants[0]):
+        #     fmt = {}
+        #     for level, isot in zip(cs.levels, isotherms):
+        #         fmt[level] = str(level) + r'$^{\circ}$C'
+
+        #     ax.clabel(cs, cs.levels, fmt=fmt, inline=True, use_clabeltext=True)
+    if(plot_melt == True and prop != 'topography'):
+        if(melt_method == 'dry'):
+            melt = _calc_melt_dry(dataset.temperature, dataset.pressure)
+        elif(melt_method == 'wet'):
+            melt = _calc_melt_wet(dataset.temperature, dataset.pressure)
+
+        levels = np.arange(0, 16, 1)
+        extent=(0,
+                Lx/1.0e3,
+                -Lz/1.0e3 + 40,
+                0 + 40)
+        
+        cs = ax.contour(melt.T*100,
+                        levels,
+                        origin='lower',
+                        cmap='inferno',
+                        extent=extent,
+                        vmin=0, vmax=16,
+                        linewidths=0.5,
+                        # linewidths=30,
+                        zorder=30)
+
+        axmelt = inset_axes(ax,
+                            width="20%",  # width: 30% of parent_bbox width
+                            height="5%",  # height: 5%
+                            bbox_to_anchor=(-0.78,
+                                            -0.75,
+                                            1,
+                                            1),
+                            bbox_transform=ax.transAxes,
+                            )
+        
+
+        norm= matplotlib.colors.Normalize(vmin=cs.cvalues.min(), vmax=cs.cvalues.max())
+        sm = plt.cm.ScalarMappable(norm=norm, cmap = cs.cmap)
+        sm.set_array([])
+
+        cb = fig.colorbar(sm,
+                    cax=axmelt,
+                    label='melt content [%]',
+                    orientation='horizontal',
+                    fraction=0.008,
+                    pad=0.02)
+        cb.ax.tick_params(labelsize=12)
+        
     #dealing with special data
     if(prop == 'lithology'):
         data = dataset['strain']
@@ -1065,7 +1363,7 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
         data = D
         
     elif(prop == 'surface'):
-        print('Dealing with data')
+        # print('Dealing with data')
 #         topo_from_density = True
         topo_from_density = False
         
@@ -1107,9 +1405,12 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
         
         #creating colorbar
         axins1 = inset_axes(ax,
-                            width="30%",  # width: 30% of parent_bbox width
+                            width="25%",  # width: 30% of parent_bbox width
                             height="5%",  # height: 5%
-                            bbox_to_anchor=(-0.02, -0.82, 1, 1),
+                            bbox_to_anchor=(-0.02,
+                                            -0.75,
+                                            1,
+                                            1),
                             bbox_transform=ax.transAxes,
                             )
 
@@ -1122,6 +1423,7 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
                            format=_log_fmt)
 
         clb.set_label(props_label[prop], fontsize=12)
+        clb.ax.tick_params(labelsize=12)
         clb.minorticks_off()
     
     elif (prop == 'density' or prop == 'pressure' or prop == 'temperature' or prop == 'temperature_anomaly'): #properties that need a regular colorbar
@@ -1133,9 +1435,12 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
                        aspect = 'auto')
         
         axins1 = inset_axes(ax,
-                            width="30%",  # width: 30% of parent_bbox width
+                            width="25%",  # width: 30% of parent_bbox width
                             height="5%",  # height: 5%
-                            bbox_to_anchor=(-0.02, -0.82, 1, 1),
+                            bbox_to_anchor=(-0.02,
+                                            -0.75,
+                                            1,
+                                            1),
                             bbox_transform=ax.transAxes,
                             )
         
@@ -1156,6 +1461,7 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
                            format=fmt)
 
         clb.set_label(props_label[prop], fontsize=12)
+        clb.ax.tick_params(labelsize=12)
         clb.minorticks_off()
         
     elif(prop == 'strain'):
@@ -1206,12 +1512,16 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
                      vmax = 0.7,
                      aspect = 'auto')
         #legend box
-        b1 = [0.84, #horizontal position
-              0.22, #vertical position
-              0.15, #horizontal sift
-              0.20  #scale
-             ]
-        bv1 = plt.axes(b1)
+        bv1 = inset_axes(ax,
+                        width="20%",  # width: 30% of parent_bbox width
+                        height="30%",  # height: 5%
+                        bbox_to_anchor=(0.045,#horizontal position
+                                        -0.49,#vertical position
+                                        1,#
+                                        1),#
+                        bbox_transform=ax.transAxes
+                        )
+        
         A = np.zeros((100, 10))
 
         A[:25, :] = 2700
@@ -1226,7 +1536,7 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
 
         xxA, yyA = np.meshgrid(xA, yA)
         air_threshold = 200
-        plt.contourf(
+        bv1.contourf(
             xxA,
             yyA,
             A,
@@ -1234,7 +1544,7 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
             colors=[color_uc, color_lc, color_lit, color_ast],
         )
 
-        plt.imshow(
+        bv1.imshow(
             xxA[::-1, :],
             extent=[-0.5, 0.9, 0, 1.5],
             zorder=100,
@@ -1245,8 +1555,8 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
         )
 
         bv1.set_yticklabels([])
-        plt.xlabel(r"log$(\varepsilon_{II})$", size=14)
-        bv1.tick_params(axis='x', which='major', labelsize=12)
+        bv1.set_xlabel(r"log$(\varepsilon_{II})$", size=14)
+        bv1.tick_params(axis='x', which='major', labelsize=10)
         bv1.set_xticks([-0.5, 0, 0.5])
         bv1.set_yticks([])
         bv1.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
@@ -1284,6 +1594,11 @@ def plot_data(dataset, prop, xlims, ylims, model_path, output_path, save_frames=
         ax.set_xlabel("Distance (km)", fontsize = label_size)
         ax.set_ylabel("Topography (km)", fontsize = label_size)
         
-    if (save_frames == True):    
-        fig_name = f"{output_path}/{model_name}_{prop}_{str(int(dataset.step)).zfill(6)}.png"
+    if (save_frames == True):
+
+        if(plot_melt==True):
+                fig_name = f"{output_path}/{model_name}_{prop}_MeltFrac_{melt_method}_{str(int(dataset.step)).zfill(6)}.png"
+        else:
+            fig_name = f"{output_path}/{model_name}_{prop}_{str(int(dataset.step)).zfill(6)}.png"
+
         plt.savefig(fig_name, dpi=400)
