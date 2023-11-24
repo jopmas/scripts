@@ -111,11 +111,11 @@ scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
 # scenario_kind = 'rifting'
-scenario_kind = 'stab'
+# scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
-# scenario_kind = 'stab_keel'
+scenario_kind = 'stab_keel'
 # scenario_kind = 'quiescence'
 
 
@@ -922,6 +922,7 @@ elif(scenario_kind == 'stab_keel'):
     # selection_in_preset = True
     selection_in_preset = False
 
+    #Force cold cratonic keel
     keel_adjust = True
     # keel_adjust = False
 
@@ -936,7 +937,6 @@ elif(scenario_kind == 'stab_keel'):
 
     # high_kappa_in_asthenosphere = True
     high_kappa_in_asthenosphere = False #default
-
 
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
@@ -967,12 +967,17 @@ elif(scenario_kind == 'stab_keel'):
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
     variable_bcv                     = False
-    velocity_from_ascii              = False
+    velocity_from_ascii              = True
+
+    ast_wind                         = True
+    # ast_wind                         = False
 
     print('Velocity field: '+str(velocity_from_ascii))
     scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
     print('Variable velocity field: '+str(variable_bcv))
     scenario_infos.append('Variable velocity field: '+str(variable_bcv))
+    print('Asthenospheric Wind: '+str(ast_wind))
+    scenario_infos.append('Asthenospheric Wind '+str(ast_wind))
 
     if(sp_surface_processes == True):
         precipitation_profile_from_ascii = True #False
@@ -1020,12 +1025,14 @@ elif(scenario_kind == 'stab_keel'):
     ##################################################################
     # total model horizontal extent (m)
     # Lx = 1600 * 1.0e3
-    Lx = 3000 * 1.0e3
+    # Lx = 3000 * 1.0e3
+    Lx = 4000 * 1.0e3
     # total model vertical extent (m)
     Lz = 700 * 1.0e3 #400 * 1.0e3
     # number of points in horizontal direction
     # Nx = 161 #401 # #801 #1601
-    Nx = 301
+    # Nx = 301
+    Nx = 401
     # number of points in vertical direction
     Nz = 71 #176 #71 #176 #351 #71 #301 #401
     
@@ -1672,9 +1679,6 @@ else:
             zcond = z <= 40.0e3
             Tk_mean_interp[zcond] = 0.0
 
-       	 	#Find the keel interval - PAREI AQUI
-       	 	# xcond = 
-
         else:
             datai_mean = np.mean(Datai, axis=1) #horizontal mean
 
@@ -1817,55 +1821,110 @@ plt.close()
 # Boundary condition - velocity
 ##############################################################################
 if(velocity_from_ascii == True):
-    fac_air = 10.0e3
 
-    # 1 cm/year
-    # vL = 0.005 / (365 * 24 * 3600)  # m/s
+    if(ast_wind == True):
+        fac_air = 10.0e3
 
-    # 0.5 cm/year
-    # vL = 0.0025 / (365 * 24 * 3600)  # m/s
-    
-    # 0.25 cm/year
-    vL = 0.00125 / (365 * 24 * 3600)  # m/s
+        #Left side
+        # 1 cm/year
+        vL = 0.005 / (365 * 24 * 3600)  # m/s
 
-    h_v_const = thickness_litho + 20.0e3  #thickness with constant velocity 
-    ha = Lz - thickness_sa - h_v_const  # difference
+        # 0.5 cm/year
+        # vL = 0.0025 / (365 * 24 * 3600)  # m/s
+        
+        # 0.25 cm/year
+        # vL = 0.00125 / (365 * 24 * 3600)  # m/s
 
-    vR = 2 * vL * (h_v_const + fac_air + ha) / ha  # this is to ensure integral equals zero
+        h_v_const = thickness_litho + 20.0e3  #thickness with constant velocity 
+        ha = Lz - thickness_sa - h_v_const  # difference
 
-    VX = np.zeros_like(X)
-    cond = (Z > h_v_const + thickness_sa) & (X == 0)
-    VX[cond] = vR * (Z[cond] - h_v_const - thickness_sa) / ha
+        #Right side
+        vR = 2 * vL * (h_v_const + fac_air + ha) / ha  # this is to ensure integral equals zero
 
-    cond = (Z > h_v_const + thickness_sa) & (X == Lx)
-    VX[cond] = -vR * (Z[cond] - h_v_const - thickness_sa) / ha
+        VX = np.zeros_like(X)
+        cond = (Z > h_v_const + thickness_sa) & (X == 0) #left side
+        VX[cond] = vR * (Z[cond] - h_v_const - thickness_sa) / ha
 
-    cond = X == Lx
-    VX[cond] += +2 * vL
+        cond = (Z > h_v_const + thickness_sa) & (X == Lx) #right side
+        VX[cond] = vR * (Z[cond] - h_v_const - thickness_sa) / ha
 
-    cond = Z <= thickness_sa - fac_air
-    VX[cond] = 0
+        # cond = X == Lx #right side
+        # VX[cond] += +2 * vL
 
-    # print(np.sum(VX))
+        cond = Z <= thickness_sa - fac_air
+        VX[cond] = 0
 
-    v0 = VX[(X == 0)]
-    vf = VX[(X == Lx)]
-    sv0 = np.sum(v0[1:-1]) + (v0[0] + v0[-1]) / 2.0
-    svf = np.sum(vf[1:-1]) + (vf[0] + vf[-1]) / 2.0
-    # print(sv0, svf, svf - sv0)
+        # print(np.sum(VX))
 
-    diff = (svf - sv0) * dz
+        v0 = VX[(X == 0)]
+        vf = VX[(X == Lx)]
+        sv0 = np.sum(v0[1:-1]) + (v0[0] + v0[-1]) / 2.0
+        svf = np.sum(vf[1:-1]) + (vf[0] + vf[-1]) / 2.0
+        # print(sv0, svf, svf - sv0)
 
-    vv = -diff / Lx
-    # print(vv, diff, svf, sv0, dz, Lx)
+        diff = (svf - sv0) * dz
 
-    VZ = np.zeros_like(X)
+        vv = -diff / Lx
+        # print(vv, diff, svf, sv0, dz, Lx)
 
-    cond = Z == 0
-    VZ[cond] = vv
-    #save bc to plot arraows in numerical setup
-    vels_bc = np.array([v0, vf])
-    vz0 = VZ[(z == 0)]
+        VZ = np.zeros_like(X)
+
+        cond = Z == 0
+        VZ[cond] = vv
+        #save bc to plot arraows in numerical setup
+        vels_bc = np.array([v0, vf])
+        vz0 = VZ[(z == 0)]
+    else:
+        fac_air = 10.0e3
+
+        # 1 cm/year
+        # vL = 0.005 / (365 * 24 * 3600)  # m/s
+
+        # 0.5 cm/year
+        # vL = 0.0025 / (365 * 24 * 3600)  # m/s
+        
+        # 0.25 cm/year
+        vL = 0.00125 / (365 * 24 * 3600)  # m/s
+
+        h_v_const = thickness_litho + 20.0e3  #thickness with constant velocity 
+        ha = Lz - thickness_sa - h_v_const  # difference
+
+        vR = 2 * vL * (h_v_const + fac_air + ha) / ha  # this is to ensure integral equals zero
+
+        VX = np.zeros_like(X)
+        cond = (Z > h_v_const + thickness_sa) & (X == 0)
+        VX[cond] = vR * (Z[cond] - h_v_const - thickness_sa) / ha
+
+        cond = (Z > h_v_const + thickness_sa) & (X == Lx)
+        VX[cond] = -vR * (Z[cond] - h_v_const - thickness_sa) / ha
+
+        cond = X == Lx
+        VX[cond] += +2 * vL
+
+        cond = Z <= thickness_sa - fac_air
+        VX[cond] = 0
+
+        # print(np.sum(VX))
+
+        v0 = VX[(X == 0)]
+        vf = VX[(X == Lx)]
+        sv0 = np.sum(v0[1:-1]) + (v0[0] + v0[-1]) / 2.0
+        svf = np.sum(vf[1:-1]) + (vf[0] + vf[-1]) / 2.0
+        # print(sv0, svf, svf - sv0)
+
+        diff = (svf - sv0) * dz
+
+        vv = -diff / Lx
+        # print(vv, diff, svf, sv0, dz, Lx)
+
+        VZ = np.zeros_like(X)
+
+        cond = Z == 0
+        VZ[cond] = vv
+        #save bc to plot arraows in numerical setup
+        vels_bc = np.array([v0, vf])
+        vz0 = VZ[(z == 0)]
+
     np.savetxt("vel_bc.txt", vels_bc.T)
     np.savetxt("velz_bc.txt", vz0.T)
     # print(np.sum(v0))
@@ -1885,6 +1944,7 @@ if(velocity_from_ascii == True):
 
     # Plot veolocity
     ##############################################################################
+    plt.close()
     fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(9, 9), constrained_layout=True, sharey=True)
 
     ax0.plot(VX[:, 0]*1e10, (z - thickness_sa) / 1000, "k-", label="left side")
@@ -2050,9 +2110,9 @@ run_aguia = f'''
         #!/usr/bin/bash
 
         #SBATCH --partition=SP2
-        #SBATCH --ntasks={str(int(ncores))}
+        #SBATCH --ntasks=1
         #SBATCH --nodes=1
-        #SBATCH --cpus-per-task=1
+        #SBATCH --cpus-per-task={str(int(ncores))}
         #SBATCH --time 192:00:00 #16horas/"2-" para 2 dias com max 8 dias
         #SBATCH --job-name mandyoc-jpms
         #SBATCH --output slurm_%j.log #ou FD.out/ %j pega o id do job
