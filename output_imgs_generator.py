@@ -24,7 +24,7 @@ machine_path = '/'+path[1]+'/'+path[2]
 #machine_path = '/Users/joao_lab'
 #machine_path = '/home/joao_macbook'
 
-plt.style.use(machine_path+'/Mestrado/cenarios/mandyoc/scripts_gera_inputs_imgs/des.mplstyle')
+plt.style.use(machine_path+'/opt/scripts/des.mplstyle')
 
 #################
 #   FUNCTIONS   #
