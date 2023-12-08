@@ -938,9 +938,18 @@ elif(scenario_kind == 'stab_keel'):
     # high_kappa_in_asthenosphere = True
     high_kappa_in_asthenosphere = False #default
 
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
+    shift_craton = 0.0e3 #m
+    # shift_craton = 700.0e3 #m
+
+    mobile_belt = True
+    # mobile_belt = False
+
+    mb_rheol = 'Wet Ol'
+    # mb_rheol = 'Dry Ol'
+
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
 
     scenario_infos.append(' ')
     print('Preset of initial temperature field: ' + str(preset))
@@ -948,6 +957,21 @@ elif(scenario_kind == 'stab_keel'):
 
     print('Force cold cratonic keel: ' + str(keel_adjust))
     scenario_infos.append('Force cold cratonic keel: '+str(keel_adjust))
+
+    print('Shift of craton: ' + str(shift_craton/1.0e3) + ' km')
+    scenario_infos.append('Shift of craton: ' + str(shift_craton/1.0e3) + ' km')
+
+    print('Craton with Mobile Belt: ' + str(mobile_belt))
+    scenario_infos.append('Craton with Mobile Belt: ' + str(mobile_belt))
+    
+    if(mobile_belt):
+        print('Rheology of Mobile Belt: ' + str(mb_rheol))
+        scenario_infos.append('Rheology of Mobile Belt: ' + str(mb_rheol))
+        if(mb_rheol == 'Dry Ol'):
+            Clit = 1.0 #lateral
+            Cmb = 0.01 #central
+            print('C Mobile Belt: ' + str(Cmb))
+            scenario_infos.append('C Mobile Belt: ' + str(Cmb))
 
     #Convergence criteria
     denok                            = 1.0e-11
@@ -969,15 +993,15 @@ elif(scenario_kind == 'stab_keel'):
     variable_bcv                     = False
     velocity_from_ascii              = True
 
-    ast_wind                         = True
-    # ast_wind                         = False
+    # ast_wind                         = True
+    ast_wind                         = False
 
     print('Velocity field: '+str(velocity_from_ascii))
     scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
     print('Variable velocity field: '+str(variable_bcv))
     scenario_infos.append('Variable velocity field: '+str(variable_bcv))
     print('Asthenospheric Wind: '+str(ast_wind))
-    scenario_infos.append('Asthenospheric Wind '+str(ast_wind))
+    scenario_infos.append('Asthenospheric Wind: '+str(ast_wind))
 
     if(sp_surface_processes == True):
         precipitation_profile_from_ascii = True #False
@@ -1016,8 +1040,10 @@ elif(scenario_kind == 'stab_keel'):
     #temperature bc
     top_temperature                     = 'fixed'         # ok
     bot_temperature                     = 'fixed'         # ok
-    left_temperature                    = 'free'          # ok
-    right_temperature                   = 'free'          # ok
+    # left_temperature                    = 'free'          # ok
+    left_temperature                    = 'fixed'          # ok
+    # right_temperature                   = 'free'          # ok
+    right_temperature                   = 'fixed'          # ok
 
     bellon = False
     # bellon = True
@@ -1225,7 +1251,116 @@ if(scenario_kind == 'accordion_lit_hetero'):
     # thickening = thickness_sa + M_lit#thickness_upper_crust + thickness_lower_crust + thickness_sa + M_lit #m
     # interfaces['litho_center'][Nx//2 - N_Wcenter//2 : Nx//2 + N_Wcenter//2] = thickness_sa + thinning
 
+elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
+    if(mobile_belt == False):
+        interfaces = {
+        "litho": np.ones(Nx) * (thickness_litho + thickness_sa),
+        "seed_base": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
+        "seed_top": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
+        "lower_crust": np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_sa),
+        "upper_crust": np.ones(Nx) * (thickness_upper_crust + thickness_sa),
+        "air": np.ones(Nx) * (thickness_sa),
+        }
+
+        dx = Lx/(Nx-1)
+        # Lcraton = 600.0e3 #m
+        Lcraton = 1200.0e3 #m
+        thickening = thickness_litho + 120.e3 #m
+        Ncraton = int(Lcraton//dx) #largura em indices
+        
+        Nshift = int(shift_craton//dx)
+        interfaces['litho'][Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = thickness_sa + thickening
+
+    else:
+        if(mb_rheol == 'Wet Ol'):
+            interfaces = {
+            "litho": np.ones(Nx) * (thickness_litho + thickness_sa),
+            "seed_base": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "seed_top": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "lower_crust": np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "upper_crust": np.ones(Nx) * (thickness_upper_crust + thickness_sa),
+            "air": np.ones(Nx) * (thickness_sa),
+            }
+
+            #Building craton
+            dx = Lx/(Nx-1)
+            # Lcraton = 600.0e3 #m
+            Lcraton = 1200.0e3 #m
+            thickening = thickness_litho + 120.e3 #m
+
+            Ncraton = int(Lcraton//dx) #largura em indices
+
+            Nshift = int(shift_craton//dx)
+
+            interfaces['litho'][Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = thickness_sa + thickening
+
+            #Building mobile belt
+            Lmb = 300.0e3 #length of mobile belt
+            N_Lmb = int(Lmb//dx)
+            thinning = 50.0e3
+
+            interfaces['litho'][Nx//2 - N_Lmb//2 + Nshift : Nx//2 + N_Lmb//2 + Nshift] = thickness_sa + thickening - thinning
+
+        if(mb_rheol == 'Dry Ol'):
+            interfaces = {
+            "litho_LAB": np.ones(Nx) * (thickness_litho + thickness_sa), #lab horizontal
+            "litho_HETERO": np.ones(Nx) * (thickness_litho + thickness_sa), #interface entre central e lateral -  interface 
+            "seed_base": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "seed_top": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "lower_crust": np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "upper_crust": np.ones(Nx) * (thickness_upper_crust + thickness_sa),
+            "air": np.ones(Nx) * (thickness_sa),
+            }
+
+            #Building craton
+            dx = Lx/(Nx-1)
+            # Lcraton = 600.0e3 #m
+            Lcraton = 1200.0e3 #m
+            thickening = thickness_litho + 120.e3 #m
+
+            Ncraton = int(Lcraton//dx) #largura em indices
+
+            Nshift = int(shift_craton//dx)
+
+            interfaces['litho_LAB'][Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = thickness_sa + thickening
+            
+            #Building mobile belt
+            interfaces['litho_HETERO'][Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = thickness_sa + thickening
+            Lmb = 300.0e3 #length of mobile belt
+            N_Lmb = int(Lmb//dx)
+            thinning = 50.0e3
+
+            interfaces['litho_HETERO'][Nx//2 - N_Lmb//2 + Nshift : Nx//2 + N_Lmb//2 + Nshift] = thickness_sa + thickening - thinning
+
+    # seed thickness (m)
+    thickness_seed = 6 * 1.0e3
+    # seed horizontal position (m)
+    # x_seed = 800 * 1.0e3
+    x_seed = Lx / 2.0
+    # x_seed = Lx / 2.0 + 200.0e3
+    # seed: number of points of horizontal extent
+    n_seed = 6
+
+    interfaces["seed_base"][
+        int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
+    ] = (
+        interfaces["seed_base"][
+            int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
+        ]
+        + thickness_seed // 2
+    )
+    interfaces["seed_top"][
+        int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
+    ] = (
+        interfaces["seed_top"][
+            int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
+        ]
+        - thickness_seed // 2
+    )
+
+
 else:
+
     interfaces = {
         "litho": np.ones(Nx) * (thickness_litho + thickness_sa),
         "seed_base": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
@@ -1262,13 +1397,15 @@ else:
     )
 
 
-if(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
-    dx = Lx/(Nx-1)
-    # Lcraton = 600.0e3 #m
-    Lcraton = 1200.0e3 #m
-    thickening = thickness_litho + 120.e3 #m
-    Ncraton = int(Lcraton//dx) #largura em indices
-    interfaces['litho'][Nx//2 - Ncraton//2 : Nx//2 + Ncraton//2] = thickness_sa + thickening
+# if(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
+#     dx = Lx/(Nx-1)
+#     # Lcraton = 600.0e3 #m
+#     Lcraton = 1200.0e3 #m
+#     thickening = thickness_litho + 120.e3 #m
+#     Ncraton = int(Lcraton//dx) #largura em indices
+    
+#     Nshift = int(shift_craton//dx)
+#     interfaces['litho'][Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = thickness_sa + thickening
 
 if(scenario_kind == 'accordion' or scenario_kind == 'rifting'):
     if(extra_fragil == True):
@@ -1328,6 +1465,43 @@ if(scenario_kind == 'accordion_lit_hetero'):
         data = -1 * np.array(tuple(interfaces.values())).T
         np.savetxt(f, data, fmt="%.1f")
 
+elif(scenario_kind == 'stab_keel' and mb_rheol == 'Dry Ol'):
+    with open("interfaces.txt", "w") as f:
+        rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
+        
+        if(rheology_mlit == 'dry'):
+                #   Ast       mobile_belt  Mantle_lit Seed       Mantle_lit Lw_crust    Up_crust    Air
+            layer_properties = f"""
+                C   1.0       {Cmb}        {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
+                rho 3378.0    3354.0       3354.0     3354.0     3354.0     2800.0      2700.0      1.0
+                H   {Hast}    9.0e-12      9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
+                A   1.393e-14 2.4168e-15   2.4168e-15 2.4168e-15 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
+                n   3.0       3.5          3.5        3.5        3.5        4.0         4.0         1.0
+                Q   429.0e3   540.0e3      540.0e3    540.0e3    540.0e3    222.0e3     222.0e3     0.0
+                V   15.0e-6   25.0e-6      25.0e-6    25.0e-6    25.0e-6    0.0         0.0         0.0
+            """
+
+        if(rheology_mlit == 'wet'):
+             
+            layer_properties = f"""
+                C   1.0       {Cmb}        {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
+                rho 3378.0    3354.0       3354.0     3354.0     3354.0     2800.0      2700.0      1.0
+                H   {Hast}    9.0e-12      9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
+                A   1.393e-14 1.393e-14    1.393e-14  1.393e-14  1.393e-14  8.574e-28   8.574e-28   1.0e-18
+                n   3.0       3.0          3.0        3.0        3.0        4.0         4.0         1.0
+                Q   429.0e3   429.0e3      429.0e3    429.0e3    429.0e3    222.0e3     222.0e3     0.0
+                V   15.0e-6   15.0e-6      15.0e-6    15.0e-6    15.0e-6    0.0         0.0         0.0
+            """
+
+        for line in layer_properties.split("\n"):
+            line = line.strip()
+            if len(line):
+                f.write(" ".join(line.split()) + "\n")
+
+        # layer interfaces
+        data = -1 * np.array(tuple(interfaces.values())).T
+        np.savetxt(f, data, fmt="%.1f")
+
 else: 
     with open("interfaces.txt", "w") as f:
         rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
@@ -1344,6 +1518,7 @@ else:
             """
 
         if(rheology_mlit == 'wet'):
+            
             layer_properties = f"""
                 C   1.0       5.0        {Cseed}    5.0        {Clc}       1.0         1.0
                 rho 3378.0    3354.0     3354.0     3354.0     2800.0      2700.0      1.0
@@ -1381,6 +1556,7 @@ ax.set_xlim([0, Lx/1000])
 ax.set_ylim([(-Lz + thickness_sa) / 1e3, 0 + thickness_sa / 1e3])
 
 ax.legend()
+ax.grid("-k", alpha=0.6)
 plt.savefig("interfaces_teste.png")
 plt.close()
 
@@ -1693,7 +1869,7 @@ else:
         
         for i in range(Nx): #len(Nx) 
             if(keel_adjust == True):
-                if((x[i] >= xcenter - Lcraton/2.0) & (x[i] <= xcenter + Lcraton/2.0)):
+                if((x[i] >= xcenter - Lcraton/2.0 + shift_craton) & (x[i] <= xcenter + Lcraton/2.0 + shift_craton)):
                     T[i, :] = Tk_mean_interp
                 else:
                     T[i, :] = datai_mean_interp
