@@ -322,8 +322,8 @@ elif(scenario_kind == 'stab'):
     # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
     # DeltaT = 290
     DeltaT = 350
-    # DeltaT = 500
-    # DeltaT = 600
+    # DeltaT = 500 #testar
+    # DeltaT = 600 #testar
     # DeltaT = 700
     # DeltaT = 800
 
@@ -342,7 +342,11 @@ elif(scenario_kind == 'stab'):
     
     #Convergence criteria
     # denok                            = 1.0e-11
-    denok                            = 1.0e-15
+    # denok                            = 1.0e-13
+    denok                            = 1.0e-12
+    dt_max = 5.0e3 #default
+    dt_max = 2.0e3
+    # dt_max = 2.5e3
 
     particles_per_element            = 100
     
@@ -991,8 +995,10 @@ elif(scenario_kind == 'stab_keel'):
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
     variable_bcv                     = False
-    velocity_from_ascii              = True
-
+    
+    # velocity_from_ascii              = True
+    velocity_from_ascii              = False
+    
     # ast_wind                         = True
     ast_wind                         = False
 
@@ -1599,7 +1605,7 @@ theta_FSSA                          = 0.5           # default is 0.5 (only relev
 # Time constrains
 step_max                            = 400000          # Maximum time-step of the simulation
 time_max                            = {time_max}  #1.0e9     # Maximum time of the simulation [years]
-dt_max                              = 5.0e3      # Maximum time between steps of the simulation [years]
+dt_max                              = {dt_max}      # Maximum time between steps of the simulation [years]
 step_print                          = {step_print} #500            # Make file every <step_print>
 sub_division_time_step              = 0.5           # default is 1.0
 initial_print_step                  = 0             # default is 0
