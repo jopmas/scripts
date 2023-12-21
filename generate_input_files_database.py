@@ -111,11 +111,11 @@ scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
 # scenario_kind = 'rifting'
-# scenario_kind = 'stab'
+scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
-scenario_kind = 'stab_keel'
+# scenario_kind = 'stab_keel'
 # scenario_kind = 'quiescence'
 
 
@@ -311,19 +311,22 @@ elif(scenario_kind == 'stab'):
     Clc = 10.0
     Cseed = 0.1
 
-    
+    Clit = 1 #Default
+
     print('Important scale factors (C):')
     print('C lower crust: '+str(Clc))
+    print('C mantle lithosphere: '+str(Clit))
     scenario_infos.append(' ')
     scenario_infos.append('Important scale factors (C):')
     scenario_infos.append('C lower crust: '+str(Clc))
+    scenario_infos.append('C mantle lithosphere: '+str(Clit))
 
     # DeltaT = 0
     # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
     # DeltaT = 290
-    DeltaT = 350
+    # DeltaT = 350
     # DeltaT = 500 #testar
-    # DeltaT = 600 #testar
+    DeltaT = 600 #testar
     # DeltaT = 700
     # DeltaT = 800
 
@@ -344,7 +347,8 @@ elif(scenario_kind == 'stab'):
     # denok                            = 1.0e-11
     # denok                            = 1.0e-13
     denok                            = 1.0e-12
-    dt_max = 5.0e3 #default
+
+    # dt_max = 5.0e3 #default
     dt_max = 2.0e3
     # dt_max = 2.5e3
 
@@ -356,7 +360,7 @@ elif(scenario_kind == 'stab'):
     
     #time constrains  
     time_max                         = 1.0e9 
-    step_print                       = 1000
+    step_print                       = 500
     
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
@@ -415,11 +419,11 @@ elif(scenario_kind == 'stab'):
     # thickness of upper crust (m)
     thickness_upper_crust = 20 * 1.0e3
     # thickness of lower crust (m)
-    # thickness_lower_crust = 15 * 1.0e3
-    thickness_lower_crust = 20 * 1.0e3
+    thickness_lower_crust = 15 * 1.0e3
+    # thickness_lower_crust = 20 * 1.0e3
     # total thickness of lithosphere (m)
-    # thickness_litho = 80 * 1.0e3
-    thickness_litho = 150 * 1.0e3
+    thickness_litho = 80 * 1.0e3
+    # thickness_litho = 150 * 1.0e3
     # seed depth bellow base of lower crust (m)
     seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
 
@@ -907,12 +911,18 @@ elif(scenario_kind == 'stab_keel'):
     #Rheological and Thermal parameters
     Clc = 10.0
     Cseed = 0.1
+    
+    # Cmlit = 1 #Default
+    # Clit = 0.1
+    Clit = 0.01
 
     print('Important scale factors (C):')
     print('C lower crust: '+str(Clc))
+    print('C mantle lithosphere: '+str(Clit))
     scenario_infos.append(' ')
     scenario_infos.append('Important scale factors (C):')
     scenario_infos.append('C lower crust: '+str(Clc))
+    scenario_infos.append('C mantle lithosphere: '+str(Clit))
 
     DeltaT = 200
     # DeltaT = 290
@@ -945,8 +955,8 @@ elif(scenario_kind == 'stab_keel'):
     shift_craton = 0.0e3 #m
     # shift_craton = 700.0e3 #m
 
-    mobile_belt = True
-    # mobile_belt = False
+    # mobile_belt = True
+    mobile_belt = False
 
     mb_rheol = 'Wet Ol'
     # mb_rheol = 'Dry Ol'
@@ -990,6 +1000,7 @@ elif(scenario_kind == 'stab_keel'):
 
     #time constrains 
     time_max                         = 1.0e9
+    dt_max                           = 5.0e3 #default
     step_print                       = 500    
     
     #External inputs: bc velocity, velocity field, precipitation and
@@ -1364,7 +1375,6 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         - thickness_seed // 2
     )
 
-
 else:
 
     interfaces = {
@@ -1514,7 +1524,7 @@ else:
         
         if(rheology_mlit == 'dry'):
             layer_properties = f"""
-                C   1.0       1.0        {Cseed}    1.0        {Clc}       1.0         1.0
+                C   1.0       {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
                 rho 3378.0    3354.0     3354.0     3354.0     2800.0      2700.0      1.0
                 H   {Hast}    9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
                 A   1.393e-14 2.4168e-15 2.4168e-15 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
