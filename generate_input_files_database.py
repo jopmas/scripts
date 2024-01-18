@@ -111,11 +111,11 @@ scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
 # scenario_kind = 'rifting'
-scenario_kind = 'stab'
+# scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
-# scenario_kind = 'stab_keel'
+scenario_kind = 'stab_keel'
 # scenario_kind = 'quiescence'
 
 
@@ -913,8 +913,10 @@ elif(scenario_kind == 'stab_keel'):
     Cseed = 0.1
     
     # Cmlit = 1 #Default
+    Clit = 0.5
+    # Clit = 0.3
     # Clit = 0.1
-    Clit = 0.01
+    # Clit = 0.01
 
     print('Important scale factors (C):')
     print('C lower crust: '+str(Clc))
