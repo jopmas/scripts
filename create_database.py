@@ -3,7 +3,7 @@ import gc
 import xarray as xr
 import numpy as np
 
-from functions.mandyocIO import read_mandyoc_output, read_datasets, read_particle_path, plot_data
+from functions.mandyocIO import read_mandyoc_output, read_datasets, read_particle_path
 
 
 model_path = os.getcwd()
