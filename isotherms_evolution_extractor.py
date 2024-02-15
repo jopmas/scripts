@@ -17,7 +17,7 @@ path = os.getcwd().split('/')
 
 machine_path = '/' + path[1] + '/' + path[2]
 
-plt.style.use(machine_path+'/Doutorado/cenarios/mandyoc/scripts/des.mplstyle')
+# plt.style.use(machine_path+'/opt/scripts/des.mplstyle')
 
 def read_params():
 	'''
@@ -123,10 +123,10 @@ for step in range(step_initial, step_final+1, d_step):
 	interfaces = [0, 500, 800, 1000, 1300, 1400, 1500, 1600, 1700] # Moho, LAB and other temperatures °C
 
 	for interface in interfaces:
-	    interf = extract_interface(z, Z, Nx, Datai, interface)
-	    interf_mean = round(np.mean(interf), 2)
-	    interfs.append(interf_mean)
-	    isots_evolution.append(interf_mean)
+		interf = extract_interface(z, Z, Nx, Datai, interface)
+		interf_mean = round(np.mean(interf), 2)
+		interfs.append(interf_mean)
+		isots_evolution.append(interf_mean)
 
 	print(time, step)
 
