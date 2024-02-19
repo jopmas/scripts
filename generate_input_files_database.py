@@ -1019,11 +1019,11 @@ elif(scenario_kind == 'stab_keel'):
     #climate change
     variable_bcv                     = False
     
-    velocity_from_ascii              = True
-    # velocity_from_ascii              = False
+    # velocity_from_ascii              = True
+    velocity_from_ascii              = False
     
-    ast_wind                         = True
-    # ast_wind                         = False
+    # ast_wind                         = True
+    ast_wind                         = False
 
     print('Velocity field: '+str(velocity_from_ascii))
     scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
@@ -1291,7 +1291,8 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
 
         dx = Lx/(Nx-1)
         # Lcraton = 600.0e3 #m
-        Lcraton = 1200.0e3 #m
+        # Lcraton = 1200.0e3 #m
+        Lcraton = 2000.0e3 #m
         thickening = thickness_litho + 120.e3 #m
         Ncraton = int(Lcraton//dx) #largura em indices
         
@@ -1310,7 +1311,8 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         #Building craton
         dx = Lx/(Nx-1)
         # Lcraton = 600.0e3 #m
-        Lcraton = 1200.0e3 #m
+        # Lcraton = 1200.0e3 #m
+        Lcraton = 2000.0e3 #m
         thickening = thickness_litho + 120.e3 #m
 
         Ncraton = int(Lcraton//dx) #largura em indices
@@ -1423,75 +1425,112 @@ if(scenario_kind == 'accordion_lit_hetero'):
         data = -1 * np.array(tuple(interfaces.values())).T
         np.savetxt(f, data, fmt="%.1f")
 
-elif(scenario_kind == 'stab_keel' and mobile_belt == True):
-    with open("interfaces.txt", "w") as f:
-        rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
-        
-        if(rheology_mlit == 'dry'):
-                #   Ast       mobile_belt  Mantle_lit Seed       Mantle_lit Lw_crust    Up_crust    Air
-            # layer_properties = f"""
-            #     C   1.0       {Cmb}        {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
-            #     rho 3378.0    3354.0       3354.0     3354.0     3354.0     2800.0      2700.0      1.0
-            #     H   {Hast}    9.0e-12      9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-            #     A   1.393e-14 2.4168e-15   2.4168e-15 2.4168e-15 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-            #     n   3.0       3.5          3.5        3.5        3.5        4.0         4.0         1.0
-            #     Q   429.0e3   540.0e3      540.0e3    540.0e3    540.0e3    222.0e3     222.0e3     0.0
-            #     V   15.0e-6   25.0e-6      25.0e-6    25.0e-6    25.0e-6    0.0         0.0         0.0
-            # """
-            if(mb_rheol == 'Dry Ol'):
-                #       Ast       mobile_belt  Mantle_lit Lw_crust    Up_crust    Air
-                layer_properties = f"""
-                    C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
-                    rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 2.4168e-15   2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.5          3.5        4.0         4.0         1.0
-                    Q   429.0e3   540.0e3      540.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   25.0e-6      25.0e-6    0.0         0.0         0.0
-                """
+elif(scenario_kind == 'stab_keel'):
+    if(mobile_belt == True):
 
-            if(mb_rheol == 'Wet Ol'):
-                layer_properties = f"""
-                    C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
-                    rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 1.393e-14    2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.0          3.5        4.0         4.0         1.0
-                    Q   429.0e3   429.0e3      540.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   15.0e-6      25.0e-6    0.0         0.0         0.0
-                """
-
-        if(rheology_mlit == 'wet'):
-             
-            # layer_properties = f"""
-            #     C   1.0       {Cmb}        {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
-            #     rho 3378.0    3354.0       3354.0     3354.0     3354.0     2800.0      2700.0      1.0
-            #     H   {Hast}    9.0e-12      9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-            #     A   1.393e-14 1.393e-14    1.393e-14  1.393e-14  1.393e-14  8.574e-28   8.574e-28   1.0e-18
-            #     n   3.0       3.0          3.0        3.0        3.0        4.0         4.0         1.0
-            #     Q   429.0e3   429.0e3      429.0e3    429.0e3    429.0e3    222.0e3     222.0e3     0.0
-            #     V   15.0e-6   15.0e-6      15.0e-6    15.0e-6    15.0e-6    0.0         0.0         0.0
-            # """
+        with open("interfaces.txt", "w") as f:
+            rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
             
-            layer_properties = f"""
-                C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
-                rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
-                H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
-                A   1.393e-14 1.393e-14    1.393e-14  8.574e-28   8.574e-28   1.0e-18
-                n   3.0       3.0          3.0        4.0         4.0         1.0
-                Q   429.0e3   429.0e3      429.0e3    222.0e3     222.0e3     0.0
-                V   15.0e-6   15.0e-6      15.0e-6    0.0         0.0         0.0
-            """
+            if(rheology_mlit == 'dry'):
+                    #   Ast       mobile_belt  Mantle_lit Seed       Mantle_lit Lw_crust    Up_crust    Air
+                # layer_properties = f"""
+                #     C   1.0       {Cmb}        {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
+                #     rho 3378.0    3354.0       3354.0     3354.0     3354.0     2800.0      2700.0      1.0
+                #     H   {Hast}    9.0e-12      9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
+                #     A   1.393e-14 2.4168e-15   2.4168e-15 2.4168e-15 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
+                #     n   3.0       3.5          3.5        3.5        3.5        4.0         4.0         1.0
+                #     Q   429.0e3   540.0e3      540.0e3    540.0e3    540.0e3    222.0e3     222.0e3     0.0
+                #     V   15.0e-6   25.0e-6      25.0e-6    25.0e-6    25.0e-6    0.0         0.0         0.0
+                # """
+                if(mb_rheol == 'Dry Ol'):
+                    #       Ast       mobile_belt  Mantle_lit Lw_crust    Up_crust    Air
+                    layer_properties = f"""
+                        C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
+                        rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
+                        H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
+                        A   1.393e-14 2.4168e-15   2.4168e-15 8.574e-28   8.574e-28   1.0e-18
+                        n   3.0       3.5          3.5        4.0         4.0         1.0
+                        Q   429.0e3   540.0e3      540.0e3    222.0e3     222.0e3     0.0
+                        V   15.0e-6   25.0e-6      25.0e-6    0.0         0.0         0.0
+                    """
 
-        for line in layer_properties.split("\n"):
-            line = line.strip()
-            if len(line):
-                f.write(" ".join(line.split()) + "\n")
+                if(mb_rheol == 'Wet Ol'):
+                    layer_properties = f"""
+                        C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
+                        rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
+                        H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
+                        A   1.393e-14 1.393e-14    2.4168e-15 8.574e-28   8.574e-28   1.0e-18
+                        n   3.0       3.0          3.5        4.0         4.0         1.0
+                        Q   429.0e3   429.0e3      540.0e3    222.0e3     222.0e3     0.0
+                        V   15.0e-6   15.0e-6      25.0e-6    0.0         0.0         0.0
+                    """
 
-        # layer interfaces
-        data = -1 * np.array(tuple(interfaces.values())).T
-        np.savetxt(f, data, fmt="%.1f")
+            if(rheology_mlit == 'wet'):
+                
+                # layer_properties = f"""
+                #     C   1.0       {Cmb}        {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
+                #     rho 3378.0    3354.0       3354.0     3354.0     3354.0     2800.0      2700.0      1.0
+                #     H   {Hast}    9.0e-12      9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
+                #     A   1.393e-14 1.393e-14    1.393e-14  1.393e-14  1.393e-14  8.574e-28   8.574e-28   1.0e-18
+                #     n   3.0       3.0          3.0        3.0        3.0        4.0         4.0         1.0
+                #     Q   429.0e3   429.0e3      429.0e3    429.0e3    429.0e3    222.0e3     222.0e3     0.0
+                #     V   15.0e-6   15.0e-6      15.0e-6    15.0e-6    15.0e-6    0.0         0.0         0.0
+                # """
+                
+                layer_properties = f"""
+                    C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
+                    rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
+                    H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
+                    A   1.393e-14 1.393e-14    1.393e-14  8.574e-28   8.574e-28   1.0e-18
+                    n   3.0       3.0          3.0        4.0         4.0         1.0
+                    Q   429.0e3   429.0e3      429.0e3    222.0e3     222.0e3     0.0
+                    V   15.0e-6   15.0e-6      15.0e-6    0.0         0.0         0.0
+                """
 
+            for line in layer_properties.split("\n"):
+                line = line.strip()
+                if len(line):
+                    f.write(" ".join(line.split()) + "\n")
+
+            # layer interfaces
+            data = -1 * np.array(tuple(interfaces.values())).T
+            np.savetxt(f, data, fmt="%.1f")
+        
+    else:
+        with open("interfaces.txt", "w") as f:
+            rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
+            
+            if(rheology_mlit == 'dry'):
+                layer_properties = f"""
+                    C   1.0       {Clit}     {Clc}       1.0         1.0
+                    rho 3378.0    3354.0     2800.0      2700.0      1.0
+                    H   {Hast}    9.0e-12    {Hlc}       {Huc}       0.0
+                    A   1.393e-14 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
+                    n   3.0       3.5        4.0         4.0         1.0
+                    Q   429.0e3   540.0e3    222.0e3     222.0e3     0.0
+                    V   15.0e-6   25.0e-6    0.0         0.0         0.0
+                """
+
+            if(rheology_mlit == 'wet'):
+                
+                layer_properties = f"""
+                    C   1.0       5.0        {Clc}       1.0         1.0
+                    rho 3378.0    3354.0     2800.0      2700.0      1.0
+                    H   {Hast}    9.0e-12    {Hlc}       {Huc}       0.0
+                    A   1.393e-14 1.393e-14  8.574e-28   8.574e-28   1.0e-18
+                    n   3.0       3.0        4.0         4.0         1.0
+                    Q   429.0e3   429.0e3    222.0e3     222.0e3     0.0
+                    V   15.0e-6   15.0e-6    0.0         0.0         0.0
+                """
+
+            for line in layer_properties.split("\n"):
+                line = line.strip()
+                if len(line):
+                    f.write(" ".join(line.split()) + "\n")
+
+            # layer interfaces
+            data = -1 * np.array(tuple(interfaces.values())).T
+            np.savetxt(f, data, fmt="%.1f")
 else: 
     with open("interfaces.txt", "w") as f:
         rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine

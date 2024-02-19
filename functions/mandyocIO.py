@@ -1070,15 +1070,16 @@ def _read_step(path, filename, ncores):
     data_x, data_z, data_ID, data_lithology, data_strain = [], [], [], [], []
     for i in range(ncores):
         try:
-            aux_x, aux_z, aux_ID, aux_lithology, aux_strain = np.loadtxt(os.path.join(path, filename + str(i) + ".txt"), unpack=True, comments="P")
+            aux_x, aux_z, aux_ID, aux_lithology, aux_strain = np.loadtxt(os.path.join(path, f"{filename}{str(i)}.txt"), unpack=True, comments="P")
         except:
+            print('didnt read')
             continue
         data_x = np.append(data_x, aux_x)
         data_z = np.append(data_z, aux_z)
         data_ID = np.append(data_ID, aux_ID)
         data_lithology = np.append(data_lithology, aux_lithology)
         data_strain = np.append(data_strain, aux_strain)
-    return data_x, data_z, data_ID, data_lithology, data_strain
+    return np.asarray(data_x), np.asarray(data_z), np.asarray(data_ID), np.asarray(data_lithology), np.asarray(data_strain)
 
 
 def _extract_interface(z, Z, Nx, Rhoi, rho):
@@ -1193,7 +1194,7 @@ def _calc_melt_wet(To,Po):
 
     return(X)
 
-def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frames=True, plot_isotherms=True, isotherms = [400, 600, 800, 1000, 1300], plot_melt=False, melt_method='dry'):
+def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frames=True, plot_isotherms=True, plot_particles=False, isotherms = [400, 600, 800, 1000, 1300], plot_melt=False, melt_method='dry'):
     '''
     Plot and save data from mandyoc according to a given property and domain limits.
 
@@ -1266,7 +1267,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
 #                    'viscosity':           [np.log10(1.0E18), np.log10(1.0E25)]
                   }
 
-    model_name = os.path.split(model_path)[0].split('/')[-1]
+    model_name = model_path.split('/')[-1] #os.path.split(model_path)[0].split('/')[-1]
 
     Nx = int(dataset.nx)
     Nz = int(dataset.nz)
@@ -1406,13 +1407,14 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
         
         #creating colorbar
         axins1 = inset_axes(ax,
-                            width="25%",  # width: 30% of parent_bbox width
-                            height="5%",  # height: 5%
-                            bbox_to_anchor=(-0.02,
-                                            -0.45,
-                                            1,
-                                            1),
-                            bbox_transform=ax.transAxes,
+                            loc='lower right',
+                            width="100%",  # respective to parent_bbox width
+                            height="100%",  # respective to parent_bbox width
+                            bbox_to_anchor=(0.7,#horizontal position respective to parent_bbox or "loc" position
+                                            0.3,# vertical position
+                                            0.25,# width
+                                            0.05),# height
+                            bbox_transform=ax.transAxes
                             )
 
         clb = fig.colorbar(im,
@@ -1436,13 +1438,14 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
                        aspect = 'auto')
         
         axins1 = inset_axes(ax,
-                            width="25%",  # width: 30% of parent_bbox width
-                            height="5%",  # height: 5%
-                            bbox_to_anchor=(-0.02,
-                                            -0.45,
-                                            1,
-                                            1),
-                            bbox_transform=ax.transAxes,
+                            loc='lower right',
+                            width="100%",  # respective to parent_bbox width
+                            height="100%",  # respective to parent_bbox width
+                            bbox_to_anchor=(0.7,#horizontal position respective to parent_bbox or "loc" position
+                                            0.3,# vertical position
+                                            0.25,# width
+                                            0.05),# height
+                            bbox_transform=ax.transAxes
                             )
         
 #         ticks = np.linspace(val_minmax[0], val_minmax[1], 6, endpoint=True)
@@ -1514,12 +1517,13 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
                      aspect = 'auto')
         #legend box
         bv1 = inset_axes(ax,
-                        width="30%",  # width: 30% of parent_bbox width
-                        height="45%",  # height: 5%
-                        bbox_to_anchor=(0.045,#horizontal position
-                                        -0.16,#vertical position
-                                        1.07,#
-                                        1),#
+                        loc='lower right',
+                        width="100%",  # respective to parent_bbox width
+                        height="100%",  # respective to parent_bbox width
+                        bbox_to_anchor=(0.9,#horizontal position respective to parent_bbox or "loc" position
+                                        0.3,# vertical position
+                                        0.085,# width
+                                        0.35),# height
                         bbox_transform=ax.transAxes
                         )
         
@@ -1543,6 +1547,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
             A,
             levels=[air_threshold, 2750, 2900, 3365, 3900],
             colors=[color_uc, color_lc, color_lit, color_ast],
+            extent=[-0.5, 0.9, 0, 1.5]
         )
 
         bv1.imshow(
@@ -1553,6 +1558,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
             cmap=plt.get_cmap("Greys"),
             vmin=-0.5,
             vmax=0.9,
+            aspect='auto'
         )
 
         bv1.set_yticklabels([])
@@ -1562,6 +1568,32 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
         bv1.set_yticks([])
         bv1.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
             
+    
+    if(plot_particles == True):
+        if(prop != 'surface'):
+            ncores = 20
+            data_x, data_z, data_ID, data_lithology, data_strain = _read_step(model_path, f"step_{int(dataset.step)}_", ncores)
+            # ax.scatter(data_x/1000, data_z/1000, 2, c='xkcd:black', marker='.', zorder=30)
+
+            cond_litho = data_lithology > 0
+            cond_ast = data_lithology == 0
+
+            # if(prop=='lithology'):
+            #     color_litho = 'xkcd:bright pink'
+            #     color_ast = 'xkcd:black'
+            # else:
+            #     color_litho = 'xkcd:bright green'
+            #     color_ast = 'xkcd:black'
+
+            color_litho = 'xkcd:black'
+            color_ast = 'xkcd:bright pink'
+
+            ax.plot(data_x[cond_litho]/1000, data_z[cond_litho]/1000, "o", color=color_litho, markersize=0.2, alpha=1.0, zorder=30)
+            ax.plot(data_x[cond_ast]/1000, data_z[cond_ast]/1000, "o", color=color_ast, markersize=0.2, alpha=1.0, zorder=30)
+        # else:
+        #     print('Error: You cannot print particles in the Surface plot!')
+        #     return()
+    
     if(prop != 'surface'):
         #Filling above topographic surface
         Rhoi = dataset.density.T
@@ -1596,10 +1628,16 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
         ax.set_ylabel("Topography (km)", fontsize = label_size)
         
     if (save_frames == True):
+        fig_name = f"{output_path}/{model_name}_{prop}"
 
         if(plot_melt==True):
-                fig_name = f"{output_path}/{model_name}_{prop}_MeltFrac_{melt_method}_{str(int(dataset.step)).zfill(6)}.png"
-        else:
-            fig_name = f"{output_path}/{model_name}_{prop}_{str(int(dataset.step)).zfill(6)}.png"
+                # fig_name = f"{output_path}/{model_name}_{prop}_MeltFrac_{melt_method}_{str(int(dataset.step)).zfill(6)}.png"
+                fig_name = f"{fig_name}_MeltFrac_{melt_method}"
+        
+        if(plot_particles == True):
+                fig_name = f"{fig_name}_particles"
+        
+        fig_name = f"{fig_name}_{str(int(dataset.step)).zfill(6)}.png"
+
 
         plt.savefig(fig_name, dpi=400)
