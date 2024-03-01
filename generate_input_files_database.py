@@ -1718,7 +1718,7 @@ if(preset == False):
     scenario_infos.append('Assumed mantle Potential Temperature: '+str(TP)+' oC')
 
     Ta = (TP / np.exp(-10 * 3.28e-5 * (z - thickness_sa) / ccapacity)) + DeltaT
-    # Ta = 1262 / np.exp(-10 * 3.28e-5 * (z - thickness_sa) / ccapacity)
+    # Ta = 1262 / np.exp(-10 * 3.28e-5 * (z - thickness_sa) / ccapacity)steady s
 
     T[T < 0.0] = 0.0
     cond1 = Ta<T #VICTOR
