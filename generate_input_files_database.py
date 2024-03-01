@@ -2314,7 +2314,7 @@ dirname = '${PWD##*/}'
 run_aguia = f'''
         #!/usr/bin/bash
 
-        #SBATCH --partition=SP2
+        #SBATCH --partition=SP3
         #SBATCH --ntasks=1
         #SBATCH --nodes=1
         #SBATCH --cpus-per-task={str(int(ncores))}
@@ -2324,8 +2324,8 @@ run_aguia = f'''
         #SBATCH --mail-type=BEGIN,FAIL,END
         #SBATCH --mail-user=joao.macedo.silva@usp.br
 
-        export PETSC_DIR=/temporario/jpmsilva/petsc
-        export PETSC_ARCH=v3.15.5-optimized
+        export PETSC_DIR=/scratch/8672526/opt/petsc
+        export PETSC_ARCH=arch-label-optimized
         MANDYOC=/temporario/jpmsilva/mandyoc/bin/mandyoc
         MANDYOC_OPTIONS='-seed 0,2 -strain_seed 0.0,1.0'
 
