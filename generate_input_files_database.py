@@ -992,9 +992,9 @@ elif(scenario_kind == 'stab_keel'):
 
         if(mb_rheol == 'Wet Ol'):
             Clit = 1.0 #lateral
-            # Cmb = 1 #central
-            # Cmb = 3 #central
-            Cmb = 5 #central
+            # Cmb = 1 
+            # Cmb = 3 
+            Cmb = 5
             
         print('C Mobile Belt: ' + str(Cmb))
         scenario_infos.append('C Mobile Belt: ' + str(Cmb))
@@ -1281,6 +1281,9 @@ if(scenario_kind == 'accordion_lit_hetero'):
     # interfaces['litho_center'][Nx//2 - N_Wcenter//2 : Nx//2 + N_Wcenter//2] = thickness_sa + thinning
 
 elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
+    # Lcraton = 600.0e3 #m
+    Lcraton = 1200.0e3 #m
+    # Lcraton = 2000.0e3 #m
     if(mobile_belt == False):
         interfaces = {
         "litho": np.ones(Nx) * (thickness_litho + thickness_sa),
@@ -1290,9 +1293,7 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         }
 
         dx = Lx/(Nx-1)
-        # Lcraton = 600.0e3 #m
-        # Lcraton = 1200.0e3 #m
-        Lcraton = 2000.0e3 #m
+        
         thickening = thickness_litho + 120.e3 #m
         Ncraton = int(Lcraton//dx) #largura em indices
         
@@ -1310,9 +1311,7 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
 
         #Building craton
         dx = Lx/(Nx-1)
-        # Lcraton = 600.0e3 #m
-        # Lcraton = 1200.0e3 #m
-        Lcraton = 2000.0e3 #m
+
         thickening = thickness_litho + 120.e3 #m
 
         Ncraton = int(Lcraton//dx) #largura em indices
@@ -1326,9 +1325,15 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         Lmb = 300.0e3 #length of mobile belt
         N_Lmb = int(Lmb//dx)
         # thinning = 50.0e3
-        thinning = 100.0e3
+        # thinning = 100.0e3
+        thinning = 135.0e3
 
         interfaces['litho_HETERO'][Nx//2 - N_Lmb//2 + Nshift : Nx//2 + N_Lmb//2 + Nshift] = thickness_sa + thickening - thinning
+
+    print(f"Keel shape: Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
+    print(f"Mobile Belt shape:  Lmb x Hmb = {Lmb/1.0e3} x {(thickening-thinning)/1.0e3} km2")
+    scenario_infos.append(f"Keel shape Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
+    scenario_infos.append(f"Mobile Belt shape: Lmb x Hmb = {Lmb/1.0e3} x {(thickening-thinning)/1.0e3} km2")
 
 else:
 
@@ -1651,7 +1656,7 @@ sticky_blanket_air                  = True         # default is False [True/Fals
 precipitation_profile_from_ascii    = {precipitation_profile_from_ascii}         # default is False [True/False]
 climate_change_from_ascii           = {climate_change_from_ascii}         # default is False [True/False]
 print_step_files                    = {print_step_files}          # default is True [True/False]
-checkered                           = False         # Print one element in the print_step_files (default is False [True/False])
+checkered                           = True         # Print one element in the print_step_files (default is False [True/False])
 sp_mode                             = 5             # default is 1 [0/1/2]
 geoq                                = on            # ok
 geoq_fac                            = 100.0           # ok
@@ -2311,10 +2316,27 @@ with open('run_mac.sh', 'w') as f:
             f.write(' '.join(line.split()) + '\n')
 
 dirname = '${PWD##*/}'
+
+aguia = 'aguia4'
+# aguia = 'aguia3'
+
+if(aguia == 'aguia4'):
+    partition = 'SP2'
+    main_folders = '/temporario2/8672526'
+
+if(aguia == 'aguia3'):
+    partition = 'SP3'
+    main_folders =  '/scratch/8672526'
+
+if(scenario_kind == 'rifting'):
+    mandyoc_options = '-seed 0,2 -strain_seed 0.0,1.0'
+else:
+    mandyoc_options = '-seed 0 -strain_seed 0.0'
+
 run_aguia = f'''
         #!/usr/bin/bash
 
-        #SBATCH --partition=SP3
+        #SBATCH --partition={partition}
         #SBATCH --ntasks=1
         #SBATCH --nodes=1
         #SBATCH --cpus-per-task={str(int(ncores))}
@@ -2324,10 +2346,10 @@ run_aguia = f'''
         #SBATCH --mail-type=BEGIN,FAIL,END
         #SBATCH --mail-user=joao.macedo.silva@usp.br
 
-        export PETSC_DIR=/scratch/8672526/opt/petsc
+        export PETSC_DIR={main_folders}/opt/petsc
         export PETSC_ARCH=arch-label-optimized
-        MANDYOC=/temporario/jpmsilva/mandyoc/bin/mandyoc
-        MANDYOC_OPTIONS='-seed 0,2 -strain_seed 0.0,1.0'
+        MANDYOC={main_folders}/opt/mandyoc/bin/mandyoc
+        MANDYOC_OPTIONS={mandyoc_options}
 
         $PETSC_DIR/$PETSC_ARCH/bin/mpiexec -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
 
