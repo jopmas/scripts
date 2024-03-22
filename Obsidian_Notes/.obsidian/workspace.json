@@ -1,0 +1,178 @@
+{
+  "main": {
+    "id": "dc904e4051328709",
+    "type": "split",
+    "children": [
+      {
+        "id": "c73d7027adcafcce",
+        "type": "tabs",
+        "dimension": 82.45614035087719,
+        "children": [
+          {
+            "id": "291b6f13d1295e56",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Teste.canvas",
+                "viewState": {
+                  "x": -81,
+                  "y": 13.400000000000034,
+                  "zoom": 0
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "443591974ffa418d",
+        "type": "tabs",
+        "dimension": 17.543859649122805,
+        "children": [
+          {
+            "id": "f9590c3275e2252a",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "e139eb06c69c790b",
+    "type": "split",
+    "children": [
+      {
+        "id": "f598b0d8ac003d70",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9a4487cfcc46c009",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "8aa1b4dc3f2297f9",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "3a368678edfce920",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "275c43fa0cb7dd20",
+    "type": "split",
+    "children": [
+      {
+        "id": "fed9375f72940640",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ed0e9f08e312b3bc",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Teste.canvas",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "c6ac812d3c859cfa",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Teste.canvas",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "27a04ac590468992",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "1265133ac8f2ef30",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Teste.canvas"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "markdown-importer:Open format converter": false
+    }
+  },
+  "active": "291b6f13d1295e56",
+  "lastOpenFiles": [
+    "Teste.canvas",
+    "keel_stable_DT200_HprodAst_Lx4000km_ck_lc_shallow_mbdo_Cmb01_eroded_particles.pdf",
+    "keel_stable_DT200_HprodAst_Lx4000km_ck_lc_shallow_mbdo_Cmb01_temperature_anomaly.gif",
+    "keel_stable_DT200_HprodAst_Lx4000km_ck_lc_shallow_mbdo_Cmb01_temperature_anomaly.mp4",
+    "Welcome.md",
+    "create a link.md"
+  ]
+}
