@@ -78,14 +78,14 @@ datasets = [#Properties from mandyoc. Comment/uncomment to select properties of 
 properties = [#Properties from mandyoc. Comment/uncomment to select which ones you would like to plot
 #              'density',
 #              'radiogenic_heat',
-             'lithology',
+            #  'lithology',
 #              'pressure',
             #  'strain',
-             'strain_rate',
-             'temperature',
+            #  'strain_rate',
+            #  'temperature',
              'temperature_anomaly',
-             'surface',
-             'viscosity'
+            #  'surface',
+            #  'viscosity'
              ]
 
 print("Reading datasets...")
@@ -156,7 +156,7 @@ end = int(dataset.time.size - 1)
 step = 1
 
 # start = 0
-# end = 2#5
+# end = 20
 # step = 1
 
 print("Generating frames...")
@@ -190,7 +190,7 @@ with pymp.Parallel() as p:
                         plot_isotherms = plot_isotherms,
                         plot_particles = False,
                         particle_size = 0.02,
-                        # marker = ".",
+                        marker = ".",
                         ncores = 20,
                         # step_plot = 3,
                         isotherms = [500, 1300],
@@ -200,7 +200,7 @@ with pymp.Parallel() as p:
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
                             plot_isotherms = plot_isotherms,
                             plot_particles = plot_particles,
-                            particle_size = 0.02,
+                            particle_size = 0.1,
                             # marker = ".",
                             ncores = 20,
                             # step_plot = 3,
@@ -314,13 +314,13 @@ if(zip_files):
     outputs_path = f'{model_path}/_output/'
     os.chdir(outputs_path)
     subprocess.run(f"zip {model_name}_imgs.zip *.png", shell=True, check=True, capture_output=True, text=True)
-    subprocess.run(f"zip {model_name}videos.zip *.mp4", shell=True, check=True, capture_output=True, text=True)
+    subprocess.run(f"zip {model_name}_videos.zip *.mp4", shell=True, check=True, capture_output=True, text=True)
     subprocess.run(f"zip {model_name}_gifs.zip *.gif", shell=True, check=True, capture_output=True, text=True)
     subprocess.run(f"rm *.png", shell=True, check=True, capture_output=True, text=True)
     print('Zipping complete!')
 
 
-if(unzip_steps):
-    comand = f"rm {model_path}/step*.txt"
-    result = subprocess.run(comand, shell=True, check=True, capture_output=True, text=True)
+# if(unzip_steps):
+#     comand = f"rm {model_path}/step*.txt"
+#     result = subprocess.run(comand, shell=True, check=True, capture_output=True, text=True)
 
