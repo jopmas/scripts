@@ -322,11 +322,11 @@ elif(scenario_kind == 'stab'):
     scenario_infos.append('C mantle lithosphere: '+str(Clit))
 
     # DeltaT = 0
-    # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
+    DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
     # DeltaT = 290
     # DeltaT = 350
     # DeltaT = 500 #testar
-    DeltaT = 600 #testar
+    # DeltaT = 600 #testar
     # DeltaT = 700
     # DeltaT = 800
 
@@ -912,8 +912,9 @@ elif(scenario_kind == 'stab_keel'):
     Clc = 10.0
     Cseed = 0.1
     
-    Clit = 1 #Default
+    # Clit = 1 #Default
     # Clit = 0.5
+    Clit = 0.25
     # Clit = 0.3
     # Clit = 0.1
     # Clit = 0.01
@@ -956,6 +957,9 @@ elif(scenario_kind == 'stab_keel'):
 
     shift_craton = 0.0e3 #m
     # shift_craton = 700.0e3 #m
+    
+    shift_mb = 0.0e3
+    # shift_mb = 200.0e3 #m
 
     mobile_belt = True
     # mobile_belt = False
@@ -1321,6 +1325,7 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         interfaces['litho_LAB'][Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = thickness_sa + thickening
         
         #Building mobile belt
+
         interfaces['litho_HETERO'][Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = thickness_sa + thickening
         Lmb = 300.0e3 #length of mobile belt
         N_Lmb = int(Lmb//dx)
@@ -1328,49 +1333,62 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         # thinning = 100.0e3
         thinning = 135.0e3
 
-        interfaces['litho_HETERO'][Nx//2 - N_Lmb//2 + Nshift : Nx//2 + N_Lmb//2 + Nshift] = thickness_sa + thickening - thinning
+        
+        Nshift_mb = int(shift_mb//dx)
+
+        interfaces['litho_HETERO'][Nx//2 - N_Lmb//2 + Nshift + Nshift_mb : Nx//2 + N_Lmb//2 + Nshift + Nshift_mb] = thickness_sa + thickening - thinning
 
     print(f"Keel shape: Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
     print(f"Mobile Belt shape:  Lmb x Hmb = {Lmb/1.0e3} x {(thickening-thinning)/1.0e3} km2")
+    print(f"Shift in mobile belt: {shift_mb/1.0e3} km")
     scenario_infos.append(f"Keel shape Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
     scenario_infos.append(f"Mobile Belt shape: Lmb x Hmb = {Lmb/1.0e3} x {(thickening-thinning)/1.0e3} km2")
+    scenario_infos.append(f"Shift in mobile belt: {shift_mb/1.0e3} km")
 
 else:
+    seed_in_litho = False
+    if(seed_in_litho):
+        interfaces = {
+            "litho": np.ones(Nx) * (thickness_litho + thickness_sa),
+            "seed_base": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "seed_top": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "lower_crust": np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_sa),
+            "upper_crust": np.ones(Nx) * (thickness_upper_crust + thickness_sa),
+            "air": np.ones(Nx) * (thickness_sa),
+        }
 
-    interfaces = {
+        # seed thickness (m)
+        thickness_seed = 6 * 1.0e3
+        # seed horizontal position (m)
+        # x_seed = 800 * 1.0e3
+        x_seed = Lx / 2.0
+        # x_seed = Lx / 2.0 + 200.0e3
+        # seed: number of points of horizontal extent
+        n_seed = 6
+
+        interfaces["seed_base"][
+            int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
+        ] = (
+            interfaces["seed_base"][
+                int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
+            ]
+            + thickness_seed // 2
+        )
+        interfaces["seed_top"][
+            int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
+        ] = (
+            interfaces["seed_top"][
+                int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
+            ]
+            - thickness_seed // 2
+        )
+    else: #no seed
+        interfaces = {
         "litho": np.ones(Nx) * (thickness_litho + thickness_sa),
-        "seed_base": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
-        "seed_top": np.ones(Nx) * (seed_depth + thickness_lower_crust + thickness_upper_crust + thickness_sa),
         "lower_crust": np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_sa),
         "upper_crust": np.ones(Nx) * (thickness_upper_crust + thickness_sa),
         "air": np.ones(Nx) * (thickness_sa),
-    }
-
-    # seed thickness (m)
-    thickness_seed = 6 * 1.0e3
-    # seed horizontal position (m)
-    # x_seed = 800 * 1.0e3
-    x_seed = Lx / 2.0
-    # x_seed = Lx / 2.0 + 200.0e3
-    # seed: number of points of horizontal extent
-    n_seed = 6
-
-    interfaces["seed_base"][
-        int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
-    ] = (
-        interfaces["seed_base"][
-            int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
-        ]
-        + thickness_seed // 2
-    )
-    interfaces["seed_top"][
-        int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
-    ] = (
-        interfaces["seed_top"][
-            int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
-        ]
-        - thickness_seed // 2
-    )
+        }
 
 if(scenario_kind == 'accordion' or scenario_kind == 'rifting'):
     if(extra_fragil == True):
@@ -1536,41 +1554,79 @@ elif(scenario_kind == 'stab_keel'):
             # layer interfaces
             data = -1 * np.array(tuple(interfaces.values())).T
             np.savetxt(f, data, fmt="%.1f")
-else: 
-    with open("interfaces.txt", "w") as f:
-        rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
-        
-        if(rheology_mlit == 'dry'):
-            layer_properties = f"""
-                C   1.0       {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
-                rho 3378.0    3354.0     3354.0     3354.0     2800.0      2700.0      1.0
-                H   {Hast}    9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-                A   1.393e-14 2.4168e-15 2.4168e-15 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                n   3.0       3.5        3.5        3.5        4.0         4.0         1.0
-                Q   429.0e3   540.0e3    540.0e3    540.0e3    222.0e3     222.0e3     0.0
-                V   15.0e-6   25.0e-6    25.0e-6    25.0e-6    0.0         0.0         0.0
-            """
 
-        if(rheology_mlit == 'wet'):
+else: #other scenarios
+    if(seed_in_litho): 
+        with open("interfaces.txt", "w") as f:
+            rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
             
-            layer_properties = f"""
-                C   1.0       5.0        {Cseed}    5.0        {Clc}       1.0         1.0
-                rho 3378.0    3354.0     3354.0     3354.0     2800.0      2700.0      1.0
-                H   {Hast}    9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-                A   1.393e-14 1.393e-14  1.393e-14  1.393e-14  8.574e-28   8.574e-28   1.0e-18
-                n   3.0       3.0        3.0        3.0        4.0         4.0         1.0
-                Q   429.0e3   429.0e3    429.0e3    429.0e3    222.0e3     222.0e3     0.0
-                V   15.0e-6   15.0e-6    15.0e-6    15.0e-6    0.0         0.0         0.0
-            """
+            if(rheology_mlit == 'dry'):
+                layer_properties = f"""
+                    C   1.0       {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
+                    rho 3378.0    3354.0     3354.0     3354.0     2800.0      2700.0      1.0
+                    H   {Hast}    9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
+                    A   1.393e-14 2.4168e-15 2.4168e-15 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
+                    n   3.0       3.5        3.5        3.5        4.0         4.0         1.0
+                    Q   429.0e3   540.0e3    540.0e3    540.0e3    222.0e3     222.0e3     0.0
+                    V   15.0e-6   25.0e-6    25.0e-6    25.0e-6    0.0         0.0         0.0
+                """
 
-        for line in layer_properties.split("\n"):
-            line = line.strip()
-            if len(line):
-                f.write(" ".join(line.split()) + "\n")
+            if(rheology_mlit == 'wet'):
+                
+                layer_properties = f"""
+                    C   1.0       5.0        {Cseed}    5.0        {Clc}       1.0         1.0
+                    rho 3378.0    3354.0     3354.0     3354.0     2800.0      2700.0      1.0
+                    H   {Hast}    9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
+                    A   1.393e-14 1.393e-14  1.393e-14  1.393e-14  8.574e-28   8.574e-28   1.0e-18
+                    n   3.0       3.0        3.0        3.0        4.0         4.0         1.0
+                    Q   429.0e3   429.0e3    429.0e3    429.0e3    222.0e3     222.0e3     0.0
+                    V   15.0e-6   15.0e-6    15.0e-6    15.0e-6    0.0         0.0         0.0
+                """
 
-        # layer interfaces
-        data = -1 * np.array(tuple(interfaces.values())).T
-        np.savetxt(f, data, fmt="%.1f")
+            for line in layer_properties.split("\n"):
+                line = line.strip()
+                if len(line):
+                    f.write(" ".join(line.split()) + "\n")
+
+            # layer interfaces
+            data = -1 * np.array(tuple(interfaces.values())).T
+            np.savetxt(f, data, fmt="%.1f")
+
+    else: # no seed in lithospheric mantle
+        with open("interfaces.txt", "w") as f:
+            rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
+            
+            if(rheology_mlit == 'dry'):
+                layer_properties = f"""
+                    C   1.0       {Clit}     {Clc}       1.0         1.0
+                    rho 3378.0    3354.0     2800.0      2700.0      1.0
+                    H   {Hast}    9.0e-12    {Hlc}       {Huc}       0.0
+                    A   1.393e-14 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
+                    n   3.0       3.5        4.0         4.0         1.0
+                    Q   429.0e3   540.0e3    222.0e3     222.0e3     0.0
+                    V   15.0e-6   25.0e-6    0.0         0.0         0.0
+                """
+
+            if(rheology_mlit == 'wet'):
+                
+                layer_properties = f"""
+                    C   1.0       5.0        {Clc}       1.0         1.0
+                    rho 3378.0    3354.0     2800.0      2700.0      1.0
+                    H   {Hast}    9.0e-12    {Hlc}       {Huc}       0.0
+                    A   1.393e-14 1.393e-14  8.574e-28   8.574e-28   1.0e-18
+                    n   3.0       3.0        4.0         4.0         1.0
+                    Q   429.0e3   429.0e3    222.0e3     222.0e3     0.0
+                    V   15.0e-6   15.0e-6    0.0         0.0         0.0
+                """
+
+            for line in layer_properties.split("\n"):
+                line = line.strip()
+                if len(line):
+                    f.write(" ".join(line.split()) + "\n")
+
+            # layer interfaces
+            data = -1 * np.array(tuple(interfaces.values())).T
+            np.savetxt(f, data, fmt="%.1f")
 
 # Plot interfaces
 ##############################################################################
