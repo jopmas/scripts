@@ -78,14 +78,14 @@ datasets = [#Properties from mandyoc. Comment/uncomment to select properties of 
 properties = [#Properties from mandyoc. Comment/uncomment to select which ones you would like to plot
 #              'density',
 #              'radiogenic_heat',
-            #  'lithology',
+             'lithology',
 #              'pressure',
             #  'strain',
-            #  'strain_rate',
+             'strain_rate',
             #  'temperature',
              'temperature_anomaly',
-            #  'surface',
-            #  'viscosity'
+             'surface',
+             'viscosity'
              ]
 
 print("Reading datasets...")
@@ -174,7 +174,7 @@ with pymp.Parallel() as p:
                 if(prop == 'strain_rate'):
                     Lcraton = 1200.0 #km
                     xlims = [float(dataset.isel(time=i).lx)/2.0e3 - Lcraton/2 - 50, float(dataset.isel(time=i).lx)/2.0e3 + Lcraton/2 + 50]
-                    ylims = [-250, 40]
+                    ylims = [-210, 40]
                 else:
                     xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
                     ylims = [-float(dataset.isel(time=i).lz) / 1.0e3 + 40, 40]
@@ -190,7 +190,7 @@ with pymp.Parallel() as p:
                         plot_isotherms = plot_isotherms,
                         plot_particles = False,
                         particle_size = 0.02,
-                        marker = ".",
+                        particle_marker = ".",
                         ncores = 20,
                         # step_plot = 3,
                         isotherms = [500, 1300],
@@ -200,8 +200,8 @@ with pymp.Parallel() as p:
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
                             plot_isotherms = plot_isotherms,
                             plot_particles = plot_particles,
-                            particle_size = 0.1,
-                            # marker = ".",
+                            particle_size = 0.02,
+                            particle_marker = ".",
                             ncores = 20,
                             # step_plot = 3,
                             isotherms = [500, 1300],
