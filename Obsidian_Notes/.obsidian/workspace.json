@@ -14,10 +14,10 @@
             "state": {
               "type": "canvas",
               "state": {
-                "file": "Teste.canvas",
+                "file": "Keel_Experiments.canvas",
                 "viewState": {
                   "x": -81,
-                  "y": 13.400000000000034,
+                  "y": -209.79999999999995,
                   "zoom": 0
                 }
               }
@@ -104,7 +104,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Teste.canvas",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -121,7 +120,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Teste.canvas",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -143,9 +141,7 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-                "file": "Teste.canvas"
-              }
+              "state": {}
             }
           }
         ]
@@ -166,9 +162,9 @@
       "markdown-importer:Open format converter": false
     }
   },
-  "active": "291b6f13d1295e56",
+  "active": "f9590c3275e2252a",
   "lastOpenFiles": [
-    "Teste.canvas",
+    "Keel_Experiments.canvas",
     "keel_stable_DT200_HprodAst_Lx4000km_ck_lc_shallow_mbdo_Cmb01_eroded_particles.pdf",
     "keel_stable_DT200_HprodAst_Lx4000km_ck_lc_shallow_mbdo_Cmb01_temperature_anomaly.gif",
     "keel_stable_DT200_HprodAst_Lx4000km_ck_lc_shallow_mbdo_Cmb01_temperature_anomaly.mp4",
