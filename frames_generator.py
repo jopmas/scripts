@@ -321,7 +321,11 @@ if(zip_files):
     print('Zipping complete!')
 
 
-# if(unzip_steps):
-#     comand = f"rm {model_path}/step*.txt"
-#     result = subprocess.run(comand, shell=True, check=True, capture_output=True, text=True)
+if(unzip_steps):
+    # clean_steps = True
+    clean_steps = False
+    if(clean_steps):
+        print("Cleaning step_*.txt files...")
+        comand = f"rm {model_path}/step*.txt"
+        result = subprocess.run(comand, shell=True, check=True, capture_output=True, text=True)
 
