@@ -995,10 +995,10 @@ elif(scenario_kind == 'stab_keel'):
             Cmb = 0.01 #central
 
         if(mb_rheol == 'Wet Ol'):
-            Clit = 1.0 #lateral
-            # Cmb = 1 
+            Clit = 0.25#1.0 #lateral
+            Cmb = 1.0 
             # Cmb = 3 
-            Cmb = 5
+            # Cmb = 5
             
         print('C Mobile Belt: ' + str(Cmb))
         scenario_infos.append('C Mobile Belt: ' + str(Cmb))
