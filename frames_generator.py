@@ -82,11 +82,11 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
              'lithology',
 #              'pressure',
             #  'strain',
-             'strain_rate',
+             # 'strain_rate',
             #  'temperature',
              'temperature_anomaly',
-             'surface',
-             'viscosity'
+             # 'surface',
+             # 'viscosity'
              ]
 
 print("Reading datasets...")
