@@ -30,8 +30,8 @@ matplotlib.use('agg')
 # path = os.getcwd().split('/')
 # machine_path = '/'+path[1]+'/'+path[2] #cat the /home/user/ or /Users/user from system using path
 
-# machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
-machine_path = '/home/joaopedro'
+machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
+# machine_path = '/home/joaopedro'
 
 sys.path.insert(0, f"{machine_path}/opt/mandyoc-scripts/functions")
 from mandyocIO import read_datasets, change_dataset, single_plot
@@ -79,7 +79,7 @@ datasets = [#Properties from mandyoc. Comment/uncomment to select properties of 
 properties = [#Properties from mandyoc. Comment/uncomment to select which ones you would like to plot
 #              'density',
 #              'radiogenic_heat',
-             'lithology',
+            #  'lithology',
 #              'pressure',
             #  'strain',
              # 'strain_rate',
@@ -100,6 +100,10 @@ if ('density' not in properties): #used to plot air/curst interface
         new_datasets = change_dataset(properties, datasets)
         to_remove.append('density')
         # remove_density=True
+if ('surface' not in properties): #used to plot air/curst interface
+        properties.append('surface')
+        new_datasets = change_dataset(properties, datasets)
+        to_remove.append('surface')
 
 if (plot_isotherms): #add datasets needed to plot isotherms
     if ('temperature' not in properties):
@@ -157,7 +161,7 @@ end = int(dataset.time.size - 1)
 step = 1
 
 # start = 0
-# end = 20
+# end = 2
 # step = 1
 
 print("Generating frames...")
@@ -202,6 +206,7 @@ with pymp.Parallel() as p:
                             plot_isotherms = plot_isotherms,
                             plot_particles = plot_particles,
                             particle_size = 0.02,
+                            # particle_size = 0.2,
                             particle_marker = ".",
                             ncores = 20,
                             # step_plot = 3,
@@ -235,6 +240,7 @@ if(make_videos):
                 videoname = f'{videoname}'
             else:
                 videoname = f'{videoname}_particles'
+                # videoname = f'{videoname}_particles_onlymb'
             
         try:
             comand = f"rm {videoname}.mp4"
@@ -293,6 +299,7 @@ if(make_gifs):
                 gifname = f'{gifname}'
             else:
                 gifname = f'{gifname}_particles'
+                # gifname = f'{gifname}_particles_onlymb'
             
 
         try:
@@ -309,6 +316,7 @@ if(make_gifs):
 ##########################################################################################################################################################################
 zip_files = True
 # zip_files = False
+
 if(zip_files):
     #zip plots, videos and gifs
     print('Zipping figures, videos and gifs...')
