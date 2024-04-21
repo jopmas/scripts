@@ -9,6 +9,10 @@ import xarray as xr
 path = os.getcwd().split('/')
 machine_path = '/'+path[1]+'/'+path[2]
 
+###############################################################################################################################################
+#Functions
+###############################################################################################################################################
+
 def find_nearest(array, value):
     '''Return the index in array nearest to a given value.
     
@@ -95,12 +99,16 @@ def calc_mean_temperaure_region(data, Nz, xx, begin, end):
     data_sel_mean = np.mean(data_sel, axis=1)
     
     return data_sel_mean
+
 ###############################################################################################################################################
 
 label_size=18
 plt.rc('xtick', labelsize=label_size)
 plt.rc('ytick', labelsize=label_size)
-#Setting the kind of tectonic scenario
+
+###############################################################################################################################################
+#Setting the kind of tectonic scenario and number of cores
+###############################################################################################################################################
 
 scenario_kind = 'double_keel'
 
@@ -109,6 +117,10 @@ experiemnts = {
                }
 
 ncores=20
+
+###############################################################################################################################################
+# Domain and interfaces
+###############################################################################################################################################
 
 Lx = 1600 * 1.0e3
 # total model vertical extent (m)
@@ -139,7 +151,6 @@ thickness_mlit_crat_bot = 125 * 1.0e3
 thickness_litho = thickness_sed + thickness_decolement + thickness_upper_crust + thickness_lower_crust + thickness_mlit #125 km - reference is the non-cratonic lithosphere
 thickness_crat_up = thickness_sed + thickness_decolement + thickness_upper_crust + thickness_lower_crust + thickness_mlit_crat_up
 thickness_crat_bot = thickness_sed + thickness_decolement + thickness_upper_crust + thickness_lower_crust + thickness_mlit_crat_up + thickness_mlit_crat_bot
-
 
 # seed depth bellow base of lower crust (m)
 seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
@@ -180,7 +191,7 @@ interfaces['litho_crat_bot'][Nx//2 - N_thinning//2 : Nx//2 + N_thinning//2] = th
 thinning = thickness_mlit_crat_up
 interfaces['litho_crat_up'][Nx//2 - N_thinning//2 : Nx//2 + N_thinning//2] = thickness_sa + thickness_crat_up - thinning
 
-#Build seed
+#Building seed
 # seed thickness (m)
 thickness_seed = 6 * 1.0e3
 # seed horizontal position (m)
@@ -193,6 +204,8 @@ n_seed = 6
 interfaces["seed_base"][int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)] = thickness_sa + thickness_sed + thickness_decolement + thickness_upper_crust + thickness_lower_crust - seed_depth + thickness_seed // 2
 
 interfaces["seed_top"][int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)] = thickness_sa + thickness_sed + thickness_decolement + thickness_upper_crust + thickness_lower_crust - seed_depth - thickness_seed // 2
+
+#plottin interfaces
 
 fig, ax = plt.subplots(figsize=(10, 5), constrained_layout=True)
 
@@ -214,7 +227,11 @@ ax.grid("-k", alpha=0.6)
 figname = "interfaces_teste"
 fig.savefig(f"{figname}.png", dpi=200)
 
+##############################################################################
 #Rheological and Thermal parameters
+##############################################################################
+
+#Viscosity scale factor
 C_air = 1.0
 C_sed = 1.0
 C_dec = 1.0
@@ -226,6 +243,7 @@ C_mlit_uc = 1.0
 C_mlit_lc = 1.0
 C_ast = 1.0
 
+#density (kg/m3)
 rho_air = 1.0
 rho_sed = 2700.0
 rho_dec = 2700.0
@@ -237,6 +255,7 @@ rho_mlit_uc = 3354.0
 rho_mlit_lc = 3354.0
 rho_ast = 3378.0
 
+#radiogenic heat production (W/kg)
 H_air = 0.0
 H_sed = 2.5e-6 / 2700.0
 H_dec = 2.5e-6 / 2700.0
@@ -248,6 +267,7 @@ H_mlit_uc = 9.0e-12
 H_mlit_lc = 9.0e-12
 H_ast = 7.38e-12 #Turccote book #Default is 0.0
 
+#Pre exponential constant (Pa**-n s**-1)
 A_air = 1.0E-18
 A_sed = 8.574e-28
 A_dec = 8.574e-28
@@ -259,6 +279,7 @@ A_mlit_uc = 2.4168e-15
 A_mlit_lc = 2.4168e-15
 A_ast = 1.393e-14
 
+#Power law exponent
 n_air = 1.0
 n_sed = 4.0
 n_dec = 4.0
@@ -270,6 +291,7 @@ n_mlit_uc = 3.5
 n_mlit_lc = 3.5
 n_ast = 3.0
 
+#Activation energy (kJ/mol)
 Q_air = 0.0
 Q_sed = 222.0e3
 Q_dec = 222.0e3
@@ -281,6 +303,7 @@ Q_mlit_uc = 540.0e3
 Q_mlit_lc = 540.0e3
 Q_ast = 429.0e3
 
+#Activation volume (m3/mol)
 V_air = 0.0
 V_sed = 0.0
 V_dec = 0.0
@@ -312,6 +335,11 @@ with open("interfaces.txt", "w") as f:
     # layer interfaces
     data = -1 * np.array(tuple(interfaces.values())).T
     np.savetxt(f, data, fmt="%.1f")
+
+##############################################################################
+# Creating parameter file
+##############################################################################
+
 high_kappa_in_asthenosphere = True
 # high_kappa_in_asthenosphere = False #default
 
@@ -477,6 +505,11 @@ with open("param.txt", "w") as f:
         if len(line):
             f.write(" ".join(line.split()) + "\n")
 
+
+##############################################################################
+# Initial temperature field
+##############################################################################
+
 # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
 # scenario_name = scenario.split('/')[-2]
 # print(scenario_name)
@@ -572,6 +605,7 @@ if(preset == False):
 else:
     print("Need to implement!")
 
+#plot initial temperature field and profile
 
 fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, constrained_layout=True, figsize=(20, 8), sharey=True)
 
@@ -745,6 +779,10 @@ if(velocity_from_ascii == True):
                 if len(line):
                     f.write(" ".join(line.split()) + "\n")
 
+##############################################################################
+# Surface processes
+##############################################################################
+
 if(sp_surface_processes == True):
     if(climate_change_from_ascii == True):
         #When climate effects will start to act - scaling to 1
@@ -780,6 +818,10 @@ if(sp_surface_processes == True):
         plt.savefig(figname, dpi=300)
 
         np.savetxt("precipitation.txt", prec, fmt="%.8f")
+
+##############################################################################
+# Scenario infos
+##############################################################################
 
 print(f"Scenario kind: {experiemnts[scenario_kind]}")
 print(f"N cores: {ncores}")
@@ -875,7 +917,9 @@ scenario_infos.append(f"\tAssumed mantle Potential Temperature for diffusive mod
 
 np.savetxt('infos_'+path[-1] + '.txt', scenario_infos, fmt="%s")
 
+##############################################################################
 #Creating run_scripts
+##############################################################################
 
 gcloud = False
 linux = True
