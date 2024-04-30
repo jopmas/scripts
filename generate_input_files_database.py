@@ -912,9 +912,9 @@ elif(scenario_kind == 'stab_keel'):
     Clc = 10.0
     Cseed = 0.1
     
-    # Clit = 1 #Default
+    Clit = 1 #Default
     # Clit = 0.5
-    Clit = 0.25
+    # Clit = 0.25
     # Clit = 0.3
     # Clit = 0.1
     # Clit = 0.01
@@ -961,8 +961,8 @@ elif(scenario_kind == 'stab_keel'):
     shift_mb = 0.0e3
     # shift_mb = 200.0e3 #m
 
-    mobile_belt = True
-    # mobile_belt = False
+    # mobile_belt = True
+    mobile_belt = False
 
     mb_rheol = 'Wet Ol'
     # mb_rheol = 'Dry Ol'
@@ -1103,8 +1103,7 @@ elif(scenario_kind == 'stab_keel'):
     thickness_lower_crust = 15 * 1.0e3
     # total thickness of lithosphere (m)
     thickness_litho = 80 * 1.0e3
-    # seed depth bellow base of lower crust (m)
-    seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
+    # thickness_litho = 120 * 1.0e3
 
 elif(scenario_kind == 'quiescence'):
     #Rheological and Thermal parameters
@@ -1299,6 +1298,7 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         dx = Lx/(Nx-1)
         
         thickening = thickness_litho + 120.e3 #m
+        # thickening = thickness_litho + 130.e3 #m
         Ncraton = int(Lcraton//dx) #largura em indices
         
         Nshift = int(shift_craton//dx)
@@ -1316,7 +1316,8 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         #Building craton
         dx = Lx/(Nx-1)
 
-        thickening = thickness_litho + 120.e3 #m
+        # thickening = thickness_litho + 120.e3 #m
+        thickening = thickness_litho + 130.0e3 #m
 
         Ncraton = int(Lcraton//dx) #largura em indices
 
@@ -1339,11 +1340,12 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         interfaces['litho_HETERO'][Nx//2 - N_Lmb//2 + Nshift + Nshift_mb : Nx//2 + N_Lmb//2 + Nshift + Nshift_mb] = thickness_sa + thickening - thinning
 
     print(f"Keel shape: Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
-    print(f"Mobile Belt shape:  Lmb x Hmb = {Lmb/1.0e3} x {(thickening-thinning)/1.0e3} km2")
-    print(f"Shift in mobile belt: {shift_mb/1.0e3} km")
     scenario_infos.append(f"Keel shape Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
-    scenario_infos.append(f"Mobile Belt shape: Lmb x Hmb = {Lmb/1.0e3} x {(thickening-thinning)/1.0e3} km2")
-    scenario_infos.append(f"Shift in mobile belt: {shift_mb/1.0e3} km")
+    if(mobile_belt):
+        print(f"Mobile Belt shape:  Lmb x Hmb = {Lmb/1.0e3} x {(thickening-thinning)/1.0e3} km2")
+        print(f"Shift in mobile belt: {shift_mb/1.0e3} km")
+        scenario_infos.append(f"Mobile Belt shape: Lmb x Hmb = {Lmb/1.0e3} x {(thickening-thinning)/1.0e3} km2")
+        scenario_infos.append(f"Shift in mobile belt: {shift_mb/1.0e3} km")
 
 else:
     seed_in_litho = False
@@ -2055,30 +2057,48 @@ cbar.set_label("Temperature [°C]")
 
 
 if(keel_adjust==True):
-    ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "-k", label='mean thermal profile: out of keel')
-    ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='k', label='mean thermal profile: inside of keel')
+    ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{cratonic}}$')
+    ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='r', label=r'T$_{\mathrm{non-cratonic}}$')
 else:
-    ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "-k", label='mean thermal profile')
+    ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{mean}}$')
 
 T_xlim = 2000 #oC
 code = 0
 
-for label in list(interfaces.keys()):
-    color = "C" + str(code)
-    code += 1
-    ax1.hlines(
-        (interfaces[label][0] - thickness_sa) / 1.0e3, #y
-        np.min(T[:, 0]), #xmin
-        T_xlim, #np.max(T[:, 0]), #xmax
-        label=f"{label}",
-        color=color
-    )
+ax_aux = ax1.twiny()
 
+for label, layer in interfaces.items():
+    # print(label, "(size): ", np.size(layer))
+    # ax1.plot(x/1.0E3, (-layer + thickness_sa)/1.0E3, label=f"{label}")
+    ax0.plot(x/1.0E3, (layer - thickness_sa)/1.0E3, color='xkcd:white')
+    ax_aux.plot(x/1.0E3, (layer - thickness_sa)/1.0E3, label=label, lw=2)
+
+
+ax0.set_ylim((Lz - thickness_sa) / 1.0e3, -thickness_sa / 1000)
+ax0.set_xlabel("km", fontsize=label_size)
+ax0.set_ylabel("km", fontsize=label_size)
+
+
+ax1.set_xlabel("$^\circ$C", fontsize=label_size)
+cbar = fig.colorbar(im, orientation='vertical', ax=ax0)
+cbar.set_label("Temperature [°C]")
+
+ax1.tick_params(top=True, labeltop=True, bottom=False, labelbottom=False)
+ax1.xaxis.set_label_position('top')
 ax1.set_ylim((Lz - thickness_sa) / 1.0e3, -thickness_sa / 1000)
 ax1.set_xlim(0, T_xlim)
 ax0.grid(':k', alpha=0.7)
 ax1.grid(':k', alpha=0.7)
-ax1.legend(loc='lower left', fontsize=14)
+
+ax_aux.tick_params(top=False, labeltop=False, bottom=True, labelbottom=True)
+ax_aux.xaxis.set_label_position('bottom')
+ax_aux.set_xlabel('km', fontsize=label_size)
+ax_aux.set_xlim(0, Lx/1000)
+ax_aux.set_ylim((Lz - thickness_sa) / 1.0e3, -thickness_sa / 1000)
+
+ax1.legend(loc='lower center', fontsize=14, ncol=1)
+ax_aux.legend(loc='lower left', fontsize=12, ncol=1, handletextpad=0.2, handlelength=.8)
+
 plt.savefig("initial_temperature_field.png")
 plt.close()
 
