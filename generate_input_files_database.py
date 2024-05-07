@@ -961,8 +961,8 @@ elif(scenario_kind == 'stab_keel'):
     shift_mb = 0.0e3
     # shift_mb = 200.0e3 #m
 
-    # mobile_belt = True
-    mobile_belt = False
+    mobile_belt = True
+    # mobile_belt = False
 
     mb_rheol = 'Wet Ol'
     # mb_rheol = 'Dry Ol'
@@ -995,10 +995,10 @@ elif(scenario_kind == 'stab_keel'):
             Cmb = 0.01 #central
 
         if(mb_rheol == 'Wet Ol'):
-            Clit = 0.25#1.0 #lateral
-            Cmb = 1.0 
+            Clit = 1.0 #lateral
+            # Cmb = 1.0 
             # Cmb = 3 
-            # Cmb = 5
+            Cmb = 5
             
         print('C Mobile Belt: ' + str(Cmb))
         scenario_infos.append('C Mobile Belt: ' + str(Cmb))
@@ -1023,11 +1023,11 @@ elif(scenario_kind == 'stab_keel'):
     #climate change
     variable_bcv                     = False
     
-    # velocity_from_ascii              = True
-    velocity_from_ascii              = False
+    velocity_from_ascii              = True
+    # velocity_from_ascii              = False
     
-    # ast_wind                         = True
-    ast_wind                         = False
+    ast_wind                         = True
+    # ast_wind                         = False
 
     print('Velocity field: '+str(velocity_from_ascii))
     scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
