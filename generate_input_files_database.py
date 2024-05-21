@@ -957,12 +957,11 @@ elif(scenario_kind == 'stab_keel'):
 
     shift_craton = 0.0e3 #m
     # shift_craton = 700.0e3 #m
-    
-    shift_mb = 0.0e3
-    # shift_mb = 200.0e3 #m
 
     mobile_belt = True
     # mobile_belt = False
+    shift_mb = 0.0e3
+    # shift_mb = 200.0e3 #m
 
     mb_rheol = 'Wet Ol'
     # mb_rheol = 'Dry Ol'
@@ -996,9 +995,9 @@ elif(scenario_kind == 'stab_keel'):
 
         if(mb_rheol == 'Wet Ol'):
             Clit = 1.0 #lateral
-            # Cmb = 1.0 
+            Cmb = 1.0 
             # Cmb = 3 
-            Cmb = 5
+            # Cmb = 5
             
         print('C Mobile Belt: ' + str(Cmb))
         scenario_infos.append('C Mobile Belt: ' + str(Cmb))
@@ -1021,7 +1020,6 @@ elif(scenario_kind == 'stab_keel'):
     
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
-    variable_bcv                     = False
     
     velocity_from_ascii              = True
     # velocity_from_ascii              = False
@@ -1029,12 +1027,22 @@ elif(scenario_kind == 'stab_keel'):
     ast_wind                         = True
     # ast_wind                         = False
 
+    # intermitent_wind                 = False
+    intermitent_wind                 = True
+
+    if(intermitent_wind):
+        variable_bcv                     = True
+    else:
+        variable_bcv                     = False
+
     print('Velocity field: '+str(velocity_from_ascii))
     scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
     print('Variable velocity field: '+str(variable_bcv))
     scenario_infos.append('Variable velocity field: '+str(variable_bcv))
     print('Asthenospheric Wind: '+str(ast_wind))
     scenario_infos.append('Asthenospheric Wind: '+str(ast_wind))
+    print('Intermitent Wind: '+str(intermitent_wind))
+    scenario_infos.append('Intermitent Wind: '+str(intermitent_wind))
 
     if(sp_surface_processes == True):
         precipitation_profile_from_ascii = True #False
@@ -1256,7 +1264,6 @@ scenario_infos.append(' ')
 ##############################################################################
 # Interfaces (bottom first)
 ##############################################################################
-
 
 if(scenario_kind == 'accordion_lit_hetero'):
     interfaces = {
@@ -2160,6 +2167,7 @@ if(velocity_from_ascii == True):
         #save bc to plot arraows in numerical setup
         vels_bc = np.array([v0, vf])
         vz0 = VZ[(z == 0)]
+
     else:
         fac_air = 10.0e3
 
@@ -2288,7 +2296,34 @@ if(velocity_from_ascii == True):
                         50.0 -1.0
                         150  -1.0E-15
                         """
-
+        elif(scenario_kind == 'stab_keel'):
+            if(ast_wind == True and intermitent_wind==True):
+                var_bcv = f""" 24
+                            40 -1.0
+                            80 1.0
+                            120 -1.0
+                            160 1.0
+                            200 -1.0
+                            240 1.0
+                            280 -1.0
+                            320 1.0
+                            360 -1.0
+                            400 1.0
+                            440 -1.0
+                            480 1.0
+                            520 -1.0
+                            560 1.0
+                            600 -1.0
+                            640 1.0
+                            680 -1.0
+                            720 1.0
+                            760 -1.0
+                            800 1.0
+                            840 -1.0
+                            880 1.0
+                            920 -1.0
+                            960 1.0
+                            """
         # Create the parameter file
         with open("scale_bcv.txt", "w") as f:
             for line in var_bcv.split("\n"):
