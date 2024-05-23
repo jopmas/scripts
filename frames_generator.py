@@ -82,11 +82,11 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
              'lithology',
 #              'pressure',
             #  'strain',
-             'strain_rate',
+            #  'strain_rate',
              # 'temperature',
              'temperature_anomaly',
-             'surface',
-             'viscosity'
+            #  'surface',
+            #  'viscosity'
              ]
 
 print("Reading datasets...")
@@ -144,8 +144,8 @@ plot_particles = True
 unzip_steps = False
 
 if(plot_particles):
-    unzip_steps = True
-    # unzip_steps = False
+    # unzip_steps = True
+    unzip_steps = False
     if(unzip_steps):
         print("Unzipping step_*.txt files...")
         comand = f"unzip -o {model_path}/{model_name}.zip step*.txt -d {model_path}"
@@ -205,8 +205,8 @@ with pymp.Parallel() as p:
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
                             plot_isotherms = plot_isotherms,
                             plot_particles = plot_particles,
-                            particle_size = 0.02,
-                            # particle_size = 0.2,
+                            # particle_size = 0.02,
+                            particle_size = 0.2,
                             particle_marker = ".",
                             ncores = 20,
                             # step_plot = 3,
@@ -239,8 +239,8 @@ if(make_videos):
             if(prop == 'viscosity'):
                 videoname = f'{videoname}'
             else:
-                videoname = f'{videoname}_particles'
-                # videoname = f'{videoname}_particles_onlymb'
+                # videoname = f'{videoname}_particles'
+                videoname = f'{videoname}_particles_onlymb'
             
         try:
             comand = f"rm {videoname}.mp4"
@@ -298,8 +298,8 @@ if(make_gifs):
             if(prop == 'viscosity'):
                 gifname = f'{gifname}'
             else:
-                gifname = f'{gifname}_particles'
-                # gifname = f'{gifname}_particles_onlymb'
+                # gifname = f'{gifname}_particles'
+                gifname = f'{gifname}_particles_onlymb'
             
 
         try:
@@ -316,6 +316,10 @@ if(make_gifs):
 ##########################################################################################################################################################################
 zip_files = True
 # zip_files = False
+
+# outputs_path = f'{model_path}/_output/'
+# os.chdir(outputs_path)
+# subprocess.run(f"rm *.png", shell=True, check=True, capture_output=True, text=True)
 
 if(zip_files):
     #zip plots, videos and gifs
