@@ -30,8 +30,8 @@ matplotlib.use('agg')
 # path = os.getcwd().split('/')
 # machine_path = '/'+path[1]+'/'+path[2] #cat the /home/user/ or /Users/user from system using path
 
-machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
-# machine_path = '/home/joaopedro'
+# machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
+machine_path = '/home/joaopedro'
 
 sys.path.insert(0, f"{machine_path}/opt/mandyoc-scripts/functions")
 from mandyocIO import read_datasets, change_dataset, single_plot
@@ -85,7 +85,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
             #  'strain_rate',
              # 'temperature',
              'temperature_anomaly',
-            #  'surface',
+             'surface',
             #  'viscosity'
              ]
 
@@ -205,8 +205,8 @@ with pymp.Parallel() as p:
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
                             plot_isotherms = plot_isotherms,
                             plot_particles = plot_particles,
-                            # particle_size = 0.02,
-                            particle_size = 0.2,
+                            particle_size = 0.02,
+                            # particle_size = 0.2,
                             particle_marker = ".",
                             ncores = 20,
                             # step_plot = 3,
@@ -239,8 +239,8 @@ if(make_videos):
             if(prop == 'viscosity'):
                 videoname = f'{videoname}'
             else:
-                # videoname = f'{videoname}_particles'
-                videoname = f'{videoname}_particles_onlymb'
+                videoname = f'{videoname}_particles'
+                # videoname = f'{videoname}_particles_onlymb'
             
         try:
             comand = f"rm {videoname}.mp4"
@@ -298,8 +298,8 @@ if(make_gifs):
             if(prop == 'viscosity'):
                 gifname = f'{gifname}'
             else:
-                # gifname = f'{gifname}_particles'
-                gifname = f'{gifname}_particles_onlymb'
+                gifname = f'{gifname}_particles'
+                # gifname = f'{gifname}_particles_onlymb'
             
 
         try:
