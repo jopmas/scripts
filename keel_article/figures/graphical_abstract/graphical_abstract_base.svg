@@ -2,25 +2,25 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="210mm"
    height="297mm"
    viewBox="0 0 210 297"
    version="1.1"
    id="svg1"
    xml:space="preserve"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="graphical_abstract_base.svg"
    inkscape:export-filename="../d18c9d19/graphical_abstract_article.pdf"
    inkscape:export-xdpi="299"
-   inkscape:export-ydpi="299"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"><metadata
+   inkscape:export-ydpi="299"><metadata
      id="metadata87"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><sodipodi:namedview
@@ -34,8 +34,8 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="1.5928451"
-     inkscape:cx="344.35237"
-     inkscape:cy="542.73952"
+     inkscape:cx="415.82514"
+     inkscape:cy="535.61313"
      inkscape:window-width="1813"
      inkscape:window-height="970"
      inkscape:window-x="26"
@@ -64,7 +64,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-opacity:1"
          id="path7-9" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-6-2"
@@ -80,7 +80,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-opacity:1"
          id="path7-9-4" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-0-5"
@@ -112,7 +112,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#4d4949;stroke-opacity:1"
          id="path7-6" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-3-8"
@@ -128,7 +128,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#4d4949;stroke-opacity:1"
          id="path7-5-7" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-5-9"
@@ -144,7 +144,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-opacity:1"
          id="path7-6-7" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-0-5-5"
@@ -160,7 +160,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-opacity:1"
          id="path7-4-5-2" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-0-5-0"
@@ -224,7 +224,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#4d4949;stroke-opacity:1"
          id="path7-6-9" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-5-8-8"
@@ -240,7 +240,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#4d4949;stroke-opacity:1"
          id="path7-6-9-9" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-5-9-8"
@@ -256,7 +256,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-opacity:1"
          id="path7-6-7-6" /></marker><marker
        style="overflow:visible"
        id="ConcaveTriangle-5-9-8-6"
@@ -272,7 +272,7 @@
        preserveAspectRatio="xMidYMid"><path
          transform="scale(0.7)"
          d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:#000000;stroke-opacity:1"
          id="path7-6-7-6-9" /></marker></defs><g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
@@ -287,8 +287,8 @@
    inkscape:export-xdpi="299"
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
-   style="fill:none;fill-rule:evenodd;stroke:#4d4949;stroke-width:0.494953;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2.96972, 0.494953;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5)"
-   d="m 97.867077,183.43467 c -7.700499,1.32626 -15.835611,-1.12156 -20.370533,2.24318"
+   style="fill:none;fill-rule:evenodd;stroke:#4d4949;stroke-width:0.49495301;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2.96972, 0.494953;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5)"
+   d="m 97.867077,183.43467 c -6.901237,0.59628 -16.543631,-2.54538 -20.370533,2.24318"
    id="path2-34"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -297,7 +297,7 @@
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
    style="fill:none;fill-rule:evenodd;stroke:#4d4949;stroke-width:0.495;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2.97, 0.495;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5-8)"
-   d="m 108.23176,142.92918 c -5.46218,2.61816 -10.025205,3.26429 -14.166037,2.98445"
+   d="m 108.34922,142.3419 c -2.49403,2.07088 -2.95737,3.81463 -13.10894,4.27646"
    id="path2-34-7"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -306,7 +306,7 @@
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
    style="fill:none;fill-rule:evenodd;stroke:#4d4949;stroke-width:0.495;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2.97, 0.495;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5-8-8)"
-   d="m 111.41647,142.92855 c 3.71646,1.95273 7.96899,3.17993 13.54284,2.6188"
+   d="m 111.41647,142.92855 c 4.0773,3.9318 8.8673,2.87468 13.54284,2.6188"
    id="path2-34-7-5"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -314,8 +314,8 @@
    inkscape:export-xdpi="299"
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
-   style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.494953;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5-9)"
-   d="m 72.191995,177.0713 c 1.577528,-3.68443 8.336673,1.7165 3.340947,3.72728"
+   style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.49495301;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5-9)"
+   d="m 72.191995,177.0713 c 0.708716,-2.82458 8.337913,-0.92778 3.340947,3.72728"
    id="path2-34-4"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -323,8 +323,8 @@
    inkscape:export-xdpi="299"
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
-   style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.394;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-0-5-5)"
-   d="m 148.44812,176.93502 c -3.99488,-1.54855 -6.51354,3.86386 -2.1822,4.84016"
+   style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.39399999;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-0-5-5)"
+   d="m 148.44812,176.93502 c -5.62085,-1.62045 -6.05831,3.92696 -2.1822,4.84016"
    id="path2-4-5-2"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -332,8 +332,8 @@
    inkscape:export-xdpi="299"
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
-   style="fill:none;fill-rule:evenodd;stroke:#4d4949;stroke-width:0.4927;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2.9562, 0.4927;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#ConcaveTriangle-3-8)"
-   d="m 120.79679,183.95549 c 5.75496,1.772 18.42434,-0.92863 20.81934,0.96747"
+   style="fill:none;fill-rule:evenodd;stroke:#4d4949;stroke-width:0.49270001;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:2.9562, 0.4927;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#ConcaveTriangle-3-8)"
+   d="m 120.79679,183.95549 c 7.09478,0.16749 16.50189,-1.97735 20.81934,0.96747"
    id="path2-3-6"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -342,7 +342,7 @@
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
    style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.498128;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-6)"
-   d="m 137.60517,162.01883 c -6.56501,0.62712 -12.81476,0.66037 -15.67675,-5.68801"
+   d="m 137.60517,162.01883 c -5.11279,0.58398 -11.14884,1.45869 -15.67675,-5.68801"
    id="path2-8"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -351,7 +351,7 @@
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
    style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.498;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-6-2)"
-   d="m 76.406646,161.07769 c 6.410441,0.60112 12.846629,1.38479 18.251405,-5.14471"
+   d="m 76.406646,161.07769 c 7.568888,0.98525 14.114669,0.11031 18.251405,-5.14471"
    id="path2-8-6"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -382,6 +382,7 @@
      x="72.412384"
      y="199.29462"
      id="tspan25">in asthenosphere</tspan></text>
+
 <text
    xml:space="preserve"
    style="font-size:3.175px;fill:#000000;stroke-width:0.393999;stroke-dasharray:none"
@@ -401,6 +402,7 @@
      x="100.726"
      y="154.9734"
      id="tspan5">insulation</tspan></text>
+
 <text
    xml:space="preserve"
    style="font-size:3.175px;fill:#000000;stroke-width:0.393999;stroke-dasharray:none"
@@ -415,9 +417,10 @@
      x="106.34027"
      y="118.87231"
      id="tspan6">Mobile Belt</tspan></text>
+
 <text
    xml:space="preserve"
-   style="font-size:3.175px;text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.393999;stroke-dasharray:none"
+   style="font-size:3.17499995px;text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.39399901;stroke-dasharray:none"
    x="77.303772"
    y="115.97014"
    id="text3-2-9-7"
@@ -425,25 +428,21 @@
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png"><tspan
      sodipodi:role="line"
-     style="text-align:center;text-anchor:middle;stroke-width:0.394"
+     style="text-align:center;text-anchor:middle;stroke-width:0.39399999"
      x="77.303772"
      y="115.97014"
      id="tspan17">Cratonic</tspan><tspan
      sodipodi:role="line"
-     style="text-align:center;text-anchor:middle;stroke-width:0.394"
+     style="text-align:center;text-anchor:middle;stroke-width:0.39399999"
      x="77.303772"
      y="119.93889"
-     id="tspan19">lithosphere</tspan><tspan
+     id="tspan19">Keel</tspan><tspan
      sodipodi:role="line"
-     style="text-align:center;text-anchor:middle;stroke-width:0.394"
      x="77.303772"
      y="123.90764"
-     id="tspan21">200 km</tspan><tspan
-     sodipodi:role="line"
-     x="77.303772"
-     y="127.87639"
      id="tspan18"
-     style="text-align:center;text-anchor:middle;stroke-width:0.394" /></text>
+     style="text-align:center;text-anchor:middle;stroke-width:0.39399999">200 km</tspan></text>
+
 <text
    xml:space="preserve"
    style="font-size:3.175px;text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.393999;stroke-dasharray:none"
@@ -473,6 +472,7 @@
      y="127.57891"
      id="tspan18-8"
      style="text-align:center;text-anchor:middle;stroke-width:0.394" /></text>
+
 <text
    xml:space="preserve"
    style="font-size:3.175px;fill:#134d88;stroke-width:0.393999;stroke-dasharray:none;fill-opacity:1"
@@ -487,6 +487,7 @@
      x="137.47101"
      y="112.10951"
      id="tspan6-1">Colder</tspan></text>
+
 <text
    xml:space="preserve"
    style="font-size:3.175px;fill:#a81529;stroke-width:0.393999;stroke-dasharray:none;fill-opacity:1"
@@ -501,6 +502,7 @@
      x="173.1729"
      y="112.1631"
      id="tspan6-1-3">Hotter</tspan></text>
+
 <text
    xml:space="preserve"
    style="font-size:3.175px;fill:#000000;stroke-width:0.393999;stroke-dasharray:none"
@@ -520,6 +522,7 @@
      x="127.95655"
      y="199.51718"
      id="tspan15">Mobile Belt</tspan></text>
+
 <text
    xml:space="preserve"
    style="font-size:2.82222px;fill:#333333;stroke-width:0.393999;stroke-dasharray:none"
@@ -544,6 +547,7 @@
      x="143.68254"
      y="153.94614"
      id="tspan24">material</tspan></text>
+
 <text
    xml:space="preserve"
    style="font-size:3.175px;fill:#000000;stroke-width:0.393999;stroke-dasharray:none"
@@ -563,6 +567,7 @@
      x="57.001518"
      y="151.90819"
      id="tspan4-0">convection</tspan></text>
+
 <text
    xml:space="preserve"
    style="font-size:3.175px;fill:#000000;stroke-width:0.393999;stroke-dasharray:none"
@@ -582,9 +587,10 @@
      x="148.85188"
      y="188.40401"
      id="tspan4-0-2">convection</tspan></text>
+
 <path
-   style="display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.494953;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5-9-8)"
-   d="m 72.353294,139.6438 c 2.182706,-3.51701 8.213629,-0.10302 4.434258,3.1208"
+   style="display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.49495301;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5-9-8)"
+   d="m 71.688864,139.31159 c 1.747072,-6.27574 9.618705,-0.33451 5.098688,2.98319"
    id="path2-34-4-0"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
@@ -628,8 +634,8 @@
    inkscape:export-xdpi="299"
    inkscape:export-ydpi="299"
    inkscape:export-filename="/home/joaopedro/opt/scripts/keel_article/figures/graphical_abstract/graphical_abstract.png" /><path
-   style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.494953;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5-9-8-6)"
-   d="m 147.91532,138.66547 c -3.36361,-2.78702 -7.44055,3.40806 -1.89776,4.6229"
+   style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.49495301;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle-5-9-8-6)"
+   d="m 148.57975,138.99768 c -2.77424,-4.21962 -9.77821,1.62717 -2.56219,4.29069"
    id="path2-34-4-0-0"
    inkscape:connector-type="polyline"
    inkscape:connector-curvature="0"
