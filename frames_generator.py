@@ -30,8 +30,8 @@ matplotlib.use('agg')
 # path = os.getcwd().split('/')
 # machine_path = '/'+path[1]+'/'+path[2] #cat the /home/user/ or /Users/user from system using path
 
-# machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
-machine_path = '/home/joaopedro'
+machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
+# machine_path = '/home/joaopedro'
 
 sys.path.insert(0, f"{machine_path}/opt/mandyoc-scripts/functions")
 from mandyocIO import read_datasets, change_dataset, single_plot
@@ -83,7 +83,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
 #              'pressure',
             #  'strain',
             #  'strain_rate',
-             # 'temperature',
+            #  'temperature',
              'temperature_anomaly',
              'surface',
             #  'viscosity'
@@ -188,7 +188,7 @@ with pymp.Parallel() as p:
                 xmin = 0 #+ 200
                 xmax = float(dataset.isel(time=i).lx) / 1.0E3 #- 200
                 xlims = [xmin, xmax]
-                ylims = [-2, 2]
+                ylims = [-1, 1]
 
             if(prop == 'viscosity'):
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
@@ -309,7 +309,7 @@ if(make_gifs):
         except:
             print(f"\tNo {prop} gif to remove.")
         
-        comand = f"ffmpeg -ss 0 -t 15 -i '{gifname}.mp4' -vf \"fps=60,scale=720:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse\" -loop 0 {gifname}.gif"
+        comand = f"ffmpeg -ss 0 -t 15 -i '{gifname}.mp4' -vf \"fps=30,scale=720:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse\" -loop 0 {gifname}.gif"
         result = subprocess.run(comand, shell=True, check=True, capture_output=True, text=True) 
     print("\tDone!")
 
