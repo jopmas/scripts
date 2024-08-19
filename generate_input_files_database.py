@@ -141,19 +141,21 @@ scenario_infos.append('N cores for aguia: '+str(ncores))
 
 if(scenario_kind == 'rifting'):
     #Rheological and Thermal parameters
-    # Clc = 1.0
-    Clc = 10.0
+    Clc = 1.0
+    # Clc = 10.0
+    Clit = 1
 
     Cseed = 0.1
     
     DeltaT = 0
     # DeltaT = 290 # oC
-    Hast = 7.38e-12 #Turccote book #original is 0.0
-    preset = True
-    # preset = False
 
-    selection_in_preset = True
-    # selection_in_preset = False
+    Hast = 7.38e-12 #Turccote book #original is 0.0
+    # preset = True
+    preset = False
+
+    # selection_in_preset = True
+    selection_in_preset = False
 
     # keel_adjust = True
     keel_adjust = False
@@ -194,6 +196,7 @@ if(scenario_kind == 'rifting'):
     
     #time constrains 
     time_max                         = 40.0e6
+    dt_max                           = 5.0e3
     # time_max                         = 200.0e6
     step_print                       = 100
 
@@ -202,6 +205,7 @@ if(scenario_kind == 'rifting'):
     # variable_bcv                     = True
     variable_bcv                     = False
     velocity_from_ascii              = True
+    ast_wind                         = False #True
     
 
     if(sp_surface_processes == True):
@@ -995,8 +999,8 @@ elif(scenario_kind == 'stab_keel'):
 
         if(mb_rheol == 'Wet Ol'):
             Clit = 1.0 #lateral
-            Cmb = 1.0 
-            # Cmb = 3 
+            # Cmb = 1.0 
+            Cmb = 3 
             # Cmb = 5
             
         print('C Mobile Belt: ' + str(Cmb))
@@ -1021,19 +1025,19 @@ elif(scenario_kind == 'stab_keel'):
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
     
-    velocity_from_ascii              = True
-    # velocity_from_ascii              = False
-    
-    ast_wind                         = True
-    # ast_wind                         = False
+    # ast_wind                         = True
+    ast_wind                         = False
 
-    # intermitent_wind                 = False
-    intermitent_wind                 = True
+    intermitent_wind                 = False
+    # intermitent_wind                 = True
 
     if(intermitent_wind):
         variable_bcv                     = True
+        velocity_from_ascii              = True
+
     else:
         variable_bcv                     = False
+        velocity_from_ascii              = False
 
     print('Velocity field: '+str(velocity_from_ascii))
     scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
@@ -1355,7 +1359,9 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         scenario_infos.append(f"Shift in mobile belt: {shift_mb/1.0e3} km")
 
 else:
-    seed_in_litho = False
+    # seed_in_litho = False
+    seed_in_litho = True
+
     if(seed_in_litho):
         interfaces = {
             "litho": np.ones(Nx) * (thickness_litho + thickness_sa),
@@ -1736,6 +1742,7 @@ heat_capacity                       = 1250         # ok #default is 1250
 non_linear_method                   = on            # ok
 adiabatic_component                 = on            # ok
 radiogenic_component                = on            # ok
+magmatism                           = on            #ok
 # Velocity boundary conditions
 top_normal_velocity                 = fixed         # ok
 top_tangential_velocity             = free          # ok
@@ -1780,9 +1787,9 @@ if(preset == False):
     print('Increase in mantle basal temperature (Ta): '+str(DeltaT)+' oC')
     scenario_infos.append('Increase in mantle basal temperature (Ta): '+str(DeltaT)+' oC')
 
-    TP = 1262 #mantle potential temperature
+    # TP = 1262 #mantle potential temperature
     # TP = 1350
-    # TP = 1400
+    TP = 1400
     # TP = 1450
     print('Assumed mantle Potential Temperature: '+str(TP)+' oC')
     scenario_infos.append('Assumed mantle Potential Temperature: '+str(TP)+' oC')
@@ -2174,11 +2181,14 @@ if(velocity_from_ascii == True):
         # 1 cm/year
         # vL = 0.005 / (365 * 24 * 3600)  # m/s
 
+        # 2 cm/year
+        # vL = 0.01 / (365 * 24 * 3600)  # m/s
+
         # 0.5 cm/year
-        # vL = 0.0025 / (365 * 24 * 3600)  # m/s
+        vL = 0.0025 / (365 * 24 * 3600)  # m/s
         
         # 0.25 cm/year
-        vL = 0.00125 / (365 * 24 * 3600)  # m/s
+        # vL = 0.00125 / (365 * 24 * 3600)  # m/s
 
         h_v_const = thickness_litho + 20.0e3  #thickness with constant velocity 
         ha = Lz - thickness_sa - h_v_const  # difference
@@ -2399,10 +2409,10 @@ with open('run_gcloud.sh', 'w') as f:
 run_linux = f'''
         #!/bin/bash
         MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
-        MANDYOC_PATH=$HOME/opt/mandyoc
+        MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=12
         touch FD.out
-        $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH/mandyoc -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
+        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH/mandyoc -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
     '''
 with open('run-linux.sh', 'w') as f:
     for line in run_linux.split('\n'):
@@ -2413,10 +2423,10 @@ with open('run-linux.sh', 'w') as f:
 run_mac = f'''
         #!/bin/bash
         MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
-        MANDYOC_PATH=$HOME/opt/mandyoc
+        MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=6
         touch FD.out
-        $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH/mandyoc -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
+        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH/mandyoc -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
         bash $HOME/Doutorado/cenarios/mandyoc/scripts/zipper_gcloud.sh
         #bash $HOME/Doutorado/cenarios/mandyoc/scripts/clean_gcloud.sh
     '''
