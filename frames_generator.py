@@ -30,8 +30,8 @@ matplotlib.use('agg')
 # path = os.getcwd().split('/')
 # machine_path = '/'+path[1]+'/'+path[2] #cat the /home/user/ or /Users/user from system using path
 
-machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
-# machine_path = '/home/joaopedro'
+# machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
+machine_path = '/home/joaopedro'
 
 sys.path.insert(0, f"{machine_path}/opt/mandyoc-scripts/functions")
 from mandyocIO import read_datasets, change_dataset, single_plot
@@ -139,8 +139,8 @@ if ("velocity_x" and "velocity_z") in dataset.data_vars:
 print("Datasets read!")
 ##########################################################################################################################################################################
 
-plot_particles = True 
-# plot_particles = False
+# plot_particles = True 
+plot_particles = False
 unzip_steps = False
 
 if(plot_particles):

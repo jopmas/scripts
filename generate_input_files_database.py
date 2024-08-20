@@ -2489,6 +2489,9 @@ run_aguia = f'''
         zip -u $DIRNAME.zip viscosity_*.txt
         zip -u $DIRNAME.zip scale_bcv.txt
         zip -u $DIRNAME.zip step*.txt
+        zip -u $DIRNAME.zip Phi*.txt
+        zip -u $DIRNAME.zip dPhi*.txt
+        zip -u $DIRNAME.zip X_depletion*.txt
         zip -u $DIRNAME.zip *.log
 
         #rm *.log
@@ -2506,6 +2509,9 @@ run_aguia = f'''
         rm pressure_*
         rm sp_surface_global*
         rm scale_bcv.txt
+        rm Phi*
+        rm dPhi*
+        rm X_depletion*
     '''
 with open('run_aguia.sh', 'w') as f:
     for line in run_aguia.split('\n'):
