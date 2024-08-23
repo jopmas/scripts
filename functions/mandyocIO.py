@@ -8,9 +8,10 @@ import numpy as np
 import xarray as xr
 from scipy.interpolate import interp1d
 
+from matplotlib import rc
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-from matplotlib import rc
+from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.transforms import Bbox
 from matplotlib.patches import FancyBboxPatch
@@ -40,12 +41,15 @@ OUTPUTS = {
     "depletion_factor":"X_depletion",
     "incremental_melt":"dPhi",
     "melt":"Phi",
+    # "X_depletion":"X_depletion",
+    # "dPhi":"dPhi",
+    # "Phi":"Phi",
     "radiogenic_heat": "heat",
-    "viscosity": "viscosity",
+    "pressure": "pressure",
     "strain": "strain",
     "strain_rate": "strain_rate",
-    "pressure": "pressure",
     "temperature": "temperature",
+    "viscosity": "viscosity",
     "surface": "surface",
     "velocity": "velocity",
 }
@@ -1151,7 +1155,10 @@ def change_dataset(properties, datasets):
             new_datasets.append("strain")
         if (prop == "temperature_anomaly") and ("temperature" not in new_datasets):
             new_datasets.append("temperature")
-            
+        if(prop == 'melt'):
+            new_datasets.append('melt')
+        if(prop == 'incremental_melt'):
+            new_datasets.append('incremental_melt')
         if (prop == "lithology" or prop == 'temperature_anomlay') and ("density" not in new_datasets):
             new_datasets.append("density")
             
@@ -1197,9 +1204,19 @@ def _calc_melt_wet(To,Po):
 
     return(X)
 
-def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frames=True, plot_isotherms=True, plot_particles=False, isotherms = [400, 600, 800, 1000, 1300], plot_melt=False, melt_method='dry'):
+def plot_property(dataset, prop, xlims, ylims, model_path,
+                fig,
+                ax,
+                plot_isotherms=True, isotherms=[400, 600, 800, 1000, 1300],
+                plot_particles=False,
+                particle_size=0.2,
+                particle_marker="o",
+                plot_colorbar=True,
+                ncores=20,
+                step_plot=1,
+                plot_melt=False, melt_method='dry'):
     '''
-    Plot and save data from mandyoc according to a given property and domain limits.
+    Plot data from mandyoc according to a given property and domain limits.
 
     Parameters
     ----------
@@ -1261,7 +1278,8 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
                    'lithology':           [None, None],
                    'pressure':            [-1.0E-3, 1.0],
                    'strain':              [None, None],
-                   'strain_rate':         [1.0E-19, 1.0E-14],
+                   # 'strain_rate':         [1.0E-19, 1.0E-14],
+                   'strain_rate':         [1.0E-20, 1.0E-15],
 #                    'strain_rate':         [np.log10(1.0E-19), np.log10(1.0E-14)],
                    'temperature':         [0, 1600],
                    'temperature_anomaly': [-150, 150],
@@ -1283,19 +1301,17 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
     xx, zz = np.meshgrid(xi, zi)
     
     #creating Canvas
-    plt.close()
     label_size=12
     plt.rc('xtick', labelsize = label_size)
     plt.rc('ytick', labelsize = label_size)
     
-    fig, ax = plt.subplots(1, 1, figsize=(12, 12*(Lz/Lx)), constrained_layout = True)
-    # fig, ax = plt.subplots(1, 1, figsize=(12, 10), constrained_layout = True)
     #plot Time in Myr
-    ax.text(0.8, 0.85, ' {:01} Myr'.format(instant), fontsize = 18, zorder=52, transform=ax.transAxes)
+    # ax.text(0.68, 1.035, ' {:01} Myr'.format(instant), bbox=dict(facecolor='white', edgecolor='white', alpha=0.0), fontsize = 14, zorder=52, transform=ax.transAxes)
+    ax.text(0.78, 1.035, ' {:01} Myr'.format(instant), bbox=dict(facecolor='white', edgecolor='white', alpha=0.0), fontsize = 14, zorder=52, transform=ax.transAxes)
     
     val_minmax = vals_minmax[prop]
     
-    if(plot_isotherms == True and prop != 'topography'): #Plot isotherms
+    if(plot_isotherms == True and prop != 'surface'): #Plot isotherms
         Temperi = dataset.temperature.T
         
         isot_colors = []
@@ -1390,7 +1406,10 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
 
             data = topo_interface
         else:
-            data = dataset.surface/1.0e3 + 40.0 #km + air layer correction
+            condx = (xi >= 100) & (xi <= 600)
+            z_mean = np.mean(dataset.surface[condx])/1.0e3 + 40.0
+
+            data = dataset.surface/1.0e3 + 40.0 + np.abs(z_mean) #km + air layer correction
             
             
     elif(prop == 'pressure'):
@@ -1409,28 +1428,29 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
                        aspect = 'auto')
         
         #creating colorbar
-        axins1 = inset_axes(ax,
-                            loc='lower right',
-                            width="100%",  # respective to parent_bbox width
-                            height="100%",  # respective to parent_bbox width
-                            bbox_to_anchor=(0.7,#horizontal position respective to parent_bbox or "loc" position
-                                            0.3,# vertical position
-                                            0.25,# width
-                                            0.05),# height
-                            bbox_transform=ax.transAxes
-                            )
+        if(plot_colorbar):
+            axins1 = inset_axes(ax,
+                                loc='lower right',
+                                width="100%",  # respective to parent_bbox width
+                                height="100%",  # respective to parent_bbox width
+                                bbox_to_anchor=(0.7,#horizontal position respective to parent_bbox or "loc" position
+                                                0.3,# vertical position
+                                                0.25,# width
+                                                0.05),# height
+                                bbox_transform=ax.transAxes
+                                )
 
-        clb = fig.colorbar(im,
-                           cax=axins1,
-#                            ticks=ticks,
-                           orientation='horizontal',
-                           fraction=0.08,
-                           pad=0.2,
-                           format=_log_fmt)
+            clb = fig.colorbar(im,
+                            cax=axins1,
+                            # ticks=[-20, -18, -16, -14],#ticks,
+                            orientation='horizontal',
+                            fraction=0.09,
+                            pad=0.2,
+                            format=_log_fmt)
 
-        clb.set_label(props_label[prop], fontsize=12)
-        clb.ax.tick_params(labelsize=12)
-        clb.minorticks_off()
+            clb.set_label(props_label[prop], fontsize=12)
+            clb.ax.tick_params(labelsize=12)
+            clb.minorticks_off()
     
     elif (prop == 'density' or prop == 'pressure' or prop == 'temperature' or prop == 'temperature_anomaly'): #properties that need a regular colorbar
         im = ax.imshow(data.T,
@@ -1440,42 +1460,557 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
                        vmin=val_minmax[0], vmax=val_minmax[1],
                        aspect = 'auto')
         
-        axins1 = inset_axes(ax,
-                            loc='lower right',
-                            width="100%",  # respective to parent_bbox width
-                            height="100%",  # respective to parent_bbox width
-                            bbox_to_anchor=(0.7,#horizontal position respective to parent_bbox or "loc" position
-                                            0.3,# vertical position
-                                            0.25,# width
-                                            0.05),# height
-                            bbox_transform=ax.transAxes
-                            )
-        
-#         ticks = np.linspace(val_minmax[0], val_minmax[1], 6, endpoint=True)
-
-        #precision of colorbar ticks
-        if(prop == 'pressure'): 
-            fmt = '%.2f'
-        else:
-            fmt = '%.0f'
+        if(plot_colorbar):
+            axins1 = inset_axes(ax,
+                                loc='lower right',
+                                width="100%",  # respective to parent_bbox width
+                                height="100%",  # respective to parent_bbox width
+                                bbox_to_anchor=(0.12,#horizontal position respective to parent_bbox or "loc" position
+                                                0.3,# vertical position
+                                                0.4,# width
+                                                0.05),# height
+                                bbox_transform=ax.transAxes
+                                )
             
-        clb = fig.colorbar(im,
-                           cax=axins1,
-#                            ticks=ticks,
-                           orientation='horizontal',
-                           fraction=0.08,
-                           pad=0.2,
-                           format=fmt)
+    #         ticks = np.linspace(val_minmax[0], val_minmax[1], 6, endpoint=True)
 
-        clb.set_label(props_label[prop], fontsize=12)
-        clb.ax.tick_params(labelsize=12)
-        clb.minorticks_off()
+            #precision of colorbar ticks
+            if(prop == 'pressure'): 
+                fmt = '%.2f'
+            else:
+                fmt = '%.0f'
+                
+            clb = fig.colorbar(im,
+                            cax=axins1,
+    #                            ticks=ticks,
+                            orientation='horizontal',
+                            fraction=0.08,
+                            pad=0.2,
+                            format=fmt)
+
+            clb.set_label(props_label[prop], fontsize=12)
+            clb.ax.tick_params(labelsize=12)
+            clb.minorticks_off()
         
     elif(prop == 'strain'):
         im = ax.imshow(data.T,
                        cmap = props_cmap[prop],
                        origin='lower',
                        extent = (0, Lx / 1.0E3, -Lz / 1.0E3 + 40, 0 + 40),
+                       vmin = float(data.min()),
+                       vmax = float(data.max()),
+                       aspect = 'auto')
+        
+    elif(prop == 'surface'):
+        ax.plot(dataset.x/1.0e3, data, alpha = 1, linewidth = 2.0, color = "blueviolet")
+        
+    elif(prop == 'lithology'): #shaded lithology plot
+        cr = 255.
+        color_uc = (228. / cr, 156. / cr, 124. / cr)
+        color_lc = (240. / cr, 209. / cr, 188. / cr)
+        color_lit = (155. / cr, 194. / cr, 155. / cr)
+        color_ast = (207. / cr, 226. / cr, 205. / cr)
+        
+        Rhoi = dataset.density.T
+        # interfaces=[2900, 3365]
+        
+        # ##Extract layer topography
+        # z = np.linspace(Lz/1000.0, 0, Nz)
+        # Z = np.linspace(Lz/1000.0, 0, 8001) #zi
+        # x = np.linspace(Lx/1000.0, 0, Nx)
+            
+        # topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
+        # condx = (xi >= 100) & (xi <= 600)
+        # z_mean = np.mean(topo_interface[condx])
+        # topo_interface -= np.abs(z_mean)
+        # topo_interface = -1.0*topo_interface
+        
+        ax.contourf(xx,
+                    zz,
+                    Rhoi,
+                    levels = [200., 2750, 2900, 3365, 3900],
+                    colors = [color_uc, color_lc, color_lit, color_ast])
+        
+        im=ax.imshow(data.T,
+                     cmap = 'Greys',
+                     origin = 'lower',
+                     extent = (0, Lx / 1.0E3, -Lz / 1.0E3 + 40,0 + 40),
+                     # extent = (xlims[0], xlims[1], ylims[0], ylims[1]),
+                     zorder = 50,
+                     alpha = 0.2, vmin=-0.5,
+                     vmax = 0.7,
+                     aspect = 'auto')
+        #legend box
+        if(plot_colorbar == True):
+            bv1 = inset_axes(ax,
+                            loc='lower right',
+                            width="100%",  # respective to parent_bbox width
+                            height="100%",  # respective to parent_bbox width
+                            bbox_to_anchor=(0.85,#horizontal position respective to parent_bbox or "loc" position
+                                            0.3,# vertical position
+                                            0.12,# width
+                                            0.35),# height
+                            bbox_transform=ax.transAxes
+                            )
+            
+            A = np.zeros((100, 10))
+
+            A[:25, :] = 2700
+            A[25:50, :] = 2800
+            A[50:75, :] = 3300
+            A[75:100, :] = 3400
+
+            A = A[::-1, :]
+
+            xA = np.linspace(-0.5, 0.9, 10)
+            yA = np.linspace(0, 1.5, 100)
+
+            xxA, yyA = np.meshgrid(xA, yA)
+            air_threshold = 200
+            bv1.contourf(
+                xxA,
+                yyA,
+                A,
+                levels=[air_threshold, 2750, 2900, 3365, 3900],
+                colors=[color_uc, color_lc, color_lit, color_ast],
+                extent=[-0.5, 0.9, 0, 1.5]
+            )
+
+            bv1.imshow(
+                xxA[::-1, :],
+                extent=[-0.5, 0.9, 0, 1.5],
+                zorder=100,
+                alpha=0.2,
+                cmap=plt.get_cmap("Greys"),
+                vmin=-0.5,
+                vmax=0.9,
+                aspect='auto'
+            )
+
+            bv1.set_yticklabels([])
+            bv1.set_xlabel(r"log$(\varepsilon_{II})$", size=10)
+            bv1.tick_params(axis='x', which='major', labelsize=10)
+            bv1.set_xticks([-0.5, 0, 0.5])
+            bv1.set_yticks([])
+            bv1.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+            
+    
+    if(plot_particles == True):
+        if(prop != 'surface'):
+            # ncores = 20
+            data_x, data_z, data_ID, data_lithology, data_strain = _read_step(model_path, f"step_{int(dataset.step)}_", ncores)
+            # ax.scatter(data_x/1000, data_z/1000, 2, c='xkcd:black', marker='.', zorder=30)
+
+            cond_litho = data_lithology > 1
+            cond_mb = data_lithology == 1
+            cond_ast = data_lithology == 0
+
+            # if(prop=='lithology'):
+            #     color_litho = 'xkcd:bright pink'
+            #     color_ast = 'xkcd:black'
+            # else:
+            #     color_litho = 'xkcd:bright green'
+            #     color_ast = 'xkcd:black'
+
+            color_litho = 'xkcd:black'
+            # color_mb = 'xkcd:neon green'
+            color_mb = 'xkcd:black'
+            color_ast = 'xkcd:bright pink'
+            color_mb = 'xkcd:black'
+            # color_mb = 'xkcd:neon green'
+
+            ax.plot(data_x[cond_litho][::step_plot]/1000, data_z[cond_litho][::step_plot]/1000+40, particle_marker, color=color_litho, markersize=particle_size, alpha=1.0, zorder=30)
+            ax.plot(data_x[cond_mb][::step_plot]/1000, data_z[cond_mb][::step_plot]/1000+40, particle_marker, color=color_mb, markersize=particle_size, alpha=1.0, zorder=30)
+            ax.plot(data_x[cond_ast][::step_plot]/1000, data_z[cond_ast][::step_plot]/1000+40, particle_marker, color=color_ast, markersize=particle_size, alpha=1.0, zorder=30)
+            # ax.plot(data_x[cond_ast][::step_plot*4]/1000, data_z[cond_ast][::step_plot*4]/1000+40, particle_marker, color=color_ast, markersize=particle_size-0.95, alpha=1.0, zorder=30)
+
+    if(prop != 'surface'):
+        #Filling above topographic surface
+        # Rhoi = dataset.density.T
+        # interfaces=[2900, 3365]
+        # ##Extract layer topography
+        # z = np.linspace(Lz/1000.0, 0, Nz)
+        # Z = np.linspace(Lz/1000.0, 0, 8001) #zi
+        # x = np.linspace(Lx/1000.0, 0, Nx)
+
+        # topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
+        # condx = (xi >= 100) & (xi <= 600)
+        # z_mean = np.mean(topo_interface[condx])
+        # topo_interface -= np.abs(z_mean)
+        # topo_interface = -1.0*topo_interface
+
+        topo_interface = dataset.surface/1.0e3 + 40.0
+        xaux = xx[0]
+        condaux = (xaux>=xlims[0]) & (xaux<=xlims[1])
+        xaux = xaux[condaux]
+        xaux[0] += 2
+        xaux[-1] -= 2
+        ax.fill_between(xaux, topo_interface[condaux], ylims[-1]-0.8, color='white', alpha=1.0, zorder=51)
+
+        ax.set_xlim(xlims)
+        ax.set_ylim(ylims)
+        # ax.set_xlabel("Distance (km)", fontsize = label_size)
+        # ax.set_ylabel("Depth (km)", fontsize = label_size)
+        
+    else:
+        ax.grid('-k', alpha=0.7)
+        ax.set_xlim(xlims)
+        ax.set_ylim(ylims)
+        # ax.set_xlabel("Distance (km)", fontsize = label_size)
+        # ax.set_ylabel("Topography (km)", fontsize = label_size)
+
+def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
+                save_frames=True,
+                plot_isotherms=True,
+                plot_particles=False,
+                particle_size=0.2,
+                particle_marker="o",
+                plot_colorbar=True,
+                ncores=20,
+                step_plot=1,
+                isotherms=[400, 600, 800, 1000, 1300],
+                # isotherms=[800, 1300],
+                plot_melt=False, melt_method='dry'):
+    '''
+    Plot and save data from mandyoc according to a given property and domain limits.
+
+    Parameters
+    ----------
+    dataset: :class:`xarray.Dataset`
+        Dataset containing mandyoc data for a single time step.
+    
+    prop: str
+        Property from mandyoc.
+
+    xlims: list
+        List with the limits of x axis
+        
+    ylims: list
+        List with the limits of y axis
+
+    model_path: str
+        Path to model
+
+    output_path: str
+        Path to save outputs
+        
+    save_frames: bool
+        True to save frame by frames
+        False to do not save the frames
+    '''
+    
+    props_label = {'density':              r'$\mathrm{[kg/m^3]}$',
+                   'radiogenic_heat':       'log(W/kg)',
+                   'lithology':            r'log$(\epsilon_{II})$',
+                   'pressure':              'P [GPa]',
+                   'strain':               r'Accumulated strain [$\varepsilon$]',
+                   'strain_rate':          r'log($\dot{\varepsilon}$)',
+#                    'strain_rate':          r'$\dot{\varepsilon}$',
+                   'temperature':          r'$^{\circ}\mathrm{[C]}$',
+                   'temperature_anomaly':  r'Temperature anomaly $^{\circ}\mathrm{[C]}$',
+                   'topography':            'Topography [km]',
+                   'viscosity':             'log(Pa.s)'
+                   }
+    
+    props_cmap = {'density': 'viridis',
+                  'radiogenic_heat': 'inferno',
+                  'lithology': 'viridis',
+                  'pressure': 'viridis',
+#                   'strain': 'viridis', #Default. Comment this line and uncomment one of the options bellow
+#                   'strain': 'cividis',
+#                   'strain': 'Greys',
+                  'strain': 'inferno',
+#                   'strain': 'magma',
+                  'strain_rate': 'viridis',
+                  'temperature': 'viridis',
+                  'temperature_anomaly': 'RdBu_r',
+                  'topography': '',
+                  'viscosity': 'viridis'
+                   }
+
+    #limits of colorbars
+    vals_minmax = {'density':             [0.0, 3378.],
+                   'radiogenic_heat':     [1.0E-13, 1.0E-9],
+                   'lithology':           [None, None],
+                   'pressure':            [-1.0E-3, 1.0],
+                   'strain':              [None, None],
+                   'strain_rate':         [1.0E-19, 1.0E-14],
+#                    'strain_rate':         [np.log10(1.0E-19), np.log10(1.0E-14)],
+                   'temperature':         [0, 1600],
+                   'temperature_anomaly': [-150, 150],
+                   'surface':             [-6, 6],
+                   'viscosity':           [1.0E18, 1.0E25],
+#                    'viscosity':           [np.log10(1.0E18), np.log10(1.0E25)]
+                  }
+
+    model_name = model_path.split('/')[-1] #os.path.split(model_path)[0].split('/')[-1]
+
+    Nx = int(dataset.nx)
+    Nz = int(dataset.nz)
+    Lx = float(dataset.lx)
+    Lz = float(dataset.lz)
+    instant = np.round(float(dataset.time), 2)
+    
+    xi = np.linspace(0, Lx/1000, Nx)
+    zi = np.linspace(-Lz/1000+40, 0+40, Nz) #km, +40 to compensate the air layer above sea level
+    xx, zz = np.meshgrid(xi, zi)
+    h_air = 40.0 #km
+    #creating Canvas
+    plt.close()
+    label_size=12
+    plt.rc('xtick', labelsize = label_size)
+    plt.rc('ytick', labelsize = label_size)
+    
+    fig, ax = plt.subplots(1, 1, figsize=(12, 12*(Lz/Lx)), constrained_layout = True)
+    # fig, ax = plt.subplots(1, 1, figsize=(12, 10), constrained_layout = True)
+    #plot Time in Myr
+    ax.text(0.85, 1.05, ' {:01} Myr'.format(instant), fontsize = 18, zorder=52, transform=ax.transAxes)
+    
+    val_minmax = vals_minmax[prop]
+    
+    if(plot_isotherms == True and prop != 'topography'): #Plot isotherms
+        Temperi = dataset.temperature.T
+        
+        isot_colors = []
+        for isotherm in isotherms:
+            isot_colors.append('red')
+            
+        cs = ax.contour(xx, zz, Temperi, 100, levels=isotherms, colors=isot_colors)
+        
+        # if(instant == instants[0]):
+        #     fmt = {}
+        #     for level, isot in zip(cs.levels, isotherms):
+        #         fmt[level] = str(level) + r'$^{\circ}$C'
+
+        #     ax.clabel(cs, cs.levels, fmt=fmt, inline=True, use_clabeltext=True)
+
+    if(plot_melt == True and prop != 'surface'):
+        # if(melt_method == 'dry'):
+        #     melt = _calc_melt_dry(dataset.temperature, dataset.pressure)
+        # elif(melt_method == 'wet'):
+        #     melt = _calc_melt_wet(dataset.temperature, dataset.pressure)
+
+        # levels = np.arange(0, 16, 1)
+        # extent=(0,
+        #         Lx/1.0e3,
+        #         -Lz/1.0e3 + 40,
+        #         0 + 40)
+        
+        # cs = ax.contour(melt.T*100,
+        #                 levels,
+        #                 origin='lower',
+        #                 cmap='inferno',
+        #                 extent=extent,
+        #                 vmin=0, vmax=16,
+        #                 linewidths=0.5,
+        #                 # linewidths=30,
+        #                 zorder=30)
+
+        #TRYING TO PLOT MELT
+        # melt = xr.open_dataset(f'{model_path}/_output_melt.nc')
+        melt = dataset.melt.T
+
+        # incremental_melt = xr.open_dataset(f'{model_path}/_output_incremental_melt.nc')
+        incremental_melt = dataset.incremental_melt.T
+
+        levels_melt = np.arange(0.2, 0.7, 0.4)#[0.2, 0.6]
+        cs = ax.contour(xx,
+                    zz,
+                    melt,
+                    levels = levels_melt,
+                    colors='xkcd:black',
+                    # cmap = 'inferno',
+                    alpha=0.7,)
+
+        # axmelt = inset_axes(ax,
+        #                     width="20%",  # width: 30% of parent_bbox width
+        #                     height="5%",  # height: 5%
+        #                     bbox_to_anchor=(-0.78,
+        #                                     -0.75,
+        #                                     1,
+        #                                     1),
+        #                     bbox_transform=ax.transAxes,
+        #                     )
+
+        # norm= matplotlib.colors.Normalize(vmin=levels_melt.min(), vmax=levels_melt.max())
+        # sm = plt.cm.ScalarMappable(norm=norm, cmap = cs.cmap)
+        # sm.set_array([])
+
+        # cb = fig.colorbar(sm,
+        #             cax=axmelt,
+        #             label='melt content [%]',
+        #             orientation='horizontal',
+        #             fraction=0.008,
+        #             pad=0.02)
+        # cb.ax.tick_params(labelsize=12)
+
+        # levels_incremental_melt = [incremental_melt.min(), incremental_melt.max()]
+        scale=1.0#e4
+        
+        levels_incremental_melt = [1.0e-10]#, 5.0e-6, 1.0e-5]
+        # colors = plt.cm.viridis(np.linspace(0, 0.9, len(levels_incremental_melt)))
+        # cmap = ListedColormap(colors) #discrete colors based on infenro cmap
+        # print(incremental_melt.values.min()/1.0e4, incremental_melt.values.max()/1.0e4)
+
+        ax.contour(xx,
+                    zz,
+                    incremental_melt/scale,
+                    linestyles=['solid'],#, 'dashdot', 'dashed'],
+                    levels = levels_incremental_melt,
+                    colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
+                    # colors=colors,
+                    alpha=1.0)
+        
+        # axmelt = inset_axes(ax,
+        #                     width="20%",  # width: 30% of parent_bbox width
+        #                     height="5%",  # height: 5%
+        #                     bbox_to_anchor=(-0.78,
+        #                                     -0.75,
+        #                                     1,
+        #                                     1),
+        #                     bbox_transform=ax.transAxes,
+        #                     )
+
+        # sm = plt.cm.ScalarMappable(norm=plt.Normalize(vmin=levels_incremental_melt[0]/1.0e-6, vmax=levels_incremental_melt[1]/1.0e-6), cmap = cmap)
+        # # sm.set_array([])
+
+        # cb = fig.colorbar(sm,
+        #             cax=axmelt,
+        #             label=r'd$\varphi$ x $10^{-6}$ [%]',
+        #             orientation='horizontal',
+        #             fraction=0.008,
+        #             pad=0.02)
+        # cb.ax.tick_params(labelsize=12)
+        
+    #dealing with special data
+    if(prop == 'lithology'):
+        data = dataset['strain']
+        
+    elif(prop == 'temperature_anomaly'):
+        #removing horizontal mean temperature
+        A = dataset['temperature']
+        B = A.T #shape: (Nz, Nx)
+        C = np.mean(B, axis=1) #shape: 151==Nz
+        D = (B.T - C) #B.T (Nx,Nz) para conseguir subtrair C
+        data = D
+        
+    elif(prop == 'surface'):
+        # print('Dealing with data')
+#         topo_from_density = True
+        topo_from_density = False
+        
+        if(topo_from_density == True):
+            Rhoi = dataset.density.T
+            interfaces=[2900, 3365]
+            ##Extract layer topography
+            z = np.linspace(Lz/1000.0, 0, Nz)
+            Z = np.linspace(Lz/1000.0, 0, 8001) #zi
+            x = np.linspace(Lx/1000.0, 0, Nx)
+
+            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
+            
+            condx = (xi >= 100) & (xi <= 600)
+            z_mean = np.mean(topo_interface[condx])
+            
+            topo_interface -= np.abs(z_mean)
+            topo_interface = -1.0*topo_interface
+
+            data = topo_interface
+        else:
+            condx = (xi >= 100) & (xi <= 600)
+            z_mean = np.mean(dataset.surface[condx])/1.0e3 + 40.0
+
+            data = dataset.surface/1.0e3 + 40.0 + np.abs(z_mean) #km + air layer correction
+            
+            
+    elif(prop == 'pressure'):
+        data = dataset[prop]/1.0E9 #GPa
+        
+    else:
+        data = dataset[prop] 
+        
+    if(prop == 'strain_rate' or prop == 'radiogenic_heat' or prop == 'strain_rate' or prop == 'viscosity'): #properties that need a lognorm colorbar
+        im = ax.imshow(data.T,
+                       cmap = props_cmap[prop],
+                       origin='lower',
+                       extent = (0, Lx / 1.0E3, -Lz / 1.0E3 + 40, 0 + 40),
+                       norm = LogNorm(vmin=val_minmax[0], vmax=val_minmax[1]),
+#                        vmin=val_minmax[0], vmax=val_minmax[1],
+                       aspect = 'auto')
+        
+        #creating colorbar
+        if(plot_colorbar):
+            axins1 = inset_axes(ax,
+                                loc='lower right',
+                                width="100%",  # respective to parent_bbox width
+                                height="100%",  # respective to parent_bbox width
+                                bbox_to_anchor=(0.7,#horizontal position respective to parent_bbox or "loc" position
+                                                0.3,# vertical position
+                                                0.25,# width
+                                                0.05),# height
+                                bbox_transform=ax.transAxes
+                                )
+
+            clb = fig.colorbar(im,
+                            cax=axins1,
+    #                            ticks=ticks,
+                            orientation='horizontal',
+                            fraction=0.08,
+                            pad=0.2,
+                            format=_log_fmt)
+
+            clb.set_label(props_label[prop], fontsize=12)
+            clb.ax.tick_params(labelsize=12)
+            clb.minorticks_off()
+    
+    elif (prop == 'density' or prop == 'pressure' or prop == 'temperature' or prop == 'temperature_anomaly'): #properties that need a regular colorbar
+        im = ax.imshow(data.T,
+                       cmap = props_cmap[prop],
+                       origin='lower',
+                       extent = (0, Lx / 1.0E3, -Lz / 1.0E3 + 40, 0 + 40),
+                       vmin=val_minmax[0], vmax=val_minmax[1],
+                       aspect = 'auto')
+        
+        if(plot_colorbar):
+            axins1 = inset_axes(ax,
+                                loc='lower right',
+                                width="100%",  # respective to parent_bbox width
+                                height="100%",  # respective to parent_bbox width
+                                bbox_to_anchor=(0.7,#horizontal position respective to parent_bbox or "loc" position
+                                                0.3,# vertical position
+                                                0.25,# width
+                                                0.05),# height
+                                bbox_transform=ax.transAxes
+                                )
+            
+    #         ticks = np.linspace(val_minmax[0], val_minmax[1], 6, endpoint=True)
+
+            #precision of colorbar ticks
+            if(prop == 'pressure'): 
+                fmt = '%.2f'
+            else:
+                fmt = '%.0f'
+                
+            clb = fig.colorbar(im,
+                            cax=axins1,
+    #                            ticks=ticks,
+                            orientation='horizontal',
+                            fraction=0.08,
+                            pad=0.2,
+                            format=fmt)
+
+            clb.set_label(props_label[prop], fontsize=12)
+            clb.ax.tick_params(labelsize=12)
+            clb.minorticks_off()
+        
+    elif(prop == 'strain'):
+
+        im = ax.imshow(data.T,
+                       cmap = props_cmap[prop],
+                       origin='lower',
+                       extent = (0, Lx / 1.0E3, -Lz / 1.0E3 + 40, 0 + 40),
+                       # norm = LogNorm(vmin=data.min(), vmax=data.max()),
+                       # norm = LogNorm(vmin=1.0e18, vmax=1.0e25),
                        vmin = float(data.min()),
                        vmax = float(data.max()),
                        aspect = 'auto')
@@ -1524,9 +2059,9 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
                         width="100%",  # respective to parent_bbox width
                         height="100%",  # respective to parent_bbox width
                         bbox_to_anchor=(0.9,#horizontal position respective to parent_bbox or "loc" position
-                                        0.3,# vertical position
-                                        0.085,# width
-                                        0.35),# height
+                                        0.29,# vertical position
+                                        0.065,# width
+                                        0.25),# height
                         bbox_transform=ax.transAxes
                         )
         
@@ -1574,11 +2109,27 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
     
     if(plot_particles == True):
         if(prop != 'surface'):
-            ncores = 20
-            data_x, data_z, data_ID, data_lithology, data_strain = _read_step(model_path, f"step_{int(dataset.step)}_", ncores)
+            # ncores = 12
+            # data_x, data_z, data_ID, data_lithology, data_strain = _read_step(model_path, f"step_{int(dataset.step)}_", ncores)
             # ax.scatter(data_x/1000, data_z/1000, 2, c='xkcd:black', marker='.', zorder=30)
 
-            cond_litho = data_lithology > 0
+            data_x, data_z, data_ID, data_lithology, data_strain = [], [], [], [], []
+            for i in range(ncores):
+                # aux_x, aux_z, aux_ID, aux_lithology, aux_strain = np.loadtxt(f"step_{int(dataset.step)}_{str(i)}.txt", unpack=True, comments="P")
+                try:
+                    aux_x, aux_z, aux_ID, aux_lithology, aux_strain = np.loadtxt(f"step_{int(dataset.step)}_{str(i)}.txt", unpack=True, comments="P")
+                except:
+                    filepath = f"step_{int(dataset.step)}_{str(i)}.txt"
+                    print(f"didnt read file {filepath}\n")
+                    continue
+                data_x = np.append(data_x, aux_x)
+                data_z = np.append(data_z, aux_z)
+                data_ID = np.append(data_ID, aux_ID)
+                data_lithology = np.append(data_lithology, aux_lithology)
+                data_strain = np.append(data_strain, aux_strain)
+
+            cond_litho = data_lithology > 1
+            cond_mb = data_lithology == 1
             cond_ast = data_lithology == 0
 
             # if(prop=='lithology'):
@@ -1589,10 +2140,17 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
             #     color_ast = 'xkcd:black'
 
             color_litho = 'xkcd:black'
+            color_mb = 'xkcd:neon green'
+            # color_mb = 'xkcd:black'
             color_ast = 'xkcd:bright pink'
 
-            ax.plot(data_x[cond_litho]/1000, data_z[cond_litho]/1000, "o", color=color_litho, markersize=0.2, alpha=1.0, zorder=30)
-            ax.plot(data_x[cond_ast]/1000, data_z[cond_ast]/1000, "o", color=color_ast, markersize=0.2, alpha=1.0, zorder=30)
+            ax.plot(data_x[cond_litho][::step_plot]/1000, data_z[cond_litho][::step_plot]/1000+40, particle_marker, color=color_litho, markersize=particle_size, alpha=1.0, zorder=30)
+
+            # ax.plot(data_x[cond_mb][::step_plot]/1000, data_z[cond_mb][::step_plot]/1000+40, particle_marker, color=color_mb, markersize=particle_size, alpha=1.0, zorder=30)
+            ax.plot(data_x[cond_mb][::step_plot]/1000, data_z[cond_mb][::step_plot]/1000+40, particle_marker, color=color_mb, markersize=particle_size*10, alpha=1.0, zorder=30)
+
+            ax.plot(data_x[cond_ast][::step_plot]/1000, data_z[cond_ast][::step_plot]/1000+40, particle_marker, color=color_ast, markersize=particle_size, alpha=1.0, zorder=30)
+            
         # else:
         #     print('Error: You cannot print particles in the Surface plot!')
         #     return()
@@ -1600,23 +2158,27 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
     if(prop != 'surface'):
         #Filling above topographic surface
         Rhoi = dataset.density.T
-        interfaces=[2900, 3365]
-        ##Extract layer topography
-        z = np.linspace(Lz/1000.0, 0, Nz)
-        Z = np.linspace(Lz/1000.0, 0, 8001) #zi
-        x = np.linspace(Lx/1000.0, 0, Nx)
+        # interfaces=[2900, 3365]
+        # ##Extract layer topography
+        # z = np.linspace(Lz/1000.0, 0, Nz)
+        # Z = np.linspace(Lz/1000.0, 0, 8001) #zi
+        # x = np.linspace(Lx/1000.0, 0, Nx)
 
-        topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
-        condx = (xi >= 100) & (xi <= 600)
-        z_mean = np.mean(topo_interface[condx])
-        topo_interface -= np.abs(z_mean)
-        topo_interface = -1.0*topo_interface
+        # topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
+        # condx = (xi >= 100) & (xi <= 600)
+        # z_mean = np.mean(topo_interface[condx])
+        # topo_interface -= np.abs(z_mean)
+        # topo_interface = -1.0*topo_interface
 
+        topo_interface = dataset.surface/1.0e3 + 40.0
         xaux = xx[0]
         condaux = (xaux>xlims[0]) & (xaux<xlims[1])
         xaux = xaux[condaux]
 
-        ax.fill_between(xaux, topo_interface[condaux], 39, color='white', alpha=1.0, zorder=51)
+        xaux[0] += 2
+        xaux[-1] -= 2
+
+        ax.fill_between(xaux, topo_interface[condaux], ylims[-1]-0.8, color='white', alpha=1.0, zorder=51)
         
         ax.set_xlim(xlims)
         ax.set_ylim(ylims)
@@ -1635,12 +2197,22 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path, save_frame
 
         if(plot_melt==True):
                 # fig_name = f"{output_path}/{model_name}_{prop}_MeltFrac_{melt_method}_{str(int(dataset.step)).zfill(6)}.png"
-                fig_name = f"{fig_name}_MeltFrac_{melt_method}"
+                fig_name = f"{fig_name}_MeltFrac"
         
         if(plot_particles == True):
                 fig_name = f"{fig_name}_particles"
         
         fig_name = f"{fig_name}_{str(int(dataset.step)).zfill(6)}.png"
+        # fig_name = f"{fig_name}_onlymb_{str(int(dataset.step)).zfill(6)}.png"
 
 
         plt.savefig(fig_name, dpi=400)
+        
+    plt.close('all')
+
+    del fig
+    del ax
+    del dataset
+    del data
+    gc.collect()
+        

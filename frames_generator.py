@@ -27,14 +27,15 @@ from scipy.interpolate import interp2d
 
 matplotlib.use('agg')
 
-# path = os.getcwd().split('/')
-# machine_path = '/'+path[1]+'/'+path[2] #cat the /home/user/ or /Users/user from system using path
+path = os.getcwd().split('/')
+machine_path = f'/{path[1]}/{path[2]}' #cat the /home/user/ or /Users/user from system using path
 
-# machine_path = '/home/joao_macedo' #cat the /home/user/ or /Users/user from system using path
-machine_path = '/home/joaopedro'
+path_to_functions = f"{machine_path}/opt/scripts"
+sys.path.append(os.path.abspath(path_to_functions))
 
-sys.path.insert(0, f"{machine_path}/opt/mandyoc-scripts/functions")
-from mandyocIO import read_datasets, change_dataset, single_plot
+if '' in sys.path:
+    sys.path.remove('')
+from functions.mandyocIO import read_datasets, change_dataset, single_plot
 
 ####################################################################################################################################
 model_path = os.getcwd() # Get local file
@@ -49,8 +50,8 @@ print(f"Output path: {output_path}\n")
 plot_isotherms = True
 # plot_isotherms = False
 
-# plot_melt = True
-plot_melt = False
+plot_melt = True
+# plot_melt = False
 
 melt_method = 'dry'
 # melt_method = 'wet'
@@ -62,6 +63,13 @@ else:
 
 if not os.path.isdir(output_path):
     os.makedirs(output_path)
+
+make_videos = True 
+# make_videos = False
+make_gifs = True
+# make_gifs = False
+zip_files = True
+# zip_files = False
 
 ##########################################################################################################################################################################
 
@@ -85,7 +93,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
             #  'strain_rate',
             #  'temperature',
              'temperature_anomaly',
-             'surface',
+            #  'surface',
             #  'viscosity'
              ]
 
@@ -111,22 +119,35 @@ if (plot_isotherms): #add datasets needed to plot isotherms
         new_datasets = change_dataset(properties, datasets)
         to_remove.append('temperature')
         
+# if (plot_melt): #add datasets needed to plot melt fraction
+#     if ('pressure' not in properties):
+#         properties.append('pressure')
+#     if ('temperature' not in properties):
+#         properties.append('temperature')
+#     new_datasets = change_dataset(properties, datasets)
+
+#     #removing the auxiliary datasets to not plot
+#     to_remove.append('pressure')
+#     to_remove.append('temperature')
+
 if (plot_melt): #add datasets needed to plot melt fraction
-    if ('pressure' not in properties):
-        properties.append('pressure')
-    if ('temperature' not in properties):
-        properties.append('temperature')
+    if ('melt' not in properties):
+        properties.append('melt')
+    if ('incremental_melt' not in properties):
+        properties.append('incremental_melt')
     new_datasets = change_dataset(properties, datasets)
 
     #removing the auxiliary datasets to not plot
-    to_remove.append('pressure')
-    to_remove.append('temperature')
+    to_remove.append('melt')
+    to_remove.append('incremental_melt')
 
 if(clean_plot): #a clean plot
     new_datasets = change_dataset(properties, datasets)
-    
+
+
 for item in to_remove:
     properties.remove(item)
+
 
 dataset = read_datasets(model_path, new_datasets)
 
@@ -159,6 +180,10 @@ dt = int(t1 - t0)
 start = int(t0)
 end = int(dataset.time.size - 1)
 step = 1
+
+# start = 60
+# end = 61
+# step = 1
 
 # start = 0
 # end = 2
@@ -222,9 +247,6 @@ with pymp.Parallel() as p:
 print("\tDone!")
 
 ##########################################################################################################################################################################
-make_videos = True 
-# make_videos = False
-
 if(make_videos):
     print("Generating videos...")
 
@@ -233,7 +255,7 @@ if(make_videos):
         videoname = f'{model_path}/_output/{model_name}_{prop}'
 
         if(plot_melt):
-            videoname = f'{videoname}_MeltFrac_{melt_method}'
+            videoname = f'{videoname}_MeltFrac'
 
         if(plot_particles):
             if(prop == 'viscosity'):
@@ -283,8 +305,7 @@ if(make_videos):
 #     - -1: no looping
 # 
 #     - for numbers n >= 0, create n+1 loops
-make_gifs = True
-# make_gifs = False
+
 
 if(make_gifs):
     print("Converting videos to gifs...")
@@ -292,7 +313,7 @@ if(make_gifs):
         gifname = f'{model_path}/_output/{model_name}_{prop}'
 
         if(plot_melt):
-            gifname = f'{gifname}_MeltFrac_{melt_method}'
+            gifname = f'{gifname}_MeltFrac'
 
         if(plot_particles):
             if(prop == 'viscosity'):
@@ -314,8 +335,6 @@ if(make_gifs):
     print("\tDone!")
 
 ##########################################################################################################################################################################
-zip_files = True
-# zip_files = False
 
 # outputs_path = f'{model_path}/_output/'
 # os.chdir(outputs_path)
