@@ -65,10 +65,11 @@ if not os.path.isdir(output_path):
     os.makedirs(output_path)
 
 make_videos = True 
-# make_videos = False
 make_gifs = True
-# make_gifs = False
 zip_files = True
+
+# make_videos = False
+# make_gifs = False
 # zip_files = False
 
 ##########################################################################################################################################################################
@@ -181,12 +182,12 @@ start = int(t0)
 end = int(dataset.time.size - 1)
 step = 1
 
-# start = 60
-# end = 61
+# start = 100
+# end = 102
 # step = 1
 
-# start = 0
-# end = 2
+# start = 30
+# end = 31
 # step = 1
 
 print("Generating frames...")
@@ -206,8 +207,10 @@ with pymp.Parallel() as p:
                     xlims = [float(dataset.isel(time=i).lx)/2.0e3 - Lcraton/2 - 50, float(dataset.isel(time=i).lx)/2.0e3 + Lcraton/2 + 50]
                     ylims = [-210, 40]
                 else:
+                    # xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
+                    # ylims = [-float(dataset.isel(time=i).lz) / 1.0e3 + 40, 40]
                     xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
-                    ylims = [-float(dataset.isel(time=i).lz) / 1.0e3 + 40, 40]
+                    ylims = [-300, 40]
 
             else:
                 xmin = 0 #+ 200
@@ -335,10 +338,6 @@ if(make_gifs):
     print("\tDone!")
 
 ##########################################################################################################################################################################
-
-# outputs_path = f'{model_path}/_output/'
-# os.chdir(outputs_path)
-# subprocess.run(f"rm *.png", shell=True, check=True, capture_output=True, text=True)
 
 if(zip_files):
     #zip plots, videos and gifs

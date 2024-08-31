@@ -1785,102 +1785,53 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
         #     ax.clabel(cs, cs.levels, fmt=fmt, inline=True, use_clabeltext=True)
 
     if(plot_melt == True and prop != 'surface'):
-        # if(melt_method == 'dry'):
-        #     melt = _calc_melt_dry(dataset.temperature, dataset.pressure)
-        # elif(melt_method == 'wet'):
-        #     melt = _calc_melt_wet(dataset.temperature, dataset.pressure)
-
-        # levels = np.arange(0, 16, 1)
-        # extent=(0,
-        #         Lx/1.0e3,
-        #         -Lz/1.0e3 + 40,
-        #         0 + 40)
-        
-        # cs = ax.contour(melt.T*100,
-        #                 levels,
-        #                 origin='lower',
-        #                 cmap='inferno',
-        #                 extent=extent,
-        #                 vmin=0, vmax=16,
-        #                 linewidths=0.5,
-        #                 # linewidths=30,
-        #                 zorder=30)
 
         #TRYING TO PLOT MELT
         # melt = xr.open_dataset(f'{model_path}/_output_melt.nc')
-        melt = dataset.melt.T
+        melt = dataset.melt.T #depleted mantle
 
-        # incremental_melt = xr.open_dataset(f'{model_path}/_output_incremental_melt.nc')
-        incremental_melt = dataset.incremental_melt.T
+        levels_contourf = np.arange(0.02, 0.5, 0.02)
+        for i in levels_contourf:
+            alpha = 0.9/levels_contourf[-1]*i + 0.1
 
-        levels_melt = np.arange(0.2, 0.7, 0.4)#[0.2, 0.6]
+            cs0 = ax.contourf(xx, zz, melt, levels=[i, i+0.02], colors='xkcd:black', alpha=alpha, zorder=30)
+
+
+        levels_melt = [0.1, 0.2] #np.arange(0.2, 0.7, 0.4)#[0.2, 0.6]
         cs = ax.contour(xx,
                     zz,
                     melt,
                     levels = levels_melt,
-                    colors='xkcd:black',
+                    colors='xkcd:blue',
                     # cmap = 'inferno',
-                    alpha=0.7,)
-
-        # axmelt = inset_axes(ax,
-        #                     width="20%",  # width: 30% of parent_bbox width
-        #                     height="5%",  # height: 5%
-        #                     bbox_to_anchor=(-0.78,
-        #                                     -0.75,
-        #                                     1,
-        #                                     1),
-        #                     bbox_transform=ax.transAxes,
-        #                     )
-
-        # norm= matplotlib.colors.Normalize(vmin=levels_melt.min(), vmax=levels_melt.max())
-        # sm = plt.cm.ScalarMappable(norm=norm, cmap = cs.cmap)
-        # sm.set_array([])
-
-        # cb = fig.colorbar(sm,
-        #             cax=axmelt,
-        #             label='melt content [%]',
-        #             orientation='horizontal',
-        #             fraction=0.008,
-        #             pad=0.02)
-        # cb.ax.tick_params(labelsize=12)
-
-        # levels_incremental_melt = [incremental_melt.min(), incremental_melt.max()]
-        scale=1.0#e4
+                    zorder=30,
+                    )
         
-        levels_incremental_melt = [1.0e-10]#, 5.0e-6, 1.0e-5]
-        # colors = plt.cm.viridis(np.linspace(0, 0.9, len(levels_incremental_melt)))
-        # cmap = ListedColormap(colors) #discrete colors based on infenro cmap
-        # print(incremental_melt.values.min()/1.0e4, incremental_melt.values.max()/1.0e4)
+        
+        # incremental_melt = xr.open_dataset(f'{model_path}/_output_incremental_melt.nc')
+        incremental_melt = dataset.incremental_melt.T
+        scale=1.0e4
+        
+        levels_incremental_melt = [5.0e-10, 1.0e-6]
 
+        ax.contourf(xx,
+                    zz,
+                    incremental_melt/scale,#, 'dashdot', 'dashed'],
+                    levels = levels_incremental_melt,
+                    colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
+                    # colors=colors,
+                    alpha=0.4,
+                    zorder=30)
+        
         ax.contour(xx,
                     zz,
                     incremental_melt/scale,
                     linestyles=['solid'],#, 'dashdot', 'dashed'],
-                    levels = levels_incremental_melt,
+                    levels = [5.0E-10,1.0E-8],
                     colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
                     # colors=colors,
-                    alpha=1.0)
-        
-        # axmelt = inset_axes(ax,
-        #                     width="20%",  # width: 30% of parent_bbox width
-        #                     height="5%",  # height: 5%
-        #                     bbox_to_anchor=(-0.78,
-        #                                     -0.75,
-        #                                     1,
-        #                                     1),
-        #                     bbox_transform=ax.transAxes,
-        #                     )
-
-        # sm = plt.cm.ScalarMappable(norm=plt.Normalize(vmin=levels_incremental_melt[0]/1.0e-6, vmax=levels_incremental_melt[1]/1.0e-6), cmap = cmap)
-        # # sm.set_array([])
-
-        # cb = fig.colorbar(sm,
-        #             cax=axmelt,
-        #             label=r'd$\varphi$ x $10^{-6}$ [%]',
-        #             orientation='horizontal',
-        #             fraction=0.008,
-        #             pad=0.02)
-        # cb.ax.tick_params(labelsize=12)
+                    alpha=1.0,
+                    zorder=30)
         
     #dealing with special data
     if(prop == 'lithology'):
