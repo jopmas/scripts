@@ -1847,8 +1847,8 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
         
     elif(prop == 'surface'):
         # print('Dealing with data')
-#         topo_from_density = True
-        topo_from_density = False
+        topo_from_density = True
+        # topo_from_density = False
         
         if(topo_from_density == True):
             Rhoi = dataset.density.T
@@ -1858,7 +1858,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
             Z = np.linspace(Lz/1000.0, 0, 8001) #zi
             x = np.linspace(Lx/1000.0, 0, Nx)
 
-            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
+            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
             
             condx = (xi >= 100) & (xi <= 600)
             z_mean = np.mean(topo_interface[condx])
@@ -2108,20 +2108,23 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
     
     if(prop != 'surface'):
         #Filling above topographic surface
-        Rhoi = dataset.density.T
-        # interfaces=[2900, 3365]
-        # ##Extract layer topography
-        # z = np.linspace(Lz/1000.0, 0, Nz)
-        # Z = np.linspace(Lz/1000.0, 0, 8001) #zi
-        # x = np.linspace(Lx/1000.0, 0, Nx)
+        topo_from_density = True
+        if(topo_from_density==True):
+            Rhoi = dataset.density.T
+            # interfaces=[2900, 3365]
+            # ##Extract layer topography
+            z = np.linspace(Lz/1000.0, 0, Nz)
+            Z = np.linspace(Lz/1000.0, 0, 8001) #zi
+            x = np.linspace(Lx/1000.0, 0, Nx)
 
-        # topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
-        # condx = (xi >= 100) & (xi <= 600)
-        # z_mean = np.mean(topo_interface[condx])
-        # topo_interface -= np.abs(z_mean)
-        # topo_interface = -1.0*topo_interface
-
-        topo_interface = dataset.surface/1.0e3 + 40.0
+            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
+            condx = (xi >= 100) & (xi <= 600)
+            z_mean = np.mean(topo_interface[condx])
+            topo_interface -= np.abs(z_mean)
+            topo_interface = -1.0*topo_interface
+        else:
+            topo_interface = dataset.surface/1.0e3 + 40.0
+            
         xaux = xx[0]
         condaux = (xaux>xlims[0]) & (xaux<xlims[1])
         xaux = xaux[condaux]

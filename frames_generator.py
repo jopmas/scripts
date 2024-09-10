@@ -50,8 +50,8 @@ print(f"Output path: {output_path}\n")
 plot_isotherms = True
 # plot_isotherms = False
 
-plot_melt = True
-# plot_melt = False
+# plot_melt = True
+plot_melt = False
 
 melt_method = 'dry'
 # melt_method = 'wet'
@@ -208,9 +208,9 @@ with pymp.Parallel() as p:
                     ylims = [-210, 40]
                 else:
                     # xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
-                    # ylims = [-float(dataset.isel(time=i).lz) / 1.0e3 + 40, 40]
+                    ylims = [-float(dataset.isel(time=i).lz) / 1.0e3 + 40, 40]
                     xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
-                    ylims = [-300, 40]
+                    # ylims = [-400, 40]
 
             else:
                 xmin = 0 #+ 200
