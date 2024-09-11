@@ -1089,42 +1089,49 @@ def _read_step(path, filename, ncores):
     return np.asarray(data_x), np.asarray(data_z), np.asarray(data_ID), np.asarray(data_lithology), np.asarray(data_strain)
 
 
-def _extract_interface(z, Z, Nx, Rhoi, rho):
+def _extract_interface(z, Z, Nx, field_datai, value_to_search):
     '''
     Extract interface from Rhoi according to a given density (rho)
 
     Parameters
     ----------
-    z: numpy array
+    z: array_like
         Array representing z direction.
 
-    Z: numpy array
+    Z: array_like
         Array representing z direction resampled with higher resolution.
 
     Nx: int
         Number of points in x direction.
 
-    Rhoi: numpy array (Nz, Nx)
-        Density field from mandyoc
+    field_data: array_like (Nz, Nx)
+        Mandyoc field from mandyoc (e.g.: density, temperature, etc).
 
-    rho: int
-        Value of density to be searched in Rhoi field
-        
+    value_to_search: float
+        Value of density to be searched in field_data array.
+
     Returns
     -------
-    topo_aux: numpy array
-        Array containing the extacted interface.
+    mapped_interface: array_like
+        Interface extracted from Rhoi field
     '''
 
-    topo_aux = []
-    
-    for j in np.arange(Nx):
-        topoi = interp1d(z, Rhoi[:,j]) #return a "function" of interpolation to apply in other array
-        idx = (np.abs(topoi(Z)-rho)).argmin()
-        topo = Z[idx]
-        topo_aux = np.append(topo_aux, topo)
+    mapped_interface = []
 
-    return topo_aux
+    for j in np.arange(Nx):
+
+        interp_function = interp1d(z, field_datai[:,j]) #return a "function" of interpolation to apply in other array
+        
+        interface_inverted = interp_function(Z)[::-1] #inverted array: from top to bottom
+
+        idx = np.argmax(interface_inverted > value_to_search) #first occurrence of rho in the inverted array
+        idx_corected = len(interface_inverted) - idx #correcting the index to the original array
+
+        depth = Z[idx_corected]
+
+        mapped_interface = np.append(mapped_interface, depth)
+
+    return mapped_interface
 
 def _log_fmt(x, pos):
     return "{:.0f}".format(np.log10(x))
@@ -1163,6 +1170,7 @@ def change_dataset(properties, datasets):
             new_datasets.append("density")
             
     return new_datasets
+
 def _calc_melt_dry(To,Po):
 
     P=np.asarray(Po)/1.0E6 # Pa -> MPa
@@ -1203,6 +1211,215 @@ def _calc_melt_wet(To,Po):
     X[cond] = ((T[cond]-Tsol[cond])/(Tliq[cond]-Tsol[cond]))
 
     return(X)
+
+def measure_margins_width(dataset, Nx, Nz, Lx, Lz, xl_begin=600, xl_end=800, xr_begin=800, xr_end=1000):
+    '''
+    Measure the width of the rifted margins in a given region of the model.
+
+    Parameters
+    ----------
+
+    fpath: str
+        Path to the scenario directory.
+
+    step: int
+        Step of Mandyoc output files.
+
+    Nx: int
+        Number of points in x direction.
+
+    Nz: int
+        Number of points in z direction.
+
+    Lx: float
+        Length of the model in x direction.
+
+    Lz: float
+        Length of the model in z direction.
+
+    xl_begin: float
+        Initial x position to measure the left margin.
+
+    xl_end: float
+        Final x position to measure the left margin.
+
+    xr_begin: float
+        Initial x position to measure the right margin.
+
+    xr_end: float
+        Final x position to measure the right margin.
+
+    Returns
+    -------
+    marginl_begin: float
+        Initial position of the left margin.
+
+    marginl_end: float
+        Final position of the left margin.
+
+    marginl_wdt: float
+        Width of the left margin.
+
+    marginr_begin: float
+        Initial position of the right margin.
+
+    marginr_end: float
+        Final position of the right margin.
+
+    marginr_wdt: float
+        Width of the right margin.
+    '''
+    Rhoi = dataset.density #read_density(fpath, step, Nx, Nz)
+
+    x = np.linspace(0, Lx/1000.0, Nx)
+    z = np.linspace(-Lz/1000.0, 0, Nz)
+    Z = np.linspace(-Lz/1000.0, 0, 8001) #zi
+
+    h_air = 40.0
+    topography_interface = extract_interface(z, Z, Nx, Rhoi, 200.) + h_air
+    lower_interface = extract_interface(z, Z, Nx, Rhoi, 2900.) + h_air
+    
+    crustal_thickness = np.abs(lower_interface - topography_interface)
+    
+    #left side
+    cond_xl = (x >= xl_begin) & (x <= xl_end)
+
+    # topol_region = topography_interface[cond_xl]
+    # idx_max_topol = np.where(topol_region == np.max(topol_region))[0][0] #the first index of the maximum topography is more distal
+    # marginl_begin = x[cond_xl][idx_max_topol]
+
+    marginl_begin = xl_begin
+
+    # left_margin_region = lower_interface[cond_xl]
+    left_margin_region = crustal_thickness[cond_xl]
+
+    # idx_min_lithol = np.where(lithol_region == np.max(lithol_region))[0][0]
+    # idx_min_lithol = np.where(left_margin_region >= -5.0)[0][0]
+    idx_min_lithol = np.where(left_margin_region <=5.0)[0][0]
+    marginl_end = x[cond_xl][idx_min_lithol]
+
+    marginl_wdt = np.abs(marginl_end - marginl_begin)
+
+    #right side
+    cond_xr = (x >= xr_begin) & (x <= xr_end)
+
+    # topor_region = topography_interface[cond_xr]
+    # idx_max_topor = np.where(topor_region == np.max(topor_region))[0][-1] #the last index of the maximum topography is more distal
+    # marginr_begin = x[cond_xr][idx_max_topor]
+    marginr_begin = xr_end
+
+    # right_margin_region = lower_interface[cond_xr]
+    right_margin_region = crustal_thickness[cond_xr]
+    # idx_min_lithor = np.where(lithor_region == np.max(lithor_region))[0][-1]
+    # idx_min_lithor = np.where(right_margin_region >= -5.0)[0][-1]
+    idx_min_lithor = np.where(right_margin_region <=5.0)[0][-1]
+    marginr_end = x[cond_xr][idx_min_lithor]
+
+    marginr_wdt = np.abs(marginr_end - marginr_begin)
+
+    return marginl_begin, marginl_end, marginl_wdt, marginr_begin, marginr_end, marginr_wdt
+
+def measure_crustal_thickness(dataset, Nx, Nz, Lx, Lz, x_begin=600.0, x_end=900.0, rho_topo=200., rho_lower_crust=2850., topography_from_density=True):
+    '''
+    Measure the crustal thickness in a given region of the model.
+
+    Parameters
+    ----------
+    dataset: xArray Dataset
+        dataset with mandyoc data. Assure that it has the density data.
+        
+    Nx: int
+        Number of points in x direction.
+
+    Nz: int
+        Number of points in z direction.
+
+    Lx: float
+        Length of the model in x direction.
+
+    Lz: float
+        Length of the model in z direction.
+
+    topography: float
+        Topography value to extract the interface.
+        
+    x_begin: float
+        Initial x position to measure the crustal thickness.
+
+    x_end: float
+        Final x position to measure the crustal thickness.
+
+    rho_topo: int
+        Density of the topography interface.
+
+    rho_lower_crust: int
+        Density of the lower crust interface.
+
+    topography_from_density: bool
+        If True, the topography is extracted from the density field. Otherwise, the topography is extracted from the sp_surface_global_*.txt file.
+
+    Returns
+    -------
+
+    position_max_thickness: float
+        Position of the maximum crustal thickness in the selected region.
+
+    topo_max_thickness: float
+        Topography value in the maximum crustal thickness in the selected region.
+
+    crustal_thickness: float
+        Maximum crustal thickness in the selected region [km]
+
+    lower_crust_interface: array_like
+        Lower crust interface [km] corrected from air layer
+
+    topography_interface: array_like
+        Topography interface [km] corrected from air layer
+
+    total_crustal_thickness: array_like
+        Crustal thickness [km] corrected from air layer
+
+    '''
+    h_air = 40.0 #km
+    x_aux = np.linspace(0, Lx/1000.0, Nx)
+    z_aux = np.linspace(-Lz/1000.0, 0, Nz)
+    Z = np.linspace(-Lz/1000.0, 0, 8001) #zi
+    
+    Rhoi = dataset.density #read_density(fpath, step, Nx, Nz)
+    
+    if(topography_from_density == True):
+        topography_interface = extract_interface(z_aux, Z, Nx, Rhoi, rho_topo) + h_air
+    else:
+        fname = fpath + 'sp_surface_global_' + str(step) + '.txt'
+        topo = np.loadtxt(fname, unpack=True, skiprows=2, comments='P')/1.0E3
+        # topo = topo + h_air
+        condx = (x_aux >= 100) & (x_aux <= 400)
+        mean = np.mean(topo[condx])
+        topography = topo + np.abs(mean)
+        topography_interface = topography
+
+    lower_crust_interface = extract_interface(z_aux, Z, Nx, Rhoi, rho_lower_crust) + h_air
+
+    total_crustal_thickness = np.abs(lower_crust_interface - topography_interface)
+    
+    #selecting the region to measure the crustal thickness
+    cond_x = (x_aux >= x_begin) & (x_aux <= x_end)
+
+    x_region = x_aux[cond_x]  
+    topo_region = topography_interface[cond_x]
+    crustal_thickness_region = total_crustal_thickness[cond_x]
+
+    #index of the maximum crustal thickness
+    idx = np.where(crustal_thickness_region == np.max(crustal_thickness_region))[0][0]
+
+    #information of the maximum crustal thickness
+    position_max_thickness = x_region[idx]
+    topo_max_thickness = topo_region[idx]
+    crustal_thickness = crustal_thickness_region[idx]
+    
+
+    return position_max_thickness, topo_max_thickness, crustal_thickness, lower_crust_interface, topography_interface, total_crustal_thickness
+
 
 def plot_property(dataset, prop, xlims, ylims, model_path,
                 fig,
