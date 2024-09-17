@@ -112,10 +112,10 @@ scenario_infos.append('Name: ' + path[-1])
 #Setting the kind of tectonic scenario
 # scenario_kind = 'rifting'
 # scenario_kind = 'stab'
-# scenario_kind = 'accordion'
+scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
-scenario_kind = 'stab_keel'
+# scenario_kind = 'stab_keel'
 # scenario_kind = 'quiescence'
 
 
@@ -202,6 +202,14 @@ if(scenario_kind == 'rifting'):
 
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
+
+    # velocity = 0.5 #cm/yr
+    velocity = 1.0 #cm/yr
+    # velocity = 2.0 #cm/yr
+
+    print(f'Velocity: {velocity} cm/yr')
+    scenario_infos.append(f'Velocity: {velocity} cm/yr')
+
     # variable_bcv                     = True
     variable_bcv                     = False
     velocity_from_ascii              = True
@@ -448,10 +456,11 @@ elif(scenario_kind == 'stab'):
     scenario_infos.append('Periodic Boundary: '+str(periodic_boundary))
 
 elif(scenario_kind == 'accordion'):
-    #Rheological and Thermal parameters
-    # Clc = 1.0
-    Clc = 10.0
-    # Clc = 40.0
+    #Rheological and Thermal parameters   
+    Clc = 1.0
+    # Clc = 10.0
+    Clit = 1
+    Cseed = 0.1
 
     Cseed = 0.1
 
@@ -459,11 +468,15 @@ elif(scenario_kind == 'accordion'):
     # DeltaT = 290 # oC
     Hast = 7.38e-12 #Turccote book #original is 0.0
     
-    preset = True
-    # preset = False
+    # preset = True
+    preset = False
 
     # keel_center = True
     keel_center = False
+
+    keel_adjust = False
+
+    ast_wind = False
 
     selection_in_preset = False
     # selection_in_preset = True
@@ -480,13 +493,13 @@ elif(scenario_kind == 'accordion'):
     # scenario = 'stable/stable_PT200_rheol19_c1250_C1/'
 
     # scenario = 'stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst'
-    # scenario = 'stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst'
+    scenario = 'stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst'
     # scenario = 'stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst'
     # scenario = 'stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst'
     
     # scenario = 'stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km'
     # scenario = 'stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km'
-    scenario = 'stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km'
+    # scenario = 'stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km'
 
     # scenario = 'keel/stable_DT200_keel_HprodAst'
 
@@ -502,12 +515,18 @@ elif(scenario_kind == 'accordion'):
 
     #time constrains 
     time_max                         = 120.0e6
-    # time_max                         = 200.0e6
-
+    dt_max                           = 5.0e3
     step_print                       = 100
 
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
+    # velocity = 0.5 #cm/yr
+    # velocity = 1.0 #cm/yr
+    velocity = 2.0 #cm/yr
+
+    print(f'Velocity: {velocity} cm/yr')
+    scenario_infos.append(f'Velocity: {velocity} cm/yr')
+
     variable_bcv                     = True
     velocity_from_ascii              = True
 
@@ -552,15 +571,22 @@ elif(scenario_kind == 'accordion'):
 
     if(bellon == False):
         # total model horizontal extent (m)
-        Lx = 1600 * 1.0e3
+        Lx = 1000 * 1.0e3 #m
+        # Lx = 1600 * 1.0e3
+        
         # total model vertical extent (m)
-        Lz = 700 * 1.0e3 #400 * 1.0e3
+        # Lz = 700 * 1.0e3 #400 * 1.0e3
         # Lz = 440 * 1.0e3
+        Lz = 300 * 1.0e3
+
         # number of points in horizontal direction
-        Nx = 401 #
+        Nx = 501
+        # Nx = 401 #
         # Nx = 801
+
         # number of points in vertical direction
-        Nz = 176  #
+        Nz = 151
+        # Nz = 176  #
         # Nz = 351
 
         # thickness of sticky air layer (m)
@@ -570,8 +596,8 @@ elif(scenario_kind == 'accordion'):
         # thickness of lower crust (m)
         thickness_lower_crust = 15 * 1.0e3
         # total thickness of lithosphere (m)
-        # thickness_litho = 80 * 1.0e3
-        thickness_litho = 150 * 1.0e3
+        thickness_litho = 80 * 1.0e3
+        # thickness_litho = 150 * 1.0e3
         # thickness_litho = 180 * 1.0e3
         # thickness_litho = 210 * 1.0e3
         # seed depth bellow base of lower crust (m)
@@ -973,8 +999,8 @@ elif(scenario_kind == 'stab_keel'):
     # seed = False
     # seed = True
 
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
 
     scenario_infos.append(' ')
@@ -999,8 +1025,8 @@ elif(scenario_kind == 'stab_keel'):
 
         if(mb_rheol == 'Wet Ol'):
             Clit = 1.0 #lateral
-            # Cmb = 1.0 
-            Cmb = 3 
+            Cmb = 1.0 
+            # Cmb = 3 
             # Cmb = 5
             
         print('C Mobile Belt: ' + str(Cmb))
@@ -1027,6 +1053,8 @@ elif(scenario_kind == 'stab_keel'):
     
     # ast_wind                         = True
     ast_wind                         = False
+
+    velocity = 1.0 #cm/yr
 
     intermitent_wind                 = False
     # intermitent_wind                 = True
@@ -1738,11 +1766,11 @@ thermal_diffusivity_coefficient     = 1.0e-6 #0.75e-6       #default is 1.0e-6  
 gravity_acceleration                = 10.0          # ok
 density_mantle                      = 3300.         # ok
 external_heat                       = 0.0e-12       # ok
-heat_capacity                       = 1250         # ok #default is 1250
+heat_capacity                       = 1250          # ok #default is 1250
 non_linear_method                   = on            # ok
 adiabatic_component                 = on            # ok
 radiogenic_component                = on            # ok
-magmatism                           = on            #ok
+magmatism                           = on            # ok
 # Velocity boundary conditions
 top_normal_velocity                 = fixed         # ok
 top_tangential_velocity             = free          # ok
@@ -1788,8 +1816,8 @@ if(preset == False):
     scenario_infos.append('Increase in mantle basal temperature (Ta): '+str(DeltaT)+' oC')
 
     # TP = 1262 #mantle potential temperature
-    # TP = 1350
-    TP = 1400
+    TP = 1350
+    # TP = 1400
     # TP = 1450
     print('Assumed mantle Potential Temperature: '+str(TP)+' oC')
     scenario_infos.append('Assumed mantle Potential Temperature: '+str(TP)+' oC')
@@ -1855,7 +1883,7 @@ else:
             fpath = f"{machine_path}/{scenario}"
         else:
             # print('entrei local false')
-            external_media = 'Joao_Macedo'
+            external_media = 'Joao_Macedo1'
             if(path[1] == 'home'):
                 print('entrei home')
                 fpath = f"{machine_path}/{external_media}{scenario}"
@@ -2125,15 +2153,7 @@ if(velocity_from_ascii == True):
     if(ast_wind == True):
         fac_air = 10.0e3
 
-        #Left side
-        # 1 cm/year
-        vL = 0.005 / (365 * 24 * 3600)  # m/s
-
-        # 0.5 cm/year
-        # vL = 0.0025 / (365 * 24 * 3600)  # m/s
-        
-        # 0.25 cm/year
-        # vL = 0.00125 / (365 * 24 * 3600)  # m/s
+        vL = (0.5*velocity/100) / (365 * 24 * 3600)  # m/s
 
         h_v_const = thickness_litho + 20.0e3  #thickness with constant velocity 
         ha = Lz - thickness_sa - h_v_const  # difference
@@ -2177,18 +2197,16 @@ if(velocity_from_ascii == True):
 
     else:
         fac_air = 10.0e3
-
-        # 1 cm/year
+        #1.0 cm/yr
         # vL = 0.005 / (365 * 24 * 3600)  # m/s
-
-        # 2 cm/year
-        # vL = 0.01 / (365 * 24 * 3600)  # m/s
-
+        
         # 0.5 cm/year
-        vL = 0.0025 / (365 * 24 * 3600)  # m/s
+        # vL = 0.0025 / (365 * 24 * 3600)  # m/s
         
         # 0.25 cm/year
         # vL = 0.00125 / (365 * 24 * 3600)  # m/s
+
+        vL = (0.5*velocity/100) / (365 * 24 * 3600)  # m/s
 
         h_v_const = thickness_litho + 20.0e3  #thickness with constant velocity 
         ha = Lz - thickness_sa - h_v_const  # difference
@@ -2293,7 +2311,7 @@ if(velocity_from_ascii == True):
         if(scenario_kind == 'accordion' or scenario_kind == 'accordion_keel' or scenario_kind == 'accordion_lit_hetero'):
             if(bellon == False):
                 var_bcv = f""" 1
-                            30.0 -1.0
+                            40.0 -1.0
 
                             """
             else:#Bellon case
@@ -2392,10 +2410,10 @@ np.savetxt('infos_'+path[-1] + '.txt', scenario_infos, fmt="%s")
 run_gcloud = f'''
         #!/bin/bash
         MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
-        MANDYOC_PATH=$HOME/opt/mandyoc
+        MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=6
         touch FD.out
-        $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH/mandyoc -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
+        $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
         bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/zipper_gcloud.sh
         bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/clean_gcloud.sh
         sudo poweroff
@@ -2412,7 +2430,7 @@ run_linux = f'''
         MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=12
         touch FD.out
-        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH/mandyoc -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
+        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
     '''
 with open('run-linux.sh', 'w') as f:
     for line in run_linux.split('\n'):
@@ -2426,7 +2444,7 @@ run_mac = f'''
         MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=6
         touch FD.out
-        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH/mandyoc -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
+        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
         bash $HOME/Doutorado/cenarios/mandyoc/scripts/zipper_gcloud.sh
         #bash $HOME/Doutorado/cenarios/mandyoc/scripts/clean_gcloud.sh
     '''
