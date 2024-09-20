@@ -110,9 +110,9 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-# scenario_kind = 'rifting'
+scenario_kind = 'rifting'
 # scenario_kind = 'stab'
-scenario_kind = 'accordion'
+# scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
 # scenario_kind = 'stab_keel'
@@ -204,8 +204,8 @@ if(scenario_kind == 'rifting'):
     #climate change
 
     # velocity = 0.5 #cm/yr
-    velocity = 1.0 #cm/yr
-    # velocity = 2.0 #cm/yr
+    # velocity = 1.0 #cm/yr
+    velocity = 2.0 #cm/yr
 
     print(f'Velocity: {velocity} cm/yr')
     scenario_infos.append(f'Velocity: {velocity} cm/yr')
@@ -1816,8 +1816,8 @@ if(preset == False):
     scenario_infos.append('Increase in mantle basal temperature (Ta): '+str(DeltaT)+' oC')
 
     # TP = 1262 #mantle potential temperature
-    TP = 1350
-    # TP = 1400
+    # TP = 1350
+    TP = 1400
     # TP = 1450
     print('Assumed mantle Potential Temperature: '+str(TP)+' oC')
     scenario_infos.append('Assumed mantle Potential Temperature: '+str(TP)+' oC')

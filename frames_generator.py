@@ -50,8 +50,8 @@ print(f"Output path: {output_path}\n")
 plot_isotherms = True
 # plot_isotherms = False
 
-# plot_melt = True
-plot_melt = False
+plot_melt = True
+# plot_melt = False
 
 melt_method = 'dry'
 # melt_method = 'wet'

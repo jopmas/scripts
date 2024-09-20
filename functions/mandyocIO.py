@@ -307,7 +307,23 @@ def save_temperature(temperatures, path, fname="input_temperature_0.txt"):
     np.savetxt(
         os.path.join(path, fname), temperatures.values.ravel(order="F"), header=TEMPERATURE_HEADER
     )
+def find_nearest(array, value):
+    '''Return the index in array nearest to a given value.
     
+    Parameters
+    ----------
+    
+    array: array_like
+        1D array used to find the index
+        
+    value: float
+        Value to be seached
+    '''
+    
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
+        
 def read_mandyoc_output(model_path, parameters_file=PARAMETERS_FNAME, datasets=tuple(OUTPUTS.keys()), skip=1, steps_slice=None, save_big_dataset=False):
     """
     Read the files  generate by Mandyoc code
@@ -1431,7 +1447,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                 plot_colorbar=True,
                 ncores=20,
                 step_plot=1,
-                plot_melt=False, melt_method='dry'):
+                plot_melt=False):
     '''
     Plot data from mandyoc according to a given property and domain limits.
 
@@ -1543,50 +1559,53 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         #         fmt[level] = str(level) + r'$^{\circ}$C'
 
         #     ax.clabel(cs, cs.levels, fmt=fmt, inline=True, use_clabeltext=True)
-    if(plot_melt == True and prop != 'topography'):
-        if(melt_method == 'dry'):
-            melt = _calc_melt_dry(dataset.temperature, dataset.pressure)
-        elif(melt_method == 'wet'):
-            melt = _calc_melt_wet(dataset.temperature, dataset.pressure)
 
-        levels = np.arange(0, 16, 1)
-        extent=(0,
-                Lx/1.0e3,
-                -Lz/1.0e3 + 40,
-                0 + 40)
+    if(plot_melt == True and prop != 'surface'):
+
+        melt = dataset.melt.T #depleted mantle
+
+        levels_contourf = np.arange(0.02, 0.5, 0.02)
+        for i in levels_contourf:
+            alpha = 0.9/levels_contourf[-1]*i + 0.1
+
+            cs0 = ax.contourf(xx, zz, melt, levels=[i, i+0.02], colors='xkcd:black', alpha=alpha, zorder=30)
+
+
+        levels_melt = [0.1, 0.2] #np.arange(0.2, 0.7, 0.4)#[0.2, 0.6]
+        cs = ax.contour(xx,
+                    zz,
+                    melt,
+                    levels = levels_melt,
+                    colors='xkcd:blue',
+                    # cmap = 'inferno',
+                    zorder=30,
+                    )
         
-        cs = ax.contour(melt.T*100,
-                        levels,
-                        origin='lower',
-                        cmap='inferno',
-                        extent=extent,
-                        vmin=0, vmax=16,
-                        linewidths=0.5,
-                        # linewidths=30,
-                        zorder=30)
-
-        axmelt = inset_axes(ax,
-                            width="20%",  # width: 30% of parent_bbox width
-                            height="5%",  # height: 5%
-                            bbox_to_anchor=(-0.78,
-                                            -0.75,
-                                            1,
-                                            1),
-                            bbox_transform=ax.transAxes,
-                            )
         
+        # incremental_melt = xr.open_dataset(f'{model_path}/_output_incremental_melt.nc')
+        incremental_melt = dataset.incremental_melt.T
+        scale=1.0e4
+        
+        levels_incremental_melt = [5.0e-10, 1.0e-6]
 
-        norm= matplotlib.colors.Normalize(vmin=cs.cvalues.min(), vmax=cs.cvalues.max())
-        sm = plt.cm.ScalarMappable(norm=norm, cmap = cs.cmap)
-        sm.set_array([])
-
-        cb = fig.colorbar(sm,
-                    cax=axmelt,
-                    label='melt content [%]',
-                    orientation='horizontal',
-                    fraction=0.008,
-                    pad=0.02)
-        cb.ax.tick_params(labelsize=12)
+        ax.contourf(xx,
+                    zz,
+                    incremental_melt/scale,#, 'dashdot', 'dashed'],
+                    levels = levels_incremental_melt,
+                    colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
+                    # colors=colors,
+                    alpha=0.4,
+                    zorder=30)
+        
+        ax.contour(xx,
+                    zz,
+                    incremental_melt/scale,
+                    linestyles=['solid'],#, 'dashdot', 'dashed'],
+                    levels = [5.0E-10,1.0E-8],
+                    colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
+                    # colors=colors,
+                    alpha=1.0,
+                    zorder=30)
         
     #dealing with special data
     if(prop == 'lithology'):
