@@ -94,7 +94,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
             #  'strain_rate',
             #  'temperature',
              'temperature_anomaly',
-            #  'surface',
+             'surface',
             #  'viscosity'
              ]
 

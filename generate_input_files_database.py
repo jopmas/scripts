@@ -274,7 +274,8 @@ if(scenario_kind == 'rifting'):
     # thickness of lower crust (m)
     thickness_lower_crust = 15 * 1.0e3
     # total thickness of lithosphere (m)
-    thickness_litho = 80 * 1.0e3
+    # thickness_litho = 80 * 1.0e3
+    thickness_litho = 120 * 1.0e3
     # thickness_litho = 150 * 1.0e3
     # seed depth bellow base of lower crust (m)
     seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
@@ -457,8 +458,8 @@ elif(scenario_kind == 'stab'):
 
 elif(scenario_kind == 'accordion'):
     #Rheological and Thermal parameters   
-    Clc = 1.0
-    # Clc = 10.0
+    # Clc = 1.0
+    Clc = 10.0
     Clit = 1
     Cseed = 0.1
 
@@ -514,15 +515,15 @@ elif(scenario_kind == 'accordion'):
     sp_surface_processes             = False
 
     #time constrains 
-    time_max                         = 120.0e6
+    time_max                         = 130.0e6
     dt_max                           = 5.0e3
     step_print                       = 100
 
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
     # velocity = 0.5 #cm/yr
-    # velocity = 1.0 #cm/yr
-    velocity = 2.0 #cm/yr
+    velocity = 1.0 #cm/yr
+    # velocity = 2.0 #cm/yr
 
     print(f'Velocity: {velocity} cm/yr')
     scenario_infos.append(f'Velocity: {velocity} cm/yr')
@@ -580,14 +581,16 @@ elif(scenario_kind == 'accordion'):
         Lz = 300 * 1.0e3
 
         # number of points in horizontal direction
-        Nx = 501
+        # Nx = 501
         # Nx = 401 #
         # Nx = 801
+        Nx = 1001
 
         # number of points in vertical direction
-        Nz = 151
+        # Nz = 151
         # Nz = 176  #
         # Nz = 351
+        Nz = 301
 
         # thickness of sticky air layer (m)
         thickness_sa = 40 * 1.0e3
@@ -596,12 +599,13 @@ elif(scenario_kind == 'accordion'):
         # thickness of lower crust (m)
         thickness_lower_crust = 15 * 1.0e3
         # total thickness of lithosphere (m)
-        thickness_litho = 80 * 1.0e3
+        # thickness_litho = 80 * 1.0e3
+        thickness_litho = 120 * 1.0e3
         # thickness_litho = 150 * 1.0e3
         # thickness_litho = 180 * 1.0e3
         # thickness_litho = 210 * 1.0e3
         # seed depth bellow base of lower crust (m)
-        seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
+        seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
 
     else: #Bellon, Silva and Sacek
         preset = False
@@ -1401,13 +1405,15 @@ else:
         }
 
         # seed thickness (m)
-        thickness_seed = 6 * 1.0e3
+        # thickness_seed = 6 * 1.0e3
+        thickness_seed = 12 * 1.0e3
         # seed horizontal position (m)
         # x_seed = 800 * 1.0e3
         x_seed = Lx / 2.0
         # x_seed = Lx / 2.0 + 200.0e3
         # seed: number of points of horizontal extent
-        n_seed = 6
+        # n_seed = 6
+        n_seed = 12
 
         interfaces["seed_base"][
             int(Nx * x_seed // Lx - n_seed // 2) : int(Nx * x_seed // Lx + n_seed // 2)
@@ -1816,8 +1822,8 @@ if(preset == False):
     scenario_infos.append('Increase in mantle basal temperature (Ta): '+str(DeltaT)+' oC')
 
     # TP = 1262 #mantle potential temperature
-    # TP = 1350
-    TP = 1400
+    TP = 1350
+    # TP = 1400
     # TP = 1450
     print('Assumed mantle Potential Temperature: '+str(TP)+' oC')
     scenario_infos.append('Assumed mantle Potential Temperature: '+str(TP)+' oC')
@@ -2269,11 +2275,11 @@ if(velocity_from_ascii == True):
     plt.close()
     fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(9, 9), constrained_layout=True, sharey=True)
 
-    ax0.plot(VX[:, 0]*1e10, (z - thickness_sa) / 1000, "k-", label="left side")
-    ax1.plot(VZ[:, 0]*1e10, (z - thickness_sa) / 1000, "k-", label="left side")
+    ax0.plot(VX[:, 0]*(365 * 24 * 3600), (z - thickness_sa) / 1000, "k-", label="left side")
+    ax1.plot(VZ[:, 0]*(365 * 24 * 3600), (z - thickness_sa) / 1000, "k-", label="left side")
 
-    ax0.plot(VX[:, -1]*1e10, (z - thickness_sa) / 1000, "r-", label="right side")
-    ax1.plot(VZ[:, -1]*1e10, (z - thickness_sa) / 1000, "r-", label="right side")
+    ax0.plot(VX[:, -1]*(365 * 24 * 3600), (z - thickness_sa) / 1000, "r-", label="right side")
+    ax1.plot(VZ[:, -1]*(365 * 24 * 3600), (z - thickness_sa) / 1000, "r-", label="right side")
 
     ax0.legend(loc='upper left', fontsize=14)
     ax1.legend(loc='upper right', fontsize=14)
@@ -2287,15 +2293,26 @@ if(velocity_from_ascii == True):
     ax0.set_ylim([Lz / 1000 - thickness_sa / 1000, -thickness_sa / 1000])
     ax1.set_ylim([Lz / 1000 - thickness_sa / 1000, -thickness_sa / 1000])
 
-    ax0.set_xlim([-8, 8])
-    ax1.set_xlim([-8, 8])
-    ax0.set_xticks(np.arange(-8, 9, 4))
-    ax1.set_xticks(np.arange(-8, 9, 4))
+    fig.suptitle(f"Velocity boundary conditions (v = {velocity} cm/yr)")
+    # ax0.set_xlim([-8, 8])
+    # ax1.set_xlim([-8, 8])
+    # # ax0.set_xticks(np.arange(-8, 9, 4))
+    # ax1.set_xticks(np.arange(-8, 9, 4))
+
+    ax0.set_xlim([-0.05, 0.05])
+    ax1.set_xlim([-0.05, 0.05])
+    ax0.set_xticks(np.linspace(-0.05, 0.05, 5))
+    ax1.set_xticks(np.linspace(-0.05, 0.05, 5))
+
     ax0.grid(':k', alpha=0.7)
     ax1.grid(':k', alpha=0.7)
 
-    ax0.set_xlabel("$10^{-10}$ (m/s)", fontsize=label_size)
-    ax1.set_xlabel("$10^{-10}$ (m/s)", fontsize=label_size)
+    # ax0.set_xlabel("$10^{-10}$ (m/s)", fontsize=label_size)
+    # ax1.set_xlabel("$10^{-10}$ (m/s)", fontsize=label_size)
+
+    ax0.set_xlabel("cm/yr", fontsize=label_size)
+    ax1.set_xlabel("cm/yr", fontsize=label_size)
+
     ax0.set_ylabel("Depth (km)", fontsize=label_size)
 
     ax0.set_title("Horizontal component of velocity")
@@ -2310,10 +2327,17 @@ if(velocity_from_ascii == True):
         
         if(scenario_kind == 'accordion' or scenario_kind == 'accordion_keel' or scenario_kind == 'accordion_lit_hetero'):
             if(bellon == False):
-                var_bcv = f""" 1
-                            40.0 -1.0
+                # var_bcv = f""" 1
+                #             40.0 -1.0
+
+                #             """
+
+                var_bcv = f""" 2
+                            40.0 0.001
+                            50.0 -1000.0
 
                             """
+                
             else:#Bellon case
                 var_bcv = f""" 2
                             25.0 -1.0
