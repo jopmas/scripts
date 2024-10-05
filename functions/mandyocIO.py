@@ -1228,7 +1228,7 @@ def _calc_melt_wet(To,Po):
 
     return(X)
 
-def measure_margins_width(dataset, Nx, Nz, Lx, Lz, xl_begin=600, xl_end=800, xr_begin=800, xr_end=1000):
+def measure_margins_width(dataset, xl_begin=600, xl_end=800, xr_begin=800, xr_end=1000):
     '''
     Measure the width of the rifted margins in a given region of the model.
 
@@ -1285,15 +1285,20 @@ def measure_margins_width(dataset, Nx, Nz, Lx, Lz, xl_begin=600, xl_end=800, xr_
     marginr_wdt: float
         Width of the right margin.
     '''
-    Rhoi = dataset.density #read_density(fpath, step, Nx, Nz)
+    Rhoi = dataset.density.values.T
+
+    Nx = int(dataset.nx)
+    Nz = int(dataset.nz)
+    Lx = float(dataset.lx)
+    Lz = float(dataset.lz)
 
     x = np.linspace(0, Lx/1000.0, Nx)
     z = np.linspace(-Lz/1000.0, 0, Nz)
     Z = np.linspace(-Lz/1000.0, 0, 8001) #zi
 
     h_air = 40.0
-    topography_interface = extract_interface(z, Z, Nx, Rhoi, 200.) + h_air
-    lower_interface = extract_interface(z, Z, Nx, Rhoi, 2900.) + h_air
+    topography_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) + h_air
+    lower_interface = _extract_interface(z, Z, Nx, Rhoi, 2900.) + h_air
     
     crustal_thickness = np.abs(lower_interface - topography_interface)
     
@@ -1404,17 +1409,13 @@ def measure_crustal_thickness(dataset, Nx, Nz, Lx, Lz, x_begin=600.0, x_end=900.
     Rhoi = dataset.density #read_density(fpath, step, Nx, Nz)
     
     if(topography_from_density == True):
-        topography_interface = extract_interface(z_aux, Z, Nx, Rhoi, rho_topo) + h_air
+        topography_interface = _extract_interface(z_aux, Z, Nx, Rhoi, rho_topo) + h_air
     else:
-        fname = fpath + 'sp_surface_global_' + str(step) + '.txt'
-        topo = np.loadtxt(fname, unpack=True, skiprows=2, comments='P')/1.0E3
-        # topo = topo + h_air
         condx = (x_aux >= 100) & (x_aux <= 400)
-        mean = np.mean(topo[condx])
-        topography = topo + np.abs(mean)
-        topography_interface = topography
+        z_mean = np.mean(dataset.surface[condx])/1.0e3 + h_air
+        topography_interface = dataset.surface/1.0e3 + h_air + np.abs(z_mean) #km + air layer correction
 
-    lower_crust_interface = extract_interface(z_aux, Z, Nx, Rhoi, rho_lower_crust) + h_air
+    lower_crust_interface = _extract_interface(z_aux, Z, Nx, Rhoi, rho_lower_crust) + h_air
 
     total_crustal_thickness = np.abs(lower_crust_interface - topography_interface)
     
@@ -1445,6 +1446,10 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                 particle_size=0.2,
                 particle_marker="o",
                 plot_colorbar=True,
+                bbox_to_anchor=(0.85,#horizontal position respective to parent_bbox or "loc" position
+                                0.3,# vertical position
+                                0.12,# width
+                                0.35),
                 ncores=20,
                 step_plot=1,
                 plot_melt=False):
@@ -1782,10 +1787,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                             loc='lower right',
                             width="100%",  # respective to parent_bbox width
                             height="100%",  # respective to parent_bbox width
-                            bbox_to_anchor=(0.85,#horizontal position respective to parent_bbox or "loc" position
-                                            0.3,# vertical position
-                                            0.12,# width
-                                            0.35),# height
+                            bbox_to_anchor=bbox_to_anchor,
                             bbox_transform=ax.transAxes
                             )
             

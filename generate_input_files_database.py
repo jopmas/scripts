@@ -110,9 +110,9 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-scenario_kind = 'rifting'
+# scenario_kind = 'rifting'
 # scenario_kind = 'stab'
-# scenario_kind = 'accordion'
+scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
 # scenario_kind = 'stab_keel'
@@ -277,8 +277,16 @@ if(scenario_kind == 'rifting'):
     # thickness_litho = 80 * 1.0e3
     thickness_litho = 120 * 1.0e3
     # thickness_litho = 150 * 1.0e3
-    # seed depth bellow base of lower crust (m)
-    seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
+
+    # seed_in_litho = False
+    seed_in_litho = True
+
+    if(seed_in_litho):
+        # seed depth bellow base of lower crust (m)
+        # seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
+        # thickness_seed = 6 * 1.0e3
+        seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
+        thickness_seed = 12 * 1.0e3
 
     print('Important scale factors (C):')
     print('C lower crust: '+str(Clc))
@@ -335,15 +343,19 @@ elif(scenario_kind == 'stab'):
     scenario_infos.append('C mantle lithosphere: '+str(Clit))
 
     # DeltaT = 0
-    DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
+    # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
     # DeltaT = 290
-    # DeltaT = 350
+    # DeltaT = 300
+    DeltaT = 350
     # DeltaT = 500 #testar
     # DeltaT = 600 #testar
     # DeltaT = 700
     # DeltaT = 800
 
     Hast = 7.38e-12 #Turccote book #original is 0.0
+    # Hast = 10.0e-12
+    print(f'Asthenospheric rad. production: {Hast}')
+    scenario_infos.append(f'Asthenospheric rad. production: {Hast}')
 
     preset = False
     # keel_center = True
@@ -435,10 +447,12 @@ elif(scenario_kind == 'stab'):
     thickness_lower_crust = 15 * 1.0e3
     # thickness_lower_crust = 20 * 1.0e3
     # total thickness of lithosphere (m)
-    thickness_litho = 80 * 1.0e3
+    # thickness_litho = 80 * 1.0e3
+    thickness_litho = 120 * 1.0e3
+    # thickness_litho = 150 * 1.0e3
     # thickness_litho = 150 * 1.0e3
     # seed depth bellow base of lower crust (m)
-    seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
+    seed_in_litho = False
 
     scenario_infos.append(' ')
     print('Preset of initial temperature field: ' + str(preset))
@@ -458,8 +472,8 @@ elif(scenario_kind == 'stab'):
 
 elif(scenario_kind == 'accordion'):
     #Rheological and Thermal parameters   
-    # Clc = 1.0
-    Clc = 10.0
+    Clc = 1.0
+    # Clc = 10.0
     Clit = 1
     Cseed = 0.1
 
@@ -581,16 +595,16 @@ elif(scenario_kind == 'accordion'):
         Lz = 300 * 1.0e3
 
         # number of points in horizontal direction
-        # Nx = 501
+        Nx = 501
         # Nx = 401 #
         # Nx = 801
-        Nx = 1001
+        # Nx = 1001
 
         # number of points in vertical direction
-        # Nz = 151
+        Nz = 151
         # Nz = 176  #
         # Nz = 351
-        Nz = 301
+        # Nz = 301
 
         # thickness of sticky air layer (m)
         thickness_sa = 40 * 1.0e3
@@ -604,8 +618,12 @@ elif(scenario_kind == 'accordion'):
         # thickness_litho = 150 * 1.0e3
         # thickness_litho = 180 * 1.0e3
         # thickness_litho = 210 * 1.0e3
-        # seed depth bellow base of lower crust (m)
-        seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
+
+        seed_in_litho = True
+        if(seed_in_litho):
+            # seed depth bellow base of lower crust (m)
+            seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
+            thickness_seed = 12 * 1.0e3
 
     else: #Bellon, Silva and Sacek
         preset = False
@@ -1148,6 +1166,7 @@ elif(scenario_kind == 'stab_keel'):
     # total thickness of lithosphere (m)
     thickness_litho = 80 * 1.0e3
     # thickness_litho = 120 * 1.0e3
+    seed_in_litho = False
 
 elif(scenario_kind == 'quiescence'):
     #Rheological and Thermal parameters
@@ -1278,6 +1297,8 @@ print('H upper crust: ' + str(thickness_upper_crust*1.0e-3) + ' km')
 print('H lower crust: ' + str(thickness_lower_crust*1.0e-3) + ' km')
 print('H mantle lithosphere: ' + str((thickness_litho - thickness_upper_crust - thickness_lower_crust)*1.0e-3) + ' km')
 print('H lithosphere: ' + str(thickness_litho*1.0e-3) + ' km')
+if(seed_in_litho):
+    print(f'H seed: {thickness_seed*1.0e-3} km')
 
 scenario_infos.append(' ')
 scenario_infos.append('Domain parameters:')
@@ -1294,6 +1315,9 @@ scenario_infos.append('H upper crust: ' + str(thickness_upper_crust*1.0e-3) + ' 
 scenario_infos.append('H lower crust: ' + str(thickness_lower_crust*1.0e-3) + ' km')
 scenario_infos.append('H mantle lithosphere: ' + str((thickness_litho - thickness_upper_crust - thickness_lower_crust)*1.0e-3) + ' km')
 scenario_infos.append('H lithosphere: ' + str(thickness_litho*1.0e-3) + ' km')
+if(seed_in_litho):
+    scenario_infos.append(f'H seed: {thickness_seed*1.0e-3} km')
+
 scenario_infos.append(' ')
 
 
@@ -1391,9 +1415,6 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         scenario_infos.append(f"Shift in mobile belt: {shift_mb/1.0e3} km")
 
 else:
-    # seed_in_litho = False
-    seed_in_litho = True
-
     if(seed_in_litho):
         interfaces = {
             "litho": np.ones(Nx) * (thickness_litho + thickness_sa),
