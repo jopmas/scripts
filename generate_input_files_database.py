@@ -2512,7 +2512,7 @@ if(aguia == 'aguia3'):
     partition = 'SP3'
     main_folders =  '/scratch/8672526'
 
-if(scenario_kind == 'rifting'):
+if(scenario_kind == 'rifting' or scenario_kind == 'accordion'):
     mandyoc_options = '-seed 0,2 -strain_seed 0.0,1.0'
 else:
     mandyoc_options = '-seed 0 -strain_seed 0.0'
