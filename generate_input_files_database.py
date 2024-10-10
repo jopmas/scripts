@@ -111,8 +111,8 @@ scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
 # scenario_kind = 'rifting'
-# scenario_kind = 'stab'
-scenario_kind = 'accordion'
+scenario_kind = 'stab'
+# scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
 # scenario_kind = 'stab_keel'
@@ -344,6 +344,7 @@ elif(scenario_kind == 'stab'):
 
     # DeltaT = 0
     # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
+    # DeltaT = 250
     # DeltaT = 290
     # DeltaT = 300
     DeltaT = 350
@@ -354,6 +355,7 @@ elif(scenario_kind == 'stab'):
 
     Hast = 7.38e-12 #Turccote book #original is 0.0
     # Hast = 10.0e-12
+
     print(f'Asthenospheric rad. production: {Hast}')
     scenario_infos.append(f'Asthenospheric rad. production: {Hast}')
 
@@ -1842,8 +1844,8 @@ if(preset == False):
     print('Increase in mantle basal temperature (Ta): '+str(DeltaT)+' oC')
     scenario_infos.append('Increase in mantle basal temperature (Ta): '+str(DeltaT)+' oC')
 
-    # TP = 1262 #mantle potential temperature
-    TP = 1350
+    TP = 1262 #mantle potential temperature
+    # TP = 1350
     # TP = 1400
     # TP = 1450
     print('Assumed mantle Potential Temperature: '+str(TP)+' oC')
