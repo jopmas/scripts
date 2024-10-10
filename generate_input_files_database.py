@@ -111,11 +111,11 @@ scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
 # scenario_kind = 'rifting'
-scenario_kind = 'stab'
+# scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
-# scenario_kind = 'stab_keel'
+scenario_kind = 'stab_keel'
 # scenario_kind = 'quiescence'
 
 
@@ -285,8 +285,10 @@ if(scenario_kind == 'rifting'):
         # seed depth bellow base of lower crust (m)
         # seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
         # thickness_seed = 6 * 1.0e3
-        seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
-        thickness_seed = 12 * 1.0e3
+        # seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
+        # thickness_seed = 12 * 1.0e3
+        seed_depth = 8 * 1.0e3 #9 * 1.0e3 #original
+        thickness_seed = 16 * 1.0e3
 
     print('Important scale factors (C):')
     print('C lower crust: '+str(Clc))
@@ -1403,10 +1405,31 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
         # thinning = 100.0e3
         thinning = 135.0e3
 
-        
         Nshift_mb = int(shift_mb//dx)
 
         interfaces['litho_HETERO'][Nx//2 - N_Lmb//2 + Nshift + Nshift_mb : Nx//2 + N_Lmb//2 + Nshift + Nshift_mb] = thickness_sa + thickening - thinning
+
+        # free_continent = False
+        free_continent = True
+        if(free_continent):
+            thinning_lithospheric_mantle = thickness_litho
+            thinning_lower_crust = thickness_lower_crust + thickness_upper_crust
+            thinning_upper_crust = thickness_upper_crust
+
+            length_non_cratonic = 400.0e3 #m
+            Nlength_non_cratonic = int(length_non_cratonic//dx)
+
+            interfaces['litho_LAB'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thinning_lithospheric_mantle #left side
+            interfaces['litho_LAB'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thinning_lithospheric_mantle #right side
+
+            interfaces['litho_HETERO'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thinning_lithospheric_mantle #left side
+            interfaces['litho_HETERO'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thinning_lithospheric_mantle #right side
+
+            interfaces['lower_crust'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thinning_lower_crust #left side
+            interfaces['lower_crust'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thinning_lower_crust #right side
+
+            interfaces['upper_crust'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thinning_upper_crust #left side
+            interfaces['upper_crust'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thinning_upper_crust #right side
 
     print(f"Keel shape: Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
     scenario_infos.append(f"Keel shape Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
@@ -1912,7 +1935,7 @@ else:
             fpath = f"{machine_path}/{scenario}"
         else:
             # print('entrei local false')
-            external_media = 'Joao_Macedo1'
+            external_media = 'Joao_Macedo'
             if(path[1] == 'home'):
                 print('entrei home')
                 fpath = f"{machine_path}/{external_media}{scenario}"
