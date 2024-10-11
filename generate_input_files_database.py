@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import glob
+from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
 from scipy.interpolate import interp2d
 import xarray as xr
@@ -100,6 +101,25 @@ def calc_mean_temperaure_region(data, Nz, xx, begin, end):
     
     return data_sel_mean
 
+def Tp_estimate(mean_temp, z, zbot, ztop, h_air=40.0e3):
+    zcond = (z<=zbot-h_air) & (z>=ztop-h_air) #considering air layer
+
+    zcut = z[zcond]
+    tcut = mean_temp[zcond]
+
+    params = curve_fit(fit_func, zcut, tcut)
+    [a, b] = params[0]
+
+    tfit = a*z + b #temeprature fitted
+
+    #find the mantle potential temperature
+    idx = np.where(z == 40.0)[0][0] #air thickness = 40 
+    Tp = int(np.round(tfit[idx], 0))
+
+    return Tp, tfit
+
+def fit_func(x, a, b):
+    return a*x + b
 
 label_size=18
 plt.rc('xtick', labelsize=label_size)
@@ -1021,6 +1041,12 @@ elif(scenario_kind == 'stab_keel'):
 
     mb_rheol = 'Wet Ol'
     # mb_rheol = 'Dry Ol'
+    
+    # free_continent = False
+    free_continent = True
+
+    hot_surface = True
+    # hot_surface = False
 
     # seed = False
     # seed = True
@@ -1409,8 +1435,6 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
 
         interfaces['litho_HETERO'][Nx//2 - N_Lmb//2 + Nshift + Nshift_mb : Nx//2 + N_Lmb//2 + Nshift + Nshift_mb] = thickness_sa + thickening - thinning
 
-        # free_continent = False
-        free_continent = True
         if(free_continent):
             thinning_lithospheric_mantle = thickness_litho
             thinning_lower_crust = thickness_lower_crust + thickness_upper_crust
@@ -1419,17 +1443,17 @@ elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
             length_non_cratonic = 400.0e3 #m
             Nlength_non_cratonic = int(length_non_cratonic//dx)
 
-            interfaces['litho_LAB'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thinning_lithospheric_mantle #left side
-            interfaces['litho_LAB'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thinning_lithospheric_mantle #right side
+            interfaces['litho_LAB'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thickness_sa #- thinning_lithospheric_mantle# - thickness_sa #left side
+            interfaces['litho_LAB'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thickness_sa #- thinning_lithospheric_mantle# - thickness_sa #right side
 
-            interfaces['litho_HETERO'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thinning_lithospheric_mantle #left side
-            interfaces['litho_HETERO'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thinning_lithospheric_mantle #right side
+            interfaces['litho_HETERO'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thickness_sa #- thinning_lithospheric_mantle# - thickness_sa #left side
+            interfaces['litho_HETERO'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thickness_sa #- thinning_lithospheric_mantle# - thickness_sa #right side
 
-            interfaces['lower_crust'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thinning_lower_crust #left side
-            interfaces['lower_crust'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thinning_lower_crust #right side
+            interfaces['lower_crust'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thickness_sa #- thinning_lower_crust #left side
+            interfaces['lower_crust'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thickness_sa #- thinning_lower_crust #right side
 
-            interfaces['upper_crust'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thinning_upper_crust #left side
-            interfaces['upper_crust'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thinning_upper_crust #right side
+            interfaces['upper_crust'][0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = thickness_sa #- thinning_upper_crust #left side
+            interfaces['upper_crust'][Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = thickness_sa #- thinning_upper_crust #right side
 
     print(f"Keel shape: Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
     scenario_infos.append(f"Keel shape Lcraton x Hcraton = {Lcraton/1.0e3} x {thickening/1.0e3} km2")
@@ -1730,6 +1754,7 @@ fig, ax = plt.subplots(figsize=(10, 5), constrained_layout=True)
 for label, layer in interfaces.items():
     print(label, "(size): ", np.size(layer))
     ax.plot(x/1.0E3, (-layer + thickness_sa)/1.0E3, label=f"{label}")
+    # ax.plot(x/1.0E3, (-layer)/1.0E3, label=f"{label}")
 
 ax.set_xlim([0, Lx/1.0E3])
 ax.set_ylim([Lz/1.0E3, 0])
@@ -2021,6 +2046,7 @@ else:
             datai_mean = np.mean(Data_region, axis=1)
 
         elif(keel_adjust == True):
+            print('entrei keel adjust')
             xcenter = Lx/2.0
 
             datai_mean = calc_mean_temperaure_region(Datai, Nz_aux, xx_aux, 0, Lx_aux)
@@ -2041,6 +2067,29 @@ else:
             zcond = z <= 40.0e3
             Tk_mean_interp[zcond] = 0.0
 
+            if(free_continent == True):
+                print('entrei free continent')
+                #calculate the mean temperature of the asthenosphere
+                datai_mean = calc_mean_temperaure_region(Datai, Nz_aux, xx_aux, 0, Lx_aux)
+                
+                zcond = (z_aux >= thickness_litho + thickness_sa + 50.0e3) & (z_aux <= Lz_aux - 100.0e3)
+                zcut = z_aux[zcond]
+                tcut = datai_mean[zcond]
+
+                params = curve_fit(fit_func, zcut, tcut)
+                [a, b] = params[0]
+
+                tfit = a*z + b
+
+                cond_litho = (z_aux <= thickness_litho+thickness_sa + 50.0e3)
+                
+                T_out_continent = datai_mean
+                T_out_continent[cond_litho] = tfit[cond_litho]
+                T_out_continent[T_out_continent <= 1.0e-7] = 0.0
+                zcond = z <= 40.0e3
+                T_out_continent[zcond] = 0.0
+
+
         else:
             datai_mean = np.mean(Datai, axis=1) #horizontal mean
 
@@ -2059,6 +2108,12 @@ else:
                     T[i, :] = Tk_mean_interp
                 else:
                     T[i, :] = datai_mean_interp
+
+                if(free_continent == True & hot_surface==True):
+                    
+                    if((x[i] <= xcenter - Lcraton/2.0 - length_non_cratonic + shift_craton) | (x[i] >= xcenter + Lcraton/2.0 + length_non_cratonic + shift_craton)):
+                        T[i, :] = T_out_continent
+
             else:
                 T[i, :] = datai_mean_interp
 
@@ -2153,6 +2208,7 @@ cbar.set_label("Temperature [°C]")
 if(keel_adjust==True):
     ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{cratonic}}$')
     ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='r', label=r'T$_{\mathrm{non-cratonic}}$')
+    ax1.plot(T_out_continent, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{ast interp}}$')
 else:
     ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{mean}}$')
 
@@ -2380,7 +2436,7 @@ if(velocity_from_ascii == True):
 
                 var_bcv = f""" 2
                             40.0 0.001
-                            50.0 -1000.0
+                            70.0 -1000.0
 
                             """
                 
