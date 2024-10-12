@@ -1960,7 +1960,8 @@ else:
             fpath = f"{machine_path}/{scenario}"
         else:
             # print('entrei local false')
-            external_media = 'Joao_Macedo'
+            external_media = 'Joao_Macedo1'
+            # external_media = 'Joao_Macedo'
             if(path[1] == 'home'):
                 print('entrei home')
                 fpath = f"{machine_path}/{external_media}{scenario}"
@@ -2046,11 +2047,11 @@ else:
             datai_mean = np.mean(Data_region, axis=1)
 
         elif(keel_adjust == True):
-            print('entrei keel adjust')
             xcenter = Lx/2.0
 
             datai_mean = calc_mean_temperaure_region(Datai, Nz_aux, xx_aux, 0, Lx_aux)
 
+            #Making the temperature profile for the keel
             Tk_mean = np.copy(datai_mean)
             cond_mlit = (z_aux <= thickening+thickness_sa) & (z_aux >= thickness_sa + thickness_upper_crust + thickness_lower_crust)
                      
@@ -2059,36 +2060,47 @@ else:
             z1 = z[cond_mlit][0]
             z0  = z[cond_mlit][-1]
 
+            # The temperature in the keel is linearly interpolated between the bottom and top of the keel
             Tk_mean[cond_mlit] = ((T1 - T0) / (z1 - z0)) * (z[cond_mlit] - z0) + T0
 
+            #interpolating the temperature field to the mesh of the model
             fk = interp1d(z_aux, Tk_mean)
             Tk_mean_interp = fk(z)
+
+            #dealing with <=0 values inherited from interpolation and setting to 0 values to the air layer
             Tk_mean_interp[Tk_mean_interp <= 1.0e-7] = 0.0 #dealing with <=0 values inherited from interpolation
             zcond = z <= 40.0e3
             Tk_mean_interp[zcond] = 0.0
 
             if(free_continent == True):
-                print('entrei free continent')
                 #calculate the mean temperature of the asthenosphere
-                datai_mean = calc_mean_temperaure_region(Datai, Nz_aux, xx_aux, 0, Lx_aux)
+            #     # datai_mean = calc_mean_temperaure_region(Datai, Nz_aux, xx_aux, 0, Lx_aux)
                 
+                #selecting region inside the asthenospheric profile
                 zcond = (z_aux >= thickness_litho + thickness_sa + 50.0e3) & (z_aux <= Lz_aux - 100.0e3)
                 zcut = z_aux[zcond]
                 tcut = datai_mean[zcond]
 
+                #fit a linear function to the asthenospheric profile
                 params = curve_fit(fit_func, zcut, tcut)
                 [a, b] = params[0]
 
                 tfit = a*z + b
 
+                #selecting region inside the lithosphere
                 cond_litho = (z_aux <= thickness_litho+thickness_sa + 50.0e3)
                 
-                T_out_continent = datai_mean
+                #creating the profile to be used outside continental region
+                T_out_continent = np.copy(datai_mean)
                 T_out_continent[cond_litho] = tfit[cond_litho]
-                T_out_continent[T_out_continent <= 1.0e-7] = 0.0
-                zcond = z <= 40.0e3
-                T_out_continent[zcond] = 0.0
 
+                #interpolating the temperature field to the mesh of the model
+                fo = interp1d(z_aux, T_out_continent)
+                T_out_continent_interp = fo(z)
+                T_out_continent_interp[T_out_continent_interp <= 1.0e-7] = 0.0
+                
+                zcond = z <= 40.0e3
+                T_out_continent_interp[zcond] = 0.0
 
         else:
             datai_mean = np.mean(Datai, axis=1) #horizontal mean
@@ -2110,10 +2122,10 @@ else:
                     T[i, :] = datai_mean_interp
 
                 if(free_continent == True & hot_surface==True):
-                    
-                    if((x[i] <= xcenter - Lcraton/2.0 - length_non_cratonic + shift_craton) | (x[i] >= xcenter + Lcraton/2.0 + length_non_cratonic + shift_craton)):
-                        T[i, :] = T_out_continent
-
+                    if((x[i] <= xcenter - Lcraton/2.0 - length_non_cratonic + shift_craton)) | (x[i] >= xcenter + Lcraton/2.0 + length_non_cratonic + shift_craton):
+                        # a =1
+                        T[i, :] = T_out_continent_interp
+                        
             else:
                 T[i, :] = datai_mean_interp
 
@@ -2206,9 +2218,10 @@ cbar.set_label("Temperature [°C]")
 
 
 if(keel_adjust==True):
-    ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{cratonic}}$')
+    ax1.plot(T[:, 110], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{cratonic}}$')
     ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='r', label=r'T$_{\mathrm{non-cratonic}}$')
-    ax1.plot(T_out_continent, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{ast interp}}$')
+    ax1.plot(T_out_continent_interp, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{out-continent}}$')
+    # ax1.plot(tfit, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{fit}}$')
 else:
     ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{mean}}$')
 
