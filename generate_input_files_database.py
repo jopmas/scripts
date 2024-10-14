@@ -131,11 +131,11 @@ scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
 # scenario_kind = 'rifting'
-# scenario_kind = 'stab'
+scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
-scenario_kind = 'stab_keel'
+# scenario_kind = 'stab_keel'
 # scenario_kind = 'quiescence'
 
 
@@ -367,9 +367,11 @@ elif(scenario_kind == 'stab'):
     # DeltaT = 0
     # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
     # DeltaT = 250
+    # DeltaT = 230
     # DeltaT = 290
     # DeltaT = 300
-    DeltaT = 350
+    # DeltaT = 350
+    DeltaT = 370
     # DeltaT = 500 #testar
     # DeltaT = 600 #testar
     # DeltaT = 700
