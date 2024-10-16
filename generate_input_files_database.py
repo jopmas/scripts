@@ -130,8 +130,8 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-# scenario_kind = 'rifting'
-scenario_kind = 'stab'
+scenario_kind = 'rifting'
+# scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'accordion_keel'
@@ -161,8 +161,8 @@ scenario_infos.append('N cores for aguia: '+str(ncores))
 
 if(scenario_kind == 'rifting'):
     #Rheological and Thermal parameters
-    Clc = 1.0
-    # Clc = 10.0
+    # Clc = 1.0
+    Clc = 10.0
     Clit = 1
 
     Cseed = 0.1
@@ -171,8 +171,8 @@ if(scenario_kind == 'rifting'):
     # DeltaT = 290 # oC
 
     Hast = 7.38e-12 #Turccote book #original is 0.0
-    # preset = True
-    preset = False
+    preset = True
+    # preset = False
 
     # selection_in_preset = True
     selection_in_preset = False
@@ -196,9 +196,11 @@ if(scenario_kind == 'rifting'):
 
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
     
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/'
+
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
@@ -246,6 +248,8 @@ if(scenario_kind == 'rifting'):
     # 
     #step files
     print_step_files                 = True
+    checkered = False
+    # checkered = True   
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -1834,7 +1838,7 @@ sticky_blanket_air                  = True         # default is False [True/Fals
 precipitation_profile_from_ascii    = {precipitation_profile_from_ascii}         # default is False [True/False]
 climate_change_from_ascii           = {climate_change_from_ascii}         # default is False [True/False]
 print_step_files                    = {print_step_files}          # default is True [True/False]
-checkered                           = True         # Print one element in the print_step_files (default is False [True/False])
+checkered                           = {checkered}         # Print one element in the print_step_files (default is False [True/False])
 sp_mode                             = 5             # default is 1 [0/1/2]
 geoq                                = on            # ok
 geoq_fac                            = 100.0           # ok

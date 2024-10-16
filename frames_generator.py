@@ -88,12 +88,12 @@ datasets = [#Properties from mandyoc. Comment/uncomment to select properties of 
 properties = [#Properties from mandyoc. Comment/uncomment to select which ones you would like to plot
 #              'density',
 #              'radiogenic_heat',
-             'lithology',
+            #  'lithology',
 #              'pressure',
             #  'strain',
             #  'strain_rate',
             #  'temperature',
-             'temperature_anomaly',
+            #  'temperature_anomaly',
              'surface',
             #  'viscosity'
              ]
@@ -182,8 +182,8 @@ start = int(t0)
 end = int(dataset.time.size - 1)
 step = 1
 
-# start = 100
-# end = 102
+# start = 41
+# end = 42
 # step = 1
 
 # start = 30
@@ -216,7 +216,7 @@ with pymp.Parallel() as p:
                 xmin = 0 #+ 200
                 xmax = float(dataset.isel(time=i).lx) / 1.0E3 #- 200
                 xlims = [xmin, xmax]
-                ylims = [-1, 1]
+                ylims = [-5, 5]
 
             if(prop == 'viscosity'):
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
