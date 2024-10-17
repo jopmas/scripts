@@ -130,47 +130,155 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-scenario_kind = 'rifting'
+# scenario_kind = 'rifting'
 # scenario_kind = 'stab'
-# scenario_kind = 'accordion'
+scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
-# scenario_kind = 'accordion_keel'
 # scenario_kind = 'stab_keel'
-# scenario_kind = 'quiescence'
-
 
 experiemnts = {'rifting': 'Rifting experiment',
                'stab': 'LAB (1300 oC) stability',
                'accordion': 'Accordion',
                'accordion_lit_hetero': 'Accordion with central weak lithospheric mantle heterogeneity',
-               'accordion_keel': 'Accordion with central cratonic keel',
                'stab_keel': 'LAB (1300 oC) stability with central cratonic keel',
-               'quiescence': 'Quiescence - central mobile belt',
                }
 
-ncores=20
+ncores = 20
 
-print('Scenario kind: ' + experiemnts[scenario_kind])
-scenario_infos.append('Scenario kind: ' + experiemnts[scenario_kind])
+print(f'Scenario kind: {experiemnts[scenario_kind]}')
+scenario_infos.append(f'Scenario kind: {experiemnts[scenario_kind]}')
 
-print('N cores: '+str(ncores))
-scenario_infos.append('N cores for aguia: '+str(ncores))
+print(f'N cores: {int(ncores)}')
+scenario_infos.append(f'N cores: {int(ncores)}')
 
 #Main parameters used to construct param .txt that changes accordind to
 #tectonic regime
 
 if(scenario_kind == 'rifting'):
     #Rheological and Thermal parameters
-    # Clc = 1.0
-    Clc = 10.0
-    Clit = 1
 
-    Cseed = 0.1
-    
+    #Viscosity scale factor
+    C_ast = 1.0
+    C_mlit = 1.0
+    C_lower_crust = 1.0
+    # C_lower_crust = 10.0
+    C_upper_crust = 1.0
+    C_air = 1.0
+
+    #density (kg/m3)
+    rho_ast = 3378.0
+    rho_mlit = 3354.0
+    rho_lower_crust = 2800.0
+    rho_upper_crust = 2700.0
+    rho_air = 1.0
+
+    #radiogenic heat production (W/m3)
+    H_ast = 7.38e-12 #Turccote book #original is 0.0
+    H_mlit = 9.0e-12
+    H_lower_crust = 0.8e-6 / 2800.0 #2.85E-10
+    H_upper_crust = 2.5e-6 / 2700.0 #9.259E-10
+    H_air = 0.0
+
+    rheology_mlit = 'dry_olivine'
+    # rheology_mlit = 'wet_olivine'
+
+    if(rheology_mlit == 'dry_olivine'):
+        #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14 
+        A_mlit = 2.4168e-15 
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.5
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 540.0e3
+        Q_seed = 540.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 25.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0
+
+    if(rheology_mlit == 'wet_olivine'): 
+        #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14
+        A_mlit = 1.393e-14 
+        A_seed = 1.393e-14
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.0
+        n_seed = 3.0
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 429.0e3
+        Q_seed = 429.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 15.0e-6
+        V_seed = 15.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0
+
+    # seed_in_litho = False
+    seed_in_litho = True
+
+    if(seed_in_litho):
+        C_seed = 0.1
+        rho_seed = rho_mlit
+        H_seed = H_mlit
+        A_seed = A_mlit
+        n_seed = n_mlit
+        V_seed = V_mlit
+
+        layer_properties = f"""
+                            C   {C_ast}   {C_mlit}   {C_seed}   {C_mlit}   {C_lower_crust}   {C_upper_crust}   {C_air}
+                            rho {rho_ast} {rho_mlit} {rho_seed} {rho_mlit} {rho_lower_crust} {rho_upper_crust} {rho_air}
+                            H   {H_ast}   {H_mlit}   {H_seed}   {H_mlit}   {H_lower_crust}   {H_upper_crust}   {H_air}
+                            A   {A_ast}   {A_mlit}   {A_seed}   {A_mlit}   {A_lower_crust}   {A_upper_crust}   {A_air}
+                            n   {n_ast}   {n_mlit}   {n_seed}   {n_mlit}   {n_lower_crust}   {n_upper_crust}   {n_air}
+                            Q   {Q_ast}   {Q_mlit}   {Q_seed}   {Q_mlit}   {Q_lower_crust}   {Q_upper_crust}   {Q_air}
+                            V   {V_ast}   {V_mlit}   {V_seed}   {V_mlit}   {V_lower_crust}   {V_upper_crust}   {V_air}
+                        """
+    else:
+        layer_properties = f"""
+                            C   {C_ast}   {C_mlit}   {C_lower_crust}   {C_upper_crust}   {C_air}
+                            rho {rho_ast} {rho_mlit} {rho_lower_crust} {rho_upper_crust} {rho_air}
+                            H   {H_ast}   {H_mlit}   {H_lower_crust}   {H_upper_crust}   {H_air}
+                            A   {A_ast}   {A_mlit}   {A_lower_crust}   {A_upper_crust}   {A_air}
+                            n   {n_ast}   {n_mlit}   {n_lower_crust}   {n_upper_crust}   {n_air}
+                            Q   {Q_ast}   {Q_mlit}   {Q_lower_crust}   {Q_upper_crust}   {Q_air}
+                            V   {V_ast}   {V_mlit}   {V_lower_crust}   {V_upper_crust}   {V_air}
+                        """
+
     DeltaT = 0
     # DeltaT = 290 # oC
 
-    Hast = 7.38e-12 #Turccote book #original is 0.0
     preset = True
     # preset = False
 
@@ -228,9 +336,6 @@ if(scenario_kind == 'rifting'):
     # velocity = 0.5 #cm/yr
     # velocity = 1.0 #cm/yr
     velocity = 2.0 #cm/yr
-
-    print(f'Velocity: {velocity} cm/yr')
-    scenario_infos.append(f'Velocity: {velocity} cm/yr')
 
     # variable_bcv                     = True
     variable_bcv                     = False
@@ -302,9 +407,6 @@ if(scenario_kind == 'rifting'):
     thickness_litho = 120 * 1.0e3
     # thickness_litho = 150 * 1.0e3
 
-    # seed_in_litho = False
-    seed_in_litho = True
-
     if(seed_in_litho):
         # seed depth bellow base of lower crust (m)
         # seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
@@ -314,59 +416,147 @@ if(scenario_kind == 'rifting'):
         seed_depth = 8 * 1.0e3 #9 * 1.0e3 #original
         thickness_seed = 16 * 1.0e3
 
-    print('Important scale factors (C):')
-    print('C lower crust: '+str(Clc))
-
-    scenario_infos.append(' ')
-    scenario_infos.append('Important scale factors (C):')
-    scenario_infos.append('C lower crust: '+str(Clc))
-
-    scenario_infos.append(' ')
-    print('Preset of initial temperature field: ' + str(preset))
-    scenario_infos.append('Preset of initial temperature field: '+str(preset))
-
-    print('Force cold cratonic keel: ' + str(keel_adjust))
-    scenario_infos.append('Force cold cratonic keel: '+str(keel_adjust))
-    
+    print('Scale factors (C):')
+    print(f'C air: {C_air}')
+    print(f'C upper crust: {C_upper_crust}')
+    print(f'C lower crust: {C_lower_crust}')
+    print(f'C mantle lithosphere: {C_mlit}')
+    if(seed_in_litho):
+        print(f'C seed: {C_seed}')
+    print(f'C asthenosphere: {C_ast}')
+    print(f'Preset of initial temperature field: {preset}')
+    print(f'Force cold cratonic keel: {keel_adjust}')
     if(preset == True):
-        print('Selection in preset: ' + str(selection_in_preset))
-        scenario_infos.append('Selection in preset: ' + str(selection_in_preset))
+        print(f'Selection in preset: {selection_in_preset}')
+        print(f'Use horizontal mean of temperature from preset in lithosphere: {mean_litho}')
+    print(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
+    print(f'Seed extra fragil: {extra_fragil}')
+    print(f'Surface process: {sp_surface_processes}')
+    print(f'Velocity field {velocity_from_ascii}')
+    if(velocity_from_ascii):
+        print(f'Velocity: {velocity} cm/yr')
+        print(f'Variable velocity field: {variable_bcv}')
+    print(f'Climate change: {climate_change_from_ascii}')
 
-        print('Use horizontal mean of temperature from preset in lithosphere: ' + str(mean_litho))
-        scenario_infos.append('Use horizontal mean of temperature from preset in lithosphere: ' + str(mean_litho))
-
-    print('High kappa in asthenosphere: ' + str(high_kappa_in_asthenosphere))
-    scenario_infos.append('High kappa in asthenosphere: ' + str(high_kappa_in_asthenosphere))
-
-    print('Seed extra fragil: ' + str(extra_fragil))
-    scenario_infos.append('Seed extra fragil: ' + str(extra_fragil))
-    
-    print('Surface process: '+str(sp_surface_processes))
-    scenario_infos.append('Surface process: '+str(sp_surface_processes))
-
-    print('Velocity field: '+str(velocity_from_ascii))
-    scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
-
-    print('Variable velocity field: '+str(variable_bcv))
-    scenario_infos.append('Variable velocity field: '+str(variable_bcv))
-
-    print('Climate change: '+str(climate_change_from_ascii))
-    scenario_infos.append('Climate change: '+str(climate_change_from_ascii))
+    scenario_infos.append(' ')
+    scenario_infos.append('Scale factors (C):')
+    scenario_infos.append(f'C air: {C_air}')
+    scenario_infos.append(f'C upper crust: {C_upper_crust}')
+    scenario_infos.append(f'C lower crust: {C_lower_crust}')
+    scenario_infos.append(f'C mantle lithosphere: {C_mlit}')
+    if(seed_in_litho):
+        scenario_infos.append(f'C seed: {C_seed}')
+    scenario_infos.append(f'C asthenosphere: {C_ast}')
+    scenario_infos.append(' ')
+    scenario_infos.append(f'Preset of initial temperature field: {preset}')
+    scenario_infos.append(f'Force cold cratonic keel: {keel_adjust}')
+    if(preset == True):
+        scenario_infos.append(f'Selection in preset: {selection_in_preset}')
+        scenario_infos.append(f'Use horizontal mean of temperature from preset in lithosphere: {mean_litho}')
+    scenario_infos.append(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
+    scenario_infos.append(f'Seed extra fragil: {extra_fragil}')
+    scenario_infos.append(f'Surface process: {sp_surface_processes}')
+    scenario_infos.append(f'Velocity field {velocity_from_ascii}')
+    if(velocity_from_ascii):
+        scenario_infos.append(f'Velocity: {velocity} cm/yr')
+        scenario_infos.append(f'Variable velocity field: {variable_bcv}')
+    scenario_infos.append(f'Climate change: {climate_change_from_ascii}')
 
 elif(scenario_kind == 'stab'):
     #Rheological and Thermal parameters
-    Clc = 10.0
-    Cseed = 0.1
 
-    Clit = 1 #Default
+    #Viscosity scale factor
+    C_ast = 1.0
+    C_mlit = 1.0
+    C_lower_crust = 10.0
+    C_upper_crust = 1.0
+    C_air = 1.0
 
-    print('Important scale factors (C):')
-    print('C lower crust: '+str(Clc))
-    print('C mantle lithosphere: '+str(Clit))
-    scenario_infos.append(' ')
-    scenario_infos.append('Important scale factors (C):')
-    scenario_infos.append('C lower crust: '+str(Clc))
-    scenario_infos.append('C mantle lithosphere: '+str(Clit))
+    #density (kg/m3)
+    rho_ast = 3378.0
+    rho_mlit = 3354.0
+    rho_lower_crust = 2800.0
+    rho_upper_crust = 2700.0
+    rho_air = 1.0
+
+    #radiogenic heat production (W/m3)
+    H_ast = 7.38e-12 #Turccote book #original is 0.0
+    # H_ast = 10.0e-12
+    H_mlit = 9.0e-12
+    H_lower_crust = 0.8e-6 / 2800.0 #2.85E-10
+    H_upper_crust = 2.5e-6 / 2700.0 #9.259E-10
+    H_air = 0.0
+
+    rheology_mlit = 'dry_olivine'
+    # rheology_mlit = 'wet_olivine'
+
+    if(rheology_mlit == 'dry_olivine'):
+        #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14 
+        A_mlit = 2.4168e-15
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.5
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 540.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 25.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0    
+
+    if(rheology_mlit == 'wet_olivine'):
+        #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14 
+        A_mlit = 1.393e-14
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.0
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 429.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 15.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0
+
+    layer_properties = f"""
+                        C   {C_ast}   {C_mlit}   {C_mlit}   {C_lower_crust}   {C_upper_crust}   {C_air}
+                        rho {rho_ast} {rho_mlit} {rho_mlit} {rho_lower_crust} {rho_upper_crust} {rho_air}
+                        H   {H_ast}   {H_mlit}   {H_mlit}   {H_lower_crust}   {H_upper_crust}   {H_air}
+                        A   {A_ast}   {A_mlit}   {A_mlit}   {A_lower_crust}   {A_upper_crust}   {A_air}
+                        n   {n_ast}   {n_mlit}   {n_mlit}   {n_lower_crust}   {n_upper_crust}   {n_air}
+                        Q   {Q_ast}   {Q_mlit}   {Q_mlit}   {Q_lower_crust}   {Q_upper_crust}   {Q_air}
+                        V   {V_ast}   {V_mlit}   {V_mlit}   {V_lower_crust}   {V_upper_crust}   {V_air}
+                    """
 
     # DeltaT = 0
     # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
@@ -380,12 +570,6 @@ elif(scenario_kind == 'stab'):
     # DeltaT = 600 #testar
     # DeltaT = 700
     # DeltaT = 800
-
-    Hast = 7.38e-12 #Turccote book #original is 0.0
-    # Hast = 10.0e-12
-
-    print(f'Asthenospheric rad. production: {Hast}')
-    scenario_infos.append(f'Asthenospheric rad. production: {Hast}')
 
     preset = False
     # keel_center = True
@@ -433,6 +617,9 @@ elif(scenario_kind == 'stab'):
     
     #step files
     print_step_files                 = True
+    
+    # checkered = False
+    checkered = True
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -484,37 +671,181 @@ elif(scenario_kind == 'stab'):
     # seed depth bellow base of lower crust (m)
     seed_in_litho = False
 
+    print('Scale factors (C):')
+    print(f'C air: {C_air}')
+    print(f'C upper crust: {C_upper_crust}')
+    print(f'C lower crust: {C_lower_crust}')
+    print(f'C mantle lithosphere: {C_mlit}')
+    print(f'C asthenosphere: {C_ast}')
+    print(f'Asthenospheric rad. heat production: {H_ast} W/m3')
+    print(f'Preset of initial temperature field: {preset}')
+    print(f'Force cold cratonic keel: {keel_adjust}')
+    print(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
+    print(f'Seed extra fragil: {extra_fragil}')
+    print(f'Surface process: {sp_surface_processes}')
+    print(f'Velocity field: {velocity_from_ascii}')
+    print(f'Climate change: {climate_change_from_ascii}')
+
     scenario_infos.append(' ')
-    print('Preset of initial temperature field: ' + str(preset))
-    scenario_infos.append('Preset of initial temperature field: '+str(preset))
-    print('High kappa in asthenosphere: ' + str(high_kappa_in_asthenosphere))
-    scenario_infos.append('High kappa in asthenosphere: ' + str(high_kappa_in_asthenosphere))
-    print('Surface process: '+str(sp_surface_processes))
-    scenario_infos.append('Surface process: '+str(sp_surface_processes))
-    print('Velocity field: '+str(velocity_from_ascii))
-    scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
-    print('Climate change: '+str(climate_change_from_ascii))
-    print('Variable velocity field: '+str(variable_bcv))
-    scenario_infos.append('Variable velocity field: '+str(variable_bcv))
-    scenario_infos.append('Climate change: '+str(climate_change_from_ascii))
-    print('Periodic Boundary: '+str(periodic_boundary))
-    scenario_infos.append('Periodic Boundary: '+str(periodic_boundary))
+    scenario_infos.append('Scale factors (C):')
+    scenario_infos.append(f'C air: {C_air}')
+    scenario_infos.append(f'C upper crust: {C_upper_crust}')
+    scenario_infos.append(f'C lower crust: {C_lower_crust}')
+    scenario_infos.append(f'C mantle lithosphere: {C_mlit}')
+    scenario_infos.append(f'C asthenosphere: {C_ast}')
+    scenario_infos.append(' ')
+    scenario_infos.append(f'Asthenospheric rad. heat production: {H_ast} W/m3')
+    scenario_infos.append(' ')
+    scenario_infos.append(f'Preset of initial temperature field: {preset}')
+    scenario_infos.append(f'Force cold cratonic keel: {keel_adjust}')
+    scenario_infos.append(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
+    scenario_infos.append(f'Seed extra fragil: {extra_fragil}')
+    scenario_infos.append(f'Surface process: {sp_surface_processes}')
+    scenario_infos.append(f'Velocity field: {velocity_from_ascii}')
+    scenario_infos.append(f'Climate change: {climate_change_from_ascii}')
 
 elif(scenario_kind == 'accordion'):
     #Rheological and Thermal parameters   
-    Clc = 1.0
-    # Clc = 10.0
-    Clit = 1
-    Cseed = 0.1
+    
+    #Viscosity scale factor
+    C_ast = 1.0
+    C_mlit = 1.0
+    C_seed = 0.1
+    C_lower_crust = 1.0
+    # C_lower_crust = 10.0
+    C_upper_crust = 1.0
+    C_air = 1.0
 
-    Cseed = 0.1
+    #density (kg/m3)
+    rho_ast = 3378.0
+    rho_mlit = 3354.0
+    rho_seed = 3354.0
+    rho_lower_crust = 2800.0
+    rho_upper_crust = 2700.0
+    rho_air = 1.0
 
+    #radiogenic heat production (W/m3)
+    H_ast = 7.38e-12 #Turccote book #original is 0.0
+    H_mlit = 9.0e-12
+    H_seed = 9.0e-12
+    H_lower_crust = 0.8e-6 / 2800.0 #2.85E-10
+    H_upper_crust = 2.5e-6 / 2700.0 #9.259E-10
+    H_air = 0.0
+
+    rheology_mlit = 'dry_olivine'
+    # rheology_mlit = 'wet_olivine'
+
+    if(rheology_mlit == 'dry_olivine'): 
+        #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14 
+        A_mlit = 2.4168e-15 
+        A_seed = 2.4168e-15
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.5
+        n_seed = 3.5
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 540.0e3
+        Q_seed = 540.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 25.0e-6
+        V_seed = 25.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0
+
+    if(rheology_mlit == 'wet_olivine'):
+                #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14 
+        A_mlit = 1.393e-14 
+        A_seed = 1.393e-14
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.0
+        n_seed = 3.0
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 429.0e3
+        Q_seed = 429.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 15.0e-6
+        V_seed = 15.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0
+
+    # seed_in_litho = False
+    seed_in_litho = True
+
+    if(seed_in_litho):
+        C_seed = 0.1
+        rho_seed = rho_mlit
+        H_seed = H_mlit
+        A_seed = A_mlit
+        n_seed = n_mlit
+        V_seed = V_mlit
+
+        # seed depth bellow base of lower crust (m)
+        # seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
+        # thickness_seed = 6 * 1.0e3
+        # seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
+        # thickness_seed = 12 * 1.0e3
+        seed_depth = 8 * 1.0e3 #9 * 1.0e3 #original
+        thickness_seed = 16 * 1.0e3
+
+        layer_properties = f"""
+                            C   {C_ast}   {C_mlit}   {C_seed}   {C_mlit}   {C_lower_crust}   {C_upper_crust}   {C_air}
+                            rho {rho_ast} {rho_mlit} {rho_seed} {rho_mlit} {rho_lower_crust} {rho_upper_crust} {rho_air}
+                            H   {H_ast}   {H_mlit}   {H_seed}   {H_mlit}   {H_lower_crust}   {H_upper_crust}   {H_air}
+                            A   {A_ast}   {A_mlit}   {A_seed}   {A_mlit}   {A_lower_crust}   {A_upper_crust}   {A_air}
+                            n   {n_ast}   {n_mlit}   {n_seed}   {n_mlit}   {n_lower_crust}   {n_upper_crust}   {n_air}
+                            Q   {Q_ast}   {Q_mlit}   {Q_seed}   {Q_mlit}   {Q_lower_crust}   {Q_upper_crust}   {Q_air}
+                            V   {V_ast}   {V_mlit}   {V_seed}   {V_mlit}   {V_lower_crust}   {V_upper_crust}   {V_air}
+                        """
+    else: #no seed in lithospheric mantle
+        layer_properties = f"""
+                            C   {C_ast}   {C_mlit}   {C_lower_crust}   {C_upper_crust}   {C_air}
+                            rho {rho_ast} {rho_mlit} {rho_lower_crust} {rho_upper_crust} {rho_air}
+                            H   {H_ast}   {H_mlit}   {H_lower_crust}   {H_upper_crust}   {H_air}
+                            A   {A_ast}   {A_mlit}   {A_lower_crust}   {A_upper_crust}   {A_air}
+                            n   {n_ast}   {n_mlit}   {n_lower_crust}   {n_upper_crust}   {n_air}
+                            Q   {Q_ast}   {Q_mlit}   {Q_lower_crust}   {Q_upper_crust}   {Q_air}
+                            V   {V_ast}   {V_mlit}   {V_lower_crust}   {V_upper_crust}   {V_air}
+                        """
+
+    #increase in asthenospheric thermal profile
     DeltaT = 0
     # DeltaT = 290 # oC
-    Hast = 7.38e-12 #Turccote book #original is 0.0
     
-    # preset = True
-    preset = False
+    preset = True
+    # preset = False
 
     # keel_center = True
     keel_center = False
@@ -538,10 +869,12 @@ elif(scenario_kind == 'accordion'):
     # scenario = 'stable/stable_PT200_rheol19_c1250_C1/'
 
     # scenario = 'stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst'
-    scenario = 'stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst'
+    # scenario = 'stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst'
     # scenario = 'stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst'
     # scenario = 'stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst'
     
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/'
+
     # scenario = 'stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km'
     # scenario = 'stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km'
     # scenario = 'stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km'
@@ -569,9 +902,6 @@ elif(scenario_kind == 'accordion'):
     velocity = 1.0 #cm/yr
     # velocity = 2.0 #cm/yr
 
-    print(f'Velocity: {velocity} cm/yr')
-    scenario_infos.append(f'Velocity: {velocity} cm/yr')
-
     variable_bcv                     = True
     velocity_from_ascii              = True
 
@@ -585,6 +915,9 @@ elif(scenario_kind == 'accordion'):
     # 
     #step files
     print_step_files                 = True
+
+    checkered = False
+    # checkered = True
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -679,97 +1012,211 @@ elif(scenario_kind == 'accordion'):
         # seed depth bellow base of lower crust (m)
         seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
 
-    print('Important scale factors (C):')
-    print('C lower crust: '+str(Clc))
+    print('Scale factors (C):')
+    print(f'C air: {C_air}')
+    print(f'C upper crust: {C_upper_crust}')
+    print(f'C lower crust: {C_lower_crust}')
+    print(f'C mantle lithosphere: {C_mlit}')
+    if(seed_in_litho):
+        print(f'C seed: {C_seed}')
+    print(f'C asthenosphere: {C_ast}')
+    print(f'Preset of initial temperature field: {preset}')
+    print(f'Force cold cratonic keel: {keel_adjust}')
+    if(preset == True):
+        print(f'Selection in preset: {selection_in_preset}')
+        print(f'Use horizontal mean of temperature from preset in lithosphere: {mean_litho}')
+    print(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
+    print(f'Seed extra fragil: {extra_fragil}')
+    print(f'Surface process: {sp_surface_processes}')
+    print(f'Velocity field {velocity_from_ascii}')
+    if(velocity_from_ascii):
+        print(f'Velocity: {velocity} cm/yr')
+        print(f'Variable velocity field: {variable_bcv}')
+    print(f'Climate change: {climate_change_from_ascii}')
 
     scenario_infos.append(' ')
-    scenario_infos.append('Important scale factors (C):')
-    scenario_infos.append('C lower crust: '+str(Clc))
-
+    scenario_infos.append('Scale factors (C):')
+    scenario_infos.append(f'C air: {C_air}')
+    scenario_infos.append(f'C upper crust: {C_upper_crust}')
+    scenario_infos.append(f'C lower crust: {C_lower_crust}')
+    scenario_infos.append(f'C mantle lithosphere: {C_mlit}')
+    if(seed_in_litho):
+        scenario_infos.append(f'C seed: {C_seed}')
+    scenario_infos.append(f'C asthenosphere: {C_ast}')
     scenario_infos.append(' ')
-    print('Preset of initial temperature field: ' + str(preset))
-    scenario_infos.append('Preset of initial temperature field: '+str(preset))
-
-    print('Seed extra fragil: ' + str(extra_fragil))
-    scenario_infos.append('Seed extra fragil: ' + str(extra_fragil))
-
-    print('Use horizontal mean of temperature from preset in lithosphere: ' + str(mean_litho))
-    scenario_infos.append('Use horizontal mean of temperature from preset in lithosphere: ' + str(mean_litho))
-
-    print('Surface process: '+str(sp_surface_processes))
-    scenario_infos.append('Surface process: '+str(sp_surface_processes))
-
-    print('Velocity field: '+str(velocity_from_ascii))
-    scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
-
-    print('Variable velocity field: '+str(variable_bcv))
-    scenario_infos.append('Variable velocity field: '+str(variable_bcv))
-
-    print('Climate change: '+str(climate_change_from_ascii))
-    scenario_infos.append('Climate change: '+str(climate_change_from_ascii))
+    scenario_infos.append(f'Preset of initial temperature field: {preset}')
+    scenario_infos.append(f'Force cold cratonic keel: {keel_adjust}')
+    if(preset == True):
+        scenario_infos.append(f'Selection in preset: {selection_in_preset}')
+        scenario_infos.append(f'Use horizontal mean of temperature from preset in lithosphere: {mean_litho}')
+    scenario_infos.append(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
+    scenario_infos.append(f'Seed extra fragil: {extra_fragil}')
+    scenario_infos.append(f'Surface process: {sp_surface_processes}')
+    scenario_infos.append(f'Velocity field {velocity_from_ascii}')
+    if(velocity_from_ascii):
+        scenario_infos.append(f'Velocity: {velocity} cm/yr')
+        scenario_infos.append(f'Variable velocity field: {variable_bcv}')
+    scenario_infos.append(f'Climate change: {climate_change_from_ascii}')
 
 elif(scenario_kind == 'accordion_lit_hetero'):
     #Rheological and Thermal parameters
-    # Clc = 1.0
-    Clc = 10.0
-    # Clc = 40.0
+    #Viscosity scale factor
+    C_ast = 1.0
+    C_mlit = 1.0
+    C_mlit_lateral = 1.0 #lateral
+    C_mlit_central = 0.1 #central
+    C_lower_crust = 1.0
+    # C_lower_crust = 10.0
+    C_upper_crust = 1.0
+    C_air = 1.0
 
-    Clitl = 1.0 #lateral
-    Clitc = 0.1 #central
-    Cseed = 0.1
+    #density (kg/m3)
+    rho_ast = 3378.0
+    rho_mlit = 3354.0
+    rho_mlit_lateral = 3354.0
+    rho_mlit_central = 3354.0
+    rho_lower_crust = 2800.0
+    rho_upper_crust = 2700.0
+    rho_air = 1.0
 
-    print('Important scale factors (C):')
-    print('C lower crust: '+str(Clc))
-    print('C lateral lithosphere: '+str(Clitl))
-    print('C central lithosphere: '+str(Clitc))
-    scenario_infos.append(' ')
-    scenario_infos.append('Important scale factors (C):')
-    scenario_infos.append('C lower crust: '+str(Clc))
-    scenario_infos.append('C lateral lithosphere: '+str(Clitl))
-    scenario_infos.append('C central lithosphere: '+str(Clitc))
+    #radiogenic heat production (W/m3)
+    H_ast = 7.38e-12 #Turccote book #original is 0.0
+    H_mlit = 9.0e-12
+    H_mlit_lateral = 9.0e-12
+    H_mlit_central = 9.0e-12
+    H_lower_crust = 0.8e-6 / 2800.0 #2.85E-10
+    H_upper_crust = 2.5e-6 / 2700.0 #9.259E-10
+    H_air = 0.0
 
+    rheology_mlit = 'dry_olivine'
+    # rheology_mlit = 'wet_olivine'
+
+    seed_in_litho = False
+
+    if(rheology_mlit == 'dry_olivine'):
+        #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14 
+        A_mlit = 2.4168e-15
+        A_mlit_lateral = 2.4168e-15
+        A_mlit_central = 2.4168e-15
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.5
+        n_mlit_lateral = 3.5
+        n_mlit_central = 3.5
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 540.0e3
+        Q_mlit_lateral = 540.0e3
+        Q_mlit_central = 540.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 25.0e-6
+        V_mlit_lateral = 25.0e-6
+        V_mlit_central = 25.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0
+
+    if(rheology_mlit == 'wet_olivine'):
+
+        A_ast = 1.393e-14 
+        A_mlit = 1.393e-14
+        A_mlit_lateral = 1.393e-14
+        A_mlit_central = 1.393e-14
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.0
+        n_mlit_lateral = 3.0
+        n_mlit_central = 3.0
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 429.0e3
+        Q_mlit_lateral = 429.0e3
+        Q_mlit_central = 429.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 15.0e-6
+        V_mlit_lateral = 15.0e-6
+        V_mlit_central = 15.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0
+
+    layer_properties = f"""
+                        C   {C_ast}   {C_mlit_lateral}   {C_mlit_central}   {C_lower_crust}   {C_upper_crust}   {C_air}
+                        rho {rho_ast} {rho_mlit_lateral} {rho_mlit_central} {rho_lower_crust} {rho_upper_crust} {C_air}
+                        H   {H_ast}   {H_mlit_lateral}   {H_mlit_central}   {H_lower_crust}   {H_upper_crust}   {C_air}
+                        A   {A_ast}   {A_mlit_lateral}   {A_mlit_central}   {A_lower_crust}   {A_upper_crust}   {C_air}
+                        n   {n_ast}   {n_mlit_lateral}   {n_mlit_central}   {n_lower_crust}   {n_upper_crust}   {C_air}
+                        Q   {Q_ast}   {Q_mlit_lateral}   {Q_mlit_central}   {Q_lower_crust}   {Q_upper_crust}   {C_air}
+                        V   {V_ast}   {V_mlit_lateral}   {V_mlit_central}   {V_lower_crust}   {V_upper_crust}   {C_air}
+                    """
+                
     DeltaT = 0
     # DeltaT = 290 # oC
     
-    Hast = 7.38e-12 #Turccote book #original is 0.0
+    H_ast = 7.38e-12 #Turccote book #original is 0.0
     
     # preset = True
     preset = False
     
     # keel_center = True
     keel_center = False
-    
-    # preset = False
-    
+
+    keel_adjust = False
+
+    ast_wind = False
+
+    selection_in_preset = False
+    # selection_in_preset = True
+
     # extra_fragil = True
     extra_fragil = False
-    
-    mean_litho = True
-    # mean_litho = False
+
+    # mean_litho = True
+    mean_litho = False
 
     # high_kappa_in_asthenosphere = True
     high_kappa_in_asthenosphere = False #default
     
-    scenario_infos.append(' ')
-    print('Preset of initial temperature field: ' + str(preset))
-    scenario_infos.append('Preset of initial temperature field: '+str(preset))
 
-    print('Seed extra fragil: ' + str(extra_fragil))
-    scenario_infos.append('Seed extra fragil: ' + str(extra_fragil))
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/stable_PT200_rheol19_c1250_C1/'
 
-    print('Use horizontal mean of temperature from preset in lithosphere: ' + str(mean_litho))
-    scenario_infos.append('Use horizontal mean of temperature from preset in lithosphere: ' + str(mean_litho))
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
 
-    # scenario = 'stable/stable_PT200_rheol19_c1250_C1/'
-
-    # scenario = 'stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
-    # scenario = 'stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
-    scenario = 'stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
-    # scenario = 'stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/'
     
-    # scenario = 'stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
-    # scenario = 'stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
-    # scenario = 'stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
 
     # scenario = 'keel/stable_DT200_keel_HprodAst/'
 
@@ -784,14 +1231,17 @@ elif(scenario_kind == 'accordion_lit_hetero'):
     scenario_infos.append('Surface process: '+str(sp_surface_processes))
 
     #time constrains 
-    time_max                         = 120.0e6
-    # time_max                         = 200.0e6
+     #time constrains 
+    time_max                         = 130.0e6
+    dt_max                           = 5.0e3
     step_print                       = 100
 
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
     variable_bcv                     = True
     velocity_from_ascii              = True
+    velocity = 1.0 #cm/yr
+
     print('Velocity field: '+str(velocity_from_ascii))
     scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
     print('Variable velocity field: '+str(variable_bcv))
@@ -809,6 +1259,9 @@ elif(scenario_kind == 'accordion_lit_hetero'):
     # 
     #step files
     print_step_files                 = True
+
+    checkered = False
+    # checkered = True
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -865,155 +1318,196 @@ elif(scenario_kind == 'accordion_lit_hetero'):
     # seed depth bellow base of lower crust (m)
     seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
 
-elif(scenario_kind == 'accordion_keel'):
-    #Rheological and Thermal parameters
-    # Clc = 1.0
-    Clc = 10.0
-    # Clc = 40.0
-    Cseed = 0.1
-
-    print('Important scale factors (C):')
-    print('C lower crust: '+str(Clc))
-    scenario_infos.append(' ')
-    scenario_infos.append('Important scale factors (C):')
-    scenario_infos.append('C lower crust: '+str(Clc))
-
-    DeltaT = 290 # oC
-    Hast = 7.38e-12 #Turccote book #original is 0.0
-    preset = True
-    keel_center = False
-    # preset = False
-    # extra_fragil = True
-    extra_fragil = False
-    mean_litho = True
-    # mean_litho = False
-    # high_kappa_in_asthenosphere = True
-    high_kappa_in_asthenosphere = False #default
+    print('Scale factors (C):')
+    print(f'C air: {C_air}')
+    print(f'C upper crust: {C_upper_crust}')
+    print(f'C lower crust: {C_lower_crust}')
+    print(f'C mantle lithosphere: {C_mlit}')
+    print(f'C asthenosphere: {C_ast}')
+    print(f'Preset of initial temperature field: {preset}')
+    print(f'Force cold cratonic keel: {keel_adjust}')
+    if(preset == True):
+        print(f'Selection in preset: {selection_in_preset}')
+        print(f'Use horizontal mean of temperature from preset in lithosphere: {mean_litho}')
+    print(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
+    print(f'Seed extra fragil: {extra_fragil}')
+    print(f'Surface process: {sp_surface_processes}')
+    print(f'Velocity field {velocity_from_ascii}')
+    if(velocity_from_ascii):
+        print(f'Velocity: {velocity} cm/yr')
+        print(f'Variable velocity field: {variable_bcv}')
+    print(f'Climate change: {climate_change_from_ascii}')
 
     scenario_infos.append(' ')
-    print('Preset of initial temperature field: ' + str(preset))
-    scenario_infos.append('Preset of initial temperature field: '+str(preset))
-
-    print('Seed extra fragil: ' + str(extra_fragil))
-    scenario_infos.append('Seed extra fragil: ' + str(extra_fragil))
-
-    print('Use horizontal mean of temperature from preset in lithosphere: ' + str(mean_litho))
-    scenario_infos.append('Use horizontal mean of temperature from preset in lithosphere: ' + str(mean_litho))
-
-    # scenario = 'keel/stable_PT200_keel_HprodAst/'
-    scenario = 'keel/stable_DT290_keel_HprodAst/'
-
-    #Convergence criteria
-    denok                            = 1.0e-13
-    particles_per_element            = 100
-
-    #Surface constrains
-    sp_surface_tracking              = True
-    sp_surface_processes             = False 
-    print('Surface process: '+str(sp_surface_processes))
-    scenario_infos.append('Surface process: '+str(sp_surface_processes))
-
-    #time constrains 
-    time_max                         = 120.0e6 
-    step_print                       = 100
-
-    #External inputs: bc velocity, velocity field, precipitation and
-    #climate change
-    variable_bcv                     = True
-    velocity_from_ascii              = True
-    print('Velocity field: '+str(velocity_from_ascii))
-    scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
-    print('Variable velocity field: '+str(variable_bcv))
-    scenario_infos.append('Variable velocity field: '+str(variable_bcv))
-
-    if(sp_surface_processes == True):
-        precipitation_profile_from_ascii = True #False
-        climate_change_from_ascii        = True #False
-    else:
-        precipitation_profile_from_ascii = False
-        climate_change_from_ascii        = False
-
-    print('Climate change: '+str(climate_change_from_ascii))
-    scenario_infos.append('Climate change: '+str(climate_change_from_ascii))
-    # 
-    #step files
-    print_step_files                 = True
-
-    #velocity bc
-    top_normal_velocity                 = 'fixed'         # ok
-    top_tangential_velocity             = 'free '         # ok
-    bot_normal_velocity                 = 'fixed'         # ok
-    bot_tangential_velocity             = 'free '         # ok
-    left_normal_velocity                = 'fixed'         # ok
-    left_tangential_velocity            = 'free '         # ok
-    right_normal_velocity               = 'fixed'         # ok
-    right_tangential_velocity           = 'fixed'         # ok
-
-    # periodic_boundary = True
-    periodic_boundary = False
-    if(periodic_boundary == True):
-        left_normal_velocity                = 'free'         # ok
-        left_tangential_velocity            = 'free '         # ok
-        right_normal_velocity               = 'free'         # ok
-        right_tangential_velocity           = 'free'         # ok
-
-    #temperature bc
-    top_temperature                     = 'fixed'         # ok
-    bot_temperature                     = 'fixed'         # ok
-    left_temperature                    = 'fixed'          # ok
-    right_temperature                   = 'fixed'          # ok
-
-    bellon = False
-    # bellon = True
-
-    ##################################################################
-    # total model horizontal extent (m)
-    Lx = 1600 * 1.0e3
-    # total model vertical extent (m)
-    Lz = 700 * 1.0e3 #400 * 1.0e3
-    # number of points in horizontal direction
-    # Nx = 401 #
-    Nx = 801
-    # number of points in vertical direction
-    # Nz = 176  #
-    Nz = 351
-
-    # thickness of sticky air layer (m)
-    thickness_sa = 40 * 1.0e3
-    # thickness of upper crust (m)
-    thickness_upper_crust = 20 * 1.0e3
-    # thickness of lower crust (m)
-    thickness_lower_crust = 15 * 1.0e3
-    # total thickness of lithosphere (m)
-    thickness_litho = 80 * 1.0e3
-    # seed depth bellow base of lower crust (m)
-    seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
+    scenario_infos.append('Scale factors (C):')
+    scenario_infos.append(f'C air: {C_air}')
+    scenario_infos.append(f'C upper crust: {C_upper_crust}')
+    scenario_infos.append(f'C lower crust: {C_lower_crust}')
+    scenario_infos.append(f'C mantle lithosphere: {C_mlit}')
+    scenario_infos.append(f'C asthenosphere: {C_ast}')
+    scenario_infos.append(' ')
+    scenario_infos.append(f'Preset of initial temperature field: {preset}')
+    scenario_infos.append(f'Force cold cratonic keel: {keel_adjust}')
+    if(preset == True):
+        scenario_infos.append(f'Selection in preset: {selection_in_preset}')
+        scenario_infos.append(f'Use horizontal mean of temperature from preset in lithosphere: {mean_litho}')
+    scenario_infos.append(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
+    scenario_infos.append(f'Seed extra fragil: {extra_fragil}')
+    scenario_infos.append(f'Surface process: {sp_surface_processes}')
+    scenario_infos.append(f'Velocity field {velocity_from_ascii}')
+    if(velocity_from_ascii):
+        scenario_infos.append(f'Velocity: {velocity} cm/yr')
+        scenario_infos.append(f'Variable velocity field: {variable_bcv}')
+    scenario_infos.append(f'Climate change: {climate_change_from_ascii}')
 
 elif(scenario_kind == 'stab_keel'):
-    #Rheological and Thermal parameters
-    Clc = 10.0
-    Cseed = 0.1
-    
-    Clit = 1 #Default
-    # Clit = 0.5
-    # Clit = 0.25
-    # Clit = 0.3
-    # Clit = 0.1
-    # Clit = 0.01
 
-    print('Important scale factors (C):')
-    print('C lower crust: '+str(Clc))
-    print('C mantle lithosphere: '+str(Clit))
-    scenario_infos.append(' ')
-    scenario_infos.append('Important scale factors (C):')
-    scenario_infos.append('C lower crust: '+str(Clc))
-    scenario_infos.append('C mantle lithosphere: '+str(Clit))
+    #Rheological and Thermal parameters
+        #Viscosity scale factor
+    C_ast = 1.0
+    C_mlit = 1 #Default
+    # C_mlit = 0.5
+    # C_mlit = 0.25
+    # C_mlit = 0.3
+    # C_mlit = 0.1
+    # C_mlit = 0.01
+    C_lower_crust = 10.0
+    C_upper_crust = 1.0
+    C_air = 1.0
+
+    #density (kg/m3)
+    rho_ast = 3378.0
+    rho_mlit = 3354.0
+    rho_lower_crust = 2800.0
+    rho_upper_crust = 2700.0
+    rho_air = 1.0
+
+    #radiogenic heat production (W/m3)
+    H_ast = 7.38e-12 #Turccote book #original is 0.0
+    # H_ast = 10.0e-12
+    H_mlit = 9.0e-12
+    H_lower_crust = 0.8e-6 / 2800.0 #2.85E-10
+    H_upper_crust = 2.5e-6 / 2700.0 #9.259E-10
+    H_air = 0.0
+
+    rheology_mlit = 'dry_olivine'
+    # rheology_mlit = 'wet_olivine'
+
+    if(rheology_mlit == 'dry_olivine'):
+        #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14 
+        A_mlit = 2.4168e-15
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.5
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 540.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 25.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0    
+
+    if(rheology_mlit == 'wet_olivine'):
+        #pre exponential constant (Pa^-n s^-1)
+        A_ast = 1.393e-14 
+        A_mlit = 1.393e-14
+        A_lower_crust = 8.574e-28
+        A_upper_crust = 8.574e-28
+        A_air = 1.0e-18
+
+        #power law exponent
+        n_ast = 3.0
+        n_mlit = 3.0
+        n_lower_crust = 4.0
+        n_upper_crust = 4.0
+        n_air = 1.0
+
+        #activation energy (J/mol)
+        Q_ast = 429.0e3
+        Q_mlit = 429.0e3
+        Q_lower_crust = 222.0e3
+        Q_upper_crust = 222.0e3
+        Q_air = 0.0
+
+        #activation volume (m3/mol)
+        V_ast = 15.0e-6
+        V_mlit = 15.0e-6
+        V_lower_crust = 0.0
+        V_upper_crust = 0.0
+        V_air = 0.0
+    
+    mobile_belt = True
+    # mobile_belt = False
+    shift_mb = 0.0e3
+    # shift_mb = 200.0e3 #m
+
+    mb_rheol = 'wet_olivine'
+    # mb_rheol = 'dry_olivine'
+    
+    if(mobile_belt):
+        if(mb_rheol == 'dry_olivine'):
+            C_mobile_belt = 0.01 #central
+            rho_mobile_belt = 3354.0
+            H_mobile_belt = 9.0e-12
+            A_mobile_belt = 2.4168e-15
+            n_mobile_belt = 3.5
+            Q_mobile_belt = 540.0e3
+            V_mobile_belt = 25.0e-6
+
+        if(mb_rheol == 'wet_olivine'):
+            C_mobile_belt = 1.0 
+            # C_mobile_belt = 3 
+            # C_mobile_belt = 5
+            rho_mobile_belt = 3354.0
+            H_mobile_belt = 9.0e-12
+            A_mobile_belt = 1.393e-14
+            n_mobile_belt = 3.0
+            Q_mobile_belt = 429.0e3
+            V_mobile_belt = 15.0e-6
+
+
+        layer_properties = f"""
+            C   {C_ast}   {C_mobile_belt}   {C_mlit}   {C_lower_crust}   {C_upper_crust}   {C_air}
+            rho {rho_ast} {rho_mobile_belt} {rho_mlit} {rho_lower_crust} {rho_upper_crust} {rho_air}
+            H   {H_ast}   {H_mobile_belt}   {H_mlit}   {H_lower_crust}   {H_upper_crust}   {H_air}
+            A   {A_ast}   {A_mobile_belt}   {A_mlit}   {A_lower_crust}   {A_upper_crust}   {A_air}
+            n   {n_ast}   {n_mobile_belt}   {n_mlit}   {n_lower_crust}   {n_upper_crust}   {n_air}
+            Q   {Q_ast}   {Q_mobile_belt}   {Q_mlit}   {Q_lower_crust}   {Q_upper_crust}   {Q_air}
+            V   {V_ast}   {V_mobile_belt}   {V_mlit}   {V_lower_crust}   {V_upper_crust}   {V_air}
+        """
+    else:
+        layer_properties = f"""
+            C   {C_ast}   {C_mlit}   {C_lower_crust}   {C_upper_crust}   {C_air}
+            rho {rho_ast} {rho_mlit} {rho_lower_crust} {rho_upper_crust} {rho_air}
+            H   {H_ast}   {H_mlit}   {H_lower_crust}   {H_upper_crust}   {H_air}
+            A   {A_ast}   {A_mlit}   {A_lower_crust}   {A_upper_crust}   {A_air}
+            n   {n_ast}   {n_mlit}   {n_lower_crust}   {n_upper_crust}   {n_air}
+            Q   {Q_ast}   {Q_mlit}   {Q_lower_crust}   {Q_upper_crust}   {Q_air}
+            V   {V_ast}   {V_mlit}   {V_lower_crust}   {V_upper_crust}   {V_air}
+        """
+
+
 
     DeltaT = 200
     # DeltaT = 290
     # DeltaT = 350
 
-    Hast = 7.38e-12 #Turccote book #original is 0.0
+    H_ast = 7.38e-12 #Turccote book #original is 0.0
 
     preset = True
     # preset = False
@@ -1039,20 +1533,12 @@ elif(scenario_kind == 'stab_keel'):
 
     shift_craton = 0.0e3 #m
     # shift_craton = 700.0e3 #m
-
-    mobile_belt = True
-    # mobile_belt = False
-    shift_mb = 0.0e3
-    # shift_mb = 200.0e3 #m
-
-    mb_rheol = 'Wet Ol'
-    # mb_rheol = 'Dry Ol'
     
-    # free_continent = False
-    free_continent = True
+    free_continent = False
+    # free_continent = True
 
-    hot_surface = True
-    # hot_surface = False
+    # hot_surface = True
+    hot_surface = False
 
     # seed = False
     # seed = True
@@ -1073,22 +1559,6 @@ elif(scenario_kind == 'stab_keel'):
 
     print('Craton with Mobile Belt: ' + str(mobile_belt))
     scenario_infos.append('Craton with Mobile Belt: ' + str(mobile_belt))
-    
-    if(mobile_belt):
-        print('Rheology of Mobile Belt: ' + str(mb_rheol))
-        scenario_infos.append('Rheology of Mobile Belt: ' + str(mb_rheol))
-        if(mb_rheol == 'Dry Ol'):
-            Clit = 1.0 #lateral
-            Cmb = 0.01 #central
-
-        if(mb_rheol == 'Wet Ol'):
-            Clit = 1.0 #lateral
-            Cmb = 1.0 
-            # Cmb = 3 
-            # Cmb = 5
-            
-        print('C Mobile Belt: ' + str(Cmb))
-        scenario_infos.append('C Mobile Belt: ' + str(Cmb))
 
     #Convergence criteria
     denok                            = 1.0e-11
@@ -1120,7 +1590,6 @@ elif(scenario_kind == 'stab_keel'):
     if(intermitent_wind):
         variable_bcv                     = True
         velocity_from_ascii              = True
-
     else:
         variable_bcv                     = False
         velocity_from_ascii              = False
@@ -1145,6 +1614,8 @@ elif(scenario_kind == 'stab_keel'):
 
     #step files
     print_step_files                 = True
+    # checkered = False
+    checkered = True
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -1204,117 +1675,23 @@ elif(scenario_kind == 'stab_keel'):
     # thickness_litho = 120 * 1.0e3
     seed_in_litho = False
 
-elif(scenario_kind == 'quiescence'):
-    #Rheological and Thermal parameters
-    Clc = 100.0
-    Cseed = 0.1
+    print('Scale factors (C):')
+    print(f'C air: {C_air}')
+    print(f'C upper crust: {C_upper_crust}')
+    print(f'C lower crust: {C_lower_crust}')
+    print(f'C mantle lithosphere: {C_mlit}')
+    if(mobile_belt):
+        print(f'C mobile belt: {C_mobile_belt}')
+    print(f'C asthenosphere: {C_ast}')
 
-    print('Important scale factors (C):')
-    print('C lower crust: '+str(Clc))
-    scenario_infos.append(' ')
-    scenario_infos.append('Important scale factors (C):')
-    scenario_infos.append('C lower crust: '+str(Clc))
-
-    # DeltaT = 200
-    DeltaT = 0#290
-    Hast = 7.38e-12 #Turccote book #original is 0.0
-    preset = False
-    keel_center = False
-    extra_fragil = False
-    # high_kappa_in_asthenosphere = True
-    high_kappa_in_asthenosphere = False #default
-    
-    scenario_infos.append(' ')
-    print('Preset of initial temperature field: ' + str(preset))
-    scenario_infos.append('Preset of initial temperature field: '+str(preset))
-
-    #Convergence criteria
-    denok                            = 1.0e-11
-    particles_per_element            = 100
-    
-    #Surface constrains
-    sp_surface_tracking              = True
-    sp_surface_processes             = False
-    print('Surface process: '+str(sp_surface_processes))
-    scenario_infos.append('Surface process: '+str(sp_surface_processes))
-
-    #time constrains 
-    time_max                         = 300.0e6
-    step_print                       = 250    
-    
-    #External inputs: bc velocity, velocity field, precipitation and
-    #climate change
-    variable_bcv                     = False
-    velocity_from_ascii              = False
-    print('Velocity field: '+str(velocity_from_ascii))
-    scenario_infos.append('Velocity field: '+str(velocity_from_ascii))
-    print('Variable velocity field: '+str(variable_bcv))
-    scenario_infos.append('Variable velocity field: '+str(variable_bcv))
-
-    print_step_files                 = True
-    
-    if(sp_surface_processes == True):
-        precipitation_profile_from_ascii = True #False
-        climate_change_from_ascii        = True #False
-    else:
-        precipitation_profile_from_ascii = False
-        climate_change_from_ascii        = False 
-    print('Climate change: '+str(climate_change_from_ascii))
-    scenario_infos.append('Climate change: '+str(climate_change_from_ascii))
-
-    #step files
-    print_step_files                 = True
-
-    #velocity bc
-    top_normal_velocity                 = 'fixed'         # ok
-    top_tangential_velocity             = 'free '         # ok
-    bot_normal_velocity                 = 'fixed'         # ok
-    bot_tangential_velocity             = 'free '         # ok
-    left_normal_velocity                = 'fixed'         # ok
-    left_tangential_velocity            = 'free '         # ok
-    right_normal_velocity               = 'fixed'         # ok
-    right_tangential_velocity           = 'free'         # ok
-
-    # periodic_boundary = True
-    periodic_boundary = False
-    print('Periodic Boundary: '+str(periodic_boundary))
-    scenario_infos.append('Periodic Boundary: '+str(periodic_boundary))
-
-    if(periodic_boundary == True):
-        left_normal_velocity                = 'free'         # ok
-        left_tangential_velocity            = 'free '         # ok
-        right_normal_velocity               = 'free'         # ok
-        right_tangential_velocity           = 'free'         # ok
-
-    #temperature bc
-    top_temperature                     = 'fixed'         # ok
-    bot_temperature                     = 'fixed'         # ok
-    left_temperature                    = 'free'          # ok
-    right_temperature                   = 'free'          # ok
-
-    bellon = False
-    # bellon = True
-    
-    ##################################################################
-    # total model horizontal extent (m)
-    Lx = 1600 * 1.0e3
-    # total model vertical extent (m)
-    Lz = 700 * 1.0e3 #400 * 1.0e3
-    # number of points in horizontal direction
-    Nx = 161 #401 # #801 #1601
-    # number of points in vertical direction
-    Nz = 71 #176 #71 #176 #351 #71 #301 #401
-    
-    # thickness of sticky air layer (m)
-    thickness_sa = 40 * 1.0e3
-    # thickness of upper crust (m)
-    thickness_upper_crust = 15 * 1.0e3
-    # thickness of lower crust (m)
-    thickness_lower_crust = 15 * 1.0e3
-    # total thickness of lithosphere (m)
-    thickness_litho = 250 * 1.0e3
-    # seed depth bellow base of lower crust (m)
-    seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
+    scenario_infos.append('Scale factors (C):')
+    scenario_infos.append(f'C air: {C_air}')
+    scenario_infos.append(f'C upper crust: {C_upper_crust}')
+    scenario_infos.append(f'C lower crust: {C_lower_crust}')
+    scenario_infos.append(f'C mantle lithosphere: {C_mlit}')
+    if(mobile_belt):
+        scenario_infos.append(f'C mobile belt: {C_mobile_belt}')
+    scenario_infos.append(f'C asthenosphere: {C_ast}')
 
 
 x = np.linspace(0, Lx, Nx)
@@ -1517,7 +1894,7 @@ else:
 
 if(scenario_kind == 'accordion' or scenario_kind == 'rifting'):
     if(extra_fragil == True):
-        Cseed = 0.01
+        C_seed = 0.01
         dx = Lx/(Nx-1)
         Lfragil = 12.0e3 #m
         # thinning = thickness_litho - 45.0e3
@@ -1533,225 +1910,17 @@ if(scenario_kind == 'quiescence'):
     interfaces['litho'][Nx//2 - N_WTL//2 : Nx//2 + N_WTL//2] = thickness_sa + thinning
 
 
-Huc = 2.5e-6 / 2700.0 #9.259E-10
-Hlc = 0.8e-6 / 2800.0 #2.85E-10
-
 # Create the interface file
+with open("interfaces.txt", "w") as f:
 
-if(scenario_kind == 'accordion_lit_hetero'):
-    with open("interfaces.txt", "w") as f:
-        rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
-        
-        if(rheology_mlit == 'dry'):
-            layer_properties = f"""
-                C   1.0       {Clitl}    {Clitc}     {Clc}       1.0         1.0
-                rho 3378.0    3354.0     3354.0      2800.0      2700.0      1.0
-                H   {Hast}    9.0e-12    9.0e-12     {Hlc}       {Huc}       0.0
-                A   1.393e-14 2.4168e-15 2.4168e-15  8.574e-28   8.574e-28   1.0e-18
-                n   3.0       3.5        3.5         4.0         4.0         1.0
-                Q   429.0e3   540.0e3    540.0e3     222.0e3     222.0e3     0.0
-                V   15.0e-6   25.0e-6    25.0e-6     0.0         0.0         0.0
-            """
+    for line in layer_properties.split("\n"):
+        line = line.strip()
+        if len(line):
+            f.write(" ".join(line.split()) + "\n")
 
-        if(rheology_mlit == 'wet'):
-            layer_properties = f"""
-                C   1.0       {Clitl}    {Clitc}    {Clc}       1.0         1.0
-                rho 3378.0    3354.0     3354.0     2800.0      2700.0      1.0
-                H   {Hast}    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-                A   1.393e-14 1.393e-14  1.393e-14  8.574e-28   8.574e-28   1.0e-18
-                n   3.0       3.0        3.0        4.0         4.0         1.0
-                Q   429.0e3   429.0e3    429.0e3    222.0e3     222.0e3     0.0
-                V   15.0e-6   15.0e-6    15.0e-6    0.0         0.0         0.0
-            """
-
-        for line in layer_properties.split("\n"):
-            line = line.strip()
-            if len(line):
-                f.write(" ".join(line.split()) + "\n")
-
-        # layer interfaces
-        data = -1 * np.array(tuple(interfaces.values())).T
-        np.savetxt(f, data, fmt="%.1f")
-
-elif(scenario_kind == 'stab_keel'):
-    if(mobile_belt == True):
-
-        with open("interfaces.txt", "w") as f:
-            rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
-            
-            if(rheology_mlit == 'dry'):
-                    #   Ast       mobile_belt  Mantle_lit Seed       Mantle_lit Lw_crust    Up_crust    Air
-                # layer_properties = f"""
-                #     C   1.0       {Cmb}        {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
-                #     rho 3378.0    3354.0       3354.0     3354.0     3354.0     2800.0      2700.0      1.0
-                #     H   {Hast}    9.0e-12      9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-                #     A   1.393e-14 2.4168e-15   2.4168e-15 2.4168e-15 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                #     n   3.0       3.5          3.5        3.5        3.5        4.0         4.0         1.0
-                #     Q   429.0e3   540.0e3      540.0e3    540.0e3    540.0e3    222.0e3     222.0e3     0.0
-                #     V   15.0e-6   25.0e-6      25.0e-6    25.0e-6    25.0e-6    0.0         0.0         0.0
-                # """
-                if(mb_rheol == 'Dry Ol'):
-                    #       Ast       mobile_belt  Mantle_lit Lw_crust    Up_crust    Air
-                    layer_properties = f"""
-                        C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
-                        rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
-                        H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
-                        A   1.393e-14 2.4168e-15   2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                        n   3.0       3.5          3.5        4.0         4.0         1.0
-                        Q   429.0e3   540.0e3      540.0e3    222.0e3     222.0e3     0.0
-                        V   15.0e-6   25.0e-6      25.0e-6    0.0         0.0         0.0
-                    """
-
-                if(mb_rheol == 'Wet Ol'):
-                    layer_properties = f"""
-                        C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
-                        rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
-                        H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
-                        A   1.393e-14 1.393e-14    2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                        n   3.0       3.0          3.5        4.0         4.0         1.0
-                        Q   429.0e3   429.0e3      540.0e3    222.0e3     222.0e3     0.0
-                        V   15.0e-6   15.0e-6      25.0e-6    0.0         0.0         0.0
-                    """
-
-            if(rheology_mlit == 'wet'):
-                
-                # layer_properties = f"""
-                #     C   1.0       {Cmb}        {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
-                #     rho 3378.0    3354.0       3354.0     3354.0     3354.0     2800.0      2700.0      1.0
-                #     H   {Hast}    9.0e-12      9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-                #     A   1.393e-14 1.393e-14    1.393e-14  1.393e-14  1.393e-14  8.574e-28   8.574e-28   1.0e-18
-                #     n   3.0       3.0          3.0        3.0        3.0        4.0         4.0         1.0
-                #     Q   429.0e3   429.0e3      429.0e3    429.0e3    429.0e3    222.0e3     222.0e3     0.0
-                #     V   15.0e-6   15.0e-6      15.0e-6    15.0e-6    15.0e-6    0.0         0.0         0.0
-                # """
-                
-                layer_properties = f"""
-                    C   1.0       {Cmb}        {Clit}     {Clc}       1.0         1.0
-                    rho 3378.0    3354.0       3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12      9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 1.393e-14    1.393e-14  8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.0          3.0        4.0         4.0         1.0
-                    Q   429.0e3   429.0e3      429.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   15.0e-6      15.0e-6    0.0         0.0         0.0
-                """
-
-            for line in layer_properties.split("\n"):
-                line = line.strip()
-                if len(line):
-                    f.write(" ".join(line.split()) + "\n")
-
-            # layer interfaces
-            data = -1 * np.array(tuple(interfaces.values())).T
-            np.savetxt(f, data, fmt="%.1f")
-        
-    else:
-        with open("interfaces.txt", "w") as f:
-            rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
-            
-            if(rheology_mlit == 'dry'):
-                layer_properties = f"""
-                    C   1.0       {Clit}     {Clc}       1.0         1.0
-                    rho 3378.0    3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.5        4.0         4.0         1.0
-                    Q   429.0e3   540.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   25.0e-6    0.0         0.0         0.0
-                """
-
-            if(rheology_mlit == 'wet'):
-                
-                layer_properties = f"""
-                    C   1.0       5.0        {Clc}       1.0         1.0
-                    rho 3378.0    3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 1.393e-14  8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.0        4.0         4.0         1.0
-                    Q   429.0e3   429.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   15.0e-6    0.0         0.0         0.0
-                """
-
-            for line in layer_properties.split("\n"):
-                line = line.strip()
-                if len(line):
-                    f.write(" ".join(line.split()) + "\n")
-
-            # layer interfaces
-            data = -1 * np.array(tuple(interfaces.values())).T
-            np.savetxt(f, data, fmt="%.1f")
-
-else: #other scenarios
-    if(seed_in_litho): 
-        with open("interfaces.txt", "w") as f:
-            rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
-            
-            if(rheology_mlit == 'dry'):
-                layer_properties = f"""
-                    C   1.0       {Clit}     {Cseed}    {Clit}     {Clc}       1.0         1.0
-                    rho 3378.0    3354.0     3354.0     3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 2.4168e-15 2.4168e-15 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.5        3.5        3.5        4.0         4.0         1.0
-                    Q   429.0e3   540.0e3    540.0e3    540.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   25.0e-6    25.0e-6    25.0e-6    0.0         0.0         0.0
-                """
-
-            if(rheology_mlit == 'wet'):
-                
-                layer_properties = f"""
-                    C   1.0       5.0        {Cseed}    5.0        {Clc}       1.0         1.0
-                    rho 3378.0    3354.0     3354.0     3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12    9.0e-12    9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 1.393e-14  1.393e-14  1.393e-14  8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.0        3.0        3.0        4.0         4.0         1.0
-                    Q   429.0e3   429.0e3    429.0e3    429.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   15.0e-6    15.0e-6    15.0e-6    0.0         0.0         0.0
-                """
-
-            for line in layer_properties.split("\n"):
-                line = line.strip()
-                if len(line):
-                    f.write(" ".join(line.split()) + "\n")
-
-            # layer interfaces
-            data = -1 * np.array(tuple(interfaces.values())).T
-            np.savetxt(f, data, fmt="%.1f")
-
-    else: # no seed in lithospheric mantle
-        with open("interfaces.txt", "w") as f:
-            rheology_mlit = 'dry' #rheology of lithospheric mantle: dry olivine or wet olivine
-            
-            if(rheology_mlit == 'dry'):
-                layer_properties = f"""
-                    C   1.0       {Clit}     {Clc}       1.0         1.0
-                    rho 3378.0    3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 2.4168e-15 8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.5        4.0         4.0         1.0
-                    Q   429.0e3   540.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   25.0e-6    0.0         0.0         0.0
-                """
-
-            if(rheology_mlit == 'wet'):
-                
-                layer_properties = f"""
-                    C   1.0       5.0        {Clc}       1.0         1.0
-                    rho 3378.0    3354.0     2800.0      2700.0      1.0
-                    H   {Hast}    9.0e-12    {Hlc}       {Huc}       0.0
-                    A   1.393e-14 1.393e-14  8.574e-28   8.574e-28   1.0e-18
-                    n   3.0       3.0        4.0         4.0         1.0
-                    Q   429.0e3   429.0e3    222.0e3     222.0e3     0.0
-                    V   15.0e-6   15.0e-6    0.0         0.0         0.0
-                """
-
-            for line in layer_properties.split("\n"):
-                line = line.strip()
-                if len(line):
-                    f.write(" ".join(line.split()) + "\n")
-
-            # layer interfaces
-            data = -1 * np.array(tuple(interfaces.values())).T
-            np.savetxt(f, data, fmt="%.1f")
+    # layer interfaces
+    data = -1 * np.array(tuple(interfaces.values())).T
+    np.savetxt(f, data, fmt="%.1f")
 
 # Plot interfaces
 ##############################################################################
@@ -1918,12 +2087,12 @@ if(preset == False):
     H = np.zeros_like(T)
 
     cond = (z >= thickness_sa) & (z < thickness_upper_crust + thickness_sa)  # upper crust
-    H[cond] = Huc
+    H[cond] = H_upper_crust
 
     cond = (z >= thickness_upper_crust + thickness_sa) & (
         z < thickness_lower_crust + thickness_upper_crust + thickness_sa
     )  # lower crust
-    H[cond] = Hlc
+    H[cond] = H_lower_crust
 
     Taux = np.copy(T)
     t = 0
@@ -2025,14 +2194,14 @@ else:
         interp_method = 'horizontal_mean' #using interp1d
         # interp_method = 'interp2d'
     
-    print('Interpolation of temperature field using: '+interp_method)
-    scenario_infos.append('Interpolation of temperature field using: '+interp_method)
+    print(f'Interpolation of temperature field using: {interp_method}')
+    scenario_infos.append(f'Interpolation of temperature field using: {interp_method}')
     
 
     if(interp_method == 'horizontal_mean'):
 
-        print('Keel center: '+str(keel_center))
-        scenario_infos.append('Keel center: '+str(keel_center))
+        print(f'Keel center: {keel_center}')
+        scenario_infos.append(f'Keel center: {keel_center}')
 
         if(keel_center==True):
             xregion = (xx_aux>=700.0e3) & (xx_aux <= 900.0e3) #craton
@@ -2052,7 +2221,7 @@ else:
             Data_region = np.asarray(Datai)[region].reshape(Nz_new, Nx_new)
             datai_mean = np.mean(Data_region, axis=1)
 
-        elif(keel_adjust == True):
+        elif(keel_adjust == True): 
             xcenter = Lx/2.0
 
             datai_mean = calc_mean_temperaure_region(Datai, Nz_aux, xx_aux, 0, Lx_aux)
@@ -2226,7 +2395,8 @@ cbar.set_label("Temperature [°C]")
 if(keel_adjust==True):
     ax1.plot(T[:, 110], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{cratonic}}$')
     ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='r', label=r'T$_{\mathrm{non-cratonic}}$')
-    ax1.plot(T_out_continent_interp, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{out-continent}}$')
+    if(free_continent==True):
+        ax1.plot(T_out_continent_interp, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{out-continent}}$')
     # ax1.plot(tfit, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{fit}}$')
 else:
     ax1.plot(T[:, 0], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{mean}}$')
