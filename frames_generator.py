@@ -216,7 +216,7 @@ with pymp.Parallel() as p:
                 xmin = 0 #+ 200
                 xmax = float(dataset.isel(time=i).lx) / 1.0E3 #- 200
                 xlims = [xmin, xmax]
-                ylims = [-5, 5]
+                ylims = [-15, 15]
 
             if(prop == 'viscosity'):
                 single_plot(data, prop, xlims, ylims, model_path, output_path,

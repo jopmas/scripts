@@ -446,6 +446,7 @@ if(scenario_kind == 'rifting'):
     scenario_infos.append(f'C mantle lithosphere: {C_mlit}')
     if(seed_in_litho):
         scenario_infos.append(f'C seed: {C_seed}')
+        scenario_infos.append(f'Seed extra fragil: {extra_fragil}')
     scenario_infos.append(f'C asthenosphere: {C_ast}')
     scenario_infos.append(' ')
     scenario_infos.append(f'Preset of initial temperature field: {preset}')
@@ -454,7 +455,7 @@ if(scenario_kind == 'rifting'):
         scenario_infos.append(f'Selection in preset: {selection_in_preset}')
         scenario_infos.append(f'Use horizontal mean of temperature from preset in lithosphere: {mean_litho}')
     scenario_infos.append(f'High kappa in asthenosphere: {high_kappa_in_asthenosphere}')
-    scenario_infos.append(f'Seed extra fragil: {extra_fragil}')
+    
     scenario_infos.append(f'Surface process: {sp_surface_processes}')
     scenario_infos.append(f'Velocity field {velocity_from_ascii}')
     if(velocity_from_ascii):
@@ -1763,7 +1764,7 @@ if(scenario_kind == 'accordion_lit_hetero'):
     # thickening = thickness_sa + M_lit#thickness_upper_crust + thickness_lower_crust + thickness_sa + M_lit #m
     # interfaces['litho_center'][Nx//2 - N_Wcenter//2 : Nx//2 + N_Wcenter//2] = thickness_sa + thinning
 
-elif(scenario_kind == 'stab_keel' or scenario_kind == 'accordion_keel'):
+elif(scenario_kind == 'stab_keel'):
     # Lcraton = 600.0e3 #m
     Lcraton = 1200.0e3 #m
     # Lcraton = 2000.0e3 #m
@@ -2200,10 +2201,10 @@ else:
 
     if(interp_method == 'horizontal_mean'):
 
-        print(f'Keel center: {keel_center}')
-        scenario_infos.append(f'Keel center: {keel_center}')
-
         if(keel_center==True):
+            print(f'Keel center: {keel_center}')
+            scenario_infos.append(f'Keel center: {keel_center}')
+
             xregion = (xx_aux>=700.0e3) & (xx_aux <= 900.0e3) #craton
             Data_region = Datai[xregion].reshape(Nz_aux, len(xregion[0][xregion[0]==True]))
             datai_mean = np.mean(Data_region, axis=1) #horizontal mean
