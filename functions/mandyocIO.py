@@ -2232,7 +2232,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
         ax.contourf(xx,
                     zz,
                     Rhoi,
-                    levels = [200., 2750, 2900, 3365, 3900],
+                    levels = [300., 2750, 2900, 3365, 3900],
                     colors = [color_uc, color_lc, color_lit, color_ast])
         
         im=ax.imshow(data.T,
@@ -2268,7 +2268,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
         yA = np.linspace(0, 1.5, 100)
 
         xxA, yyA = np.meshgrid(xA, yA)
-        air_threshold = 200
+        air_threshold = 300
         bv1.contourf(
             xxA,
             yyA,
@@ -2347,7 +2347,8 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
     
     if(prop != 'surface'):
         #Filling above topographic surface
-        topo_from_density = True
+        # topo_from_density = True
+        topo_from_density = False
         if(topo_from_density==True):
             Rhoi = dataset.density.T
             # interfaces=[2900, 3365]

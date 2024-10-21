@@ -88,13 +88,13 @@ datasets = [#Properties from mandyoc. Comment/uncomment to select properties of 
 properties = [#Properties from mandyoc. Comment/uncomment to select which ones you would like to plot
 #              'density',
 #              'radiogenic_heat',
-            #  'lithology',
+             'lithology',
 #              'pressure',
             #  'strain',
             #  'strain_rate',
             #  'temperature',
             #  'temperature_anomaly',
-             'surface',
+            #  'surface',
             #  'viscosity'
              ]
 

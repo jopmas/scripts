@@ -130,9 +130,9 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-# scenario_kind = 'rifting'
+scenario_kind = 'rifting'
 # scenario_kind = 'stab'
-scenario_kind = 'accordion'
+# scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
 # scenario_kind = 'stab_keel'
 
@@ -307,7 +307,8 @@ if(scenario_kind == 'rifting'):
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
     
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/'
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT370oC_Hlit120km_Hast7e-12/'
 
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
