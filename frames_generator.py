@@ -4,12 +4,11 @@
 import os
 import gc
 import sys
+import multiprocessing #needed to run pymp in mac
+multiprocessing.set_start_method('fork') #needed to run pymp in mac
 import pymp
-import shutil
 import subprocess
 import numpy as np
-import xarray as xr
-
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -21,8 +20,6 @@ from matplotlib.patches import FancyBboxPatch
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
-from scipy.interpolate import interp1d
-from scipy.interpolate import interp2d
 
 
 matplotlib.use('agg')
