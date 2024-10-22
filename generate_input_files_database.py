@@ -2137,7 +2137,7 @@ else:
             fpath = f"{machine_path}/{scenario}"
         else:
             # print('entrei local false')
-            external_media = 'Joao_Macedo1'
+            external_media = 'Joao_Macedo'
             # external_media = 'Joao_Macedo'
             if(path[1] == 'home'):
                 print('entrei home')
@@ -2723,14 +2723,20 @@ if(sp_surface_processes == True):
 np.savetxt('infos_'+path[-1] + '.txt', scenario_infos, fmt="%s")
 
 #Creating run files
+dirname = '${PWD##*/}'
+if(scenario_kind == 'rifting' or scenario_kind == 'accordion'):
+    mandyoc_options = '-seed 0,2 -strain_seed 0.0,1.0'
+else:
+    mandyoc_options = '-seed 0 -strain_seed 0.0'
 
 run_gcloud = f'''
         #!/bin/bash
-        MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
+        MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
         MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=6
+        MANDYOC_OPTIONS={mandyoc_options}
         touch FD.out
-        $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
+        $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
         bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/zipper_gcloud.sh
         bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/clean_gcloud.sh
         sudo poweroff
@@ -2746,8 +2752,9 @@ run_linux = f'''
         MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
         MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=12
+        MANDYOC_OPTIONS={mandyoc_options}
         touch FD.out
-        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
+        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
     '''
 with open('run-linux.sh', 'w') as f:
     for line in run_linux.split('\n'):
@@ -2757,21 +2764,57 @@ with open('run-linux.sh', 'w') as f:
 
 run_mac = f'''
         #!/bin/bash
-        MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
+        MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
         MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
-        NUMBER_OF_CORES=6
+        NUMBER_OF_CORES=12
+        MANDYOC_OPTIONS={mandyoc_options}
         touch FD.out
-        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH -seed 0,2 -strain_seed 0.0,1.0 | tee FD.out
-        bash $HOME/Doutorado/cenarios/mandyoc/scripts/zipper_gcloud.sh
-        #bash $HOME/Doutorado/cenarios/mandyoc/scripts/clean_gcloud.sh
+        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
+
+        DIRNAME={dirname}
+
+        zip $DIRNAME.zip interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
+        zip -u $DIRNAME.zip bc_velocity_*.txt
+        zip -u $DIRNAME.zip density_*.txt
+        zip -u $DIRNAME.zip heat_*.txt
+        zip -u $DIRNAME.zip pressure_*.txt
+        zip -u $DIRNAME.zip sp_surface_global_*.txt
+        zip -u $DIRNAME.zip strain_*.txt
+        zip -u $DIRNAME.zip temperature_*.txt
+        zip -u $DIRNAME.zip time_*.txt
+        zip -u $DIRNAME.zip velocity_*.txt
+        zip -u $DIRNAME.zip viscosity_*.txt
+        zip -u $DIRNAME.zip scale_bcv.txt
+        zip -u $DIRNAME.zip step*.txt
+        zip -u $DIRNAME.zip Phi*.txt
+        zip -u $DIRNAME.zip dPhi*.txt
+        zip -u $DIRNAME.zip X_depletion*.txt
+        zip -u $DIRNAME.zip *.log
+
+        #rm *.log
+        rm vel_bc*
+        rm velz*
+        rm bc_velocity*
+        rm velocity*
+        rm step*
+        rm temperature*
+        rm density*
+        rm viscosity*
+        rm heat*
+        rm strain_*
+        rm time*
+        rm pressure_*
+        rm sp_surface_global*
+        rm scale_bcv.txt
+        rm Phi*
+        rm dPhi*
+        rm X_depletion*
     '''
 with open('run_mac.sh', 'w') as f:
     for line in run_mac.split('\n'):
         line = line.strip()
         if len(line):
             f.write(' '.join(line.split()) + '\n')
-
-dirname = '${PWD##*/}'
 
 aguia = 'aguia4'
 # aguia = 'aguia3'
@@ -2783,11 +2826,6 @@ if(aguia == 'aguia4'):
 if(aguia == 'aguia3'):
     partition = 'SP3'
     main_folders =  '/scratch/8672526'
-
-if(scenario_kind == 'rifting' or scenario_kind == 'accordion'):
-    mandyoc_options = '-seed 0,2 -strain_seed 0.0,1.0'
-else:
-    mandyoc_options = '-seed 0 -strain_seed 0.0'
 
 run_aguia = f'''
         #!/usr/bin/bash
