@@ -130,11 +130,11 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-scenario_kind = 'rifting'
+# scenario_kind = 'rifting'
 # scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
-# scenario_kind = 'stab_keel'
+scenario_kind = 'stab_keel'
 
 experiemnts = {'rifting': 'Rifting experiment',
                'stab': 'LAB (1300 oC) stability',
@@ -1536,11 +1536,11 @@ elif(scenario_kind == 'stab_keel'):
     shift_craton = 0.0e3 #m
     # shift_craton = 700.0e3 #m
     
-    free_continent = False
-    # free_continent = True
+    # free_continent = False
+    free_continent = True
 
-    # hot_surface = True
-    hot_surface = False
+    hot_surface = True
+    # hot_surface = False
 
     # seed = False
     # seed = True
@@ -1662,9 +1662,11 @@ elif(scenario_kind == 'stab_keel'):
     # number of points in horizontal direction
     # Nx = 161 #401 # #801 #1601
     # Nx = 301
-    Nx = 401
+    # Nx = 401
+    Nx = 801
     # number of points in vertical direction
-    Nz = 71 #176 #71 #176 #351 #71 #301 #401
+    # Nz = 71 #176 #71 #176 #351 #71 #301 #401
+    Nz = 141
     
     # thickness of sticky air layer (m)
     thickness_sa = 40 * 1.0e3
@@ -2234,11 +2236,11 @@ else:
                      
             T1 = datai_mean[cond_mlit][0] #bottom
             T0 = datai_mean[cond_mlit][-1] #top
-            z1 = z[cond_mlit][0]
-            z0  = z[cond_mlit][-1]
+            z1 = z_aux[cond_mlit][0]
+            z0  = z_aux[cond_mlit][-1]
 
             # The temperature in the keel is linearly interpolated between the bottom and top of the keel
-            Tk_mean[cond_mlit] = ((T1 - T0) / (z1 - z0)) * (z[cond_mlit] - z0) + T0
+            Tk_mean[cond_mlit] = ((T1 - T0) / (z1 - z0)) * (z_aux[cond_mlit] - z0) + T0
 
             #interpolating the temperature field to the mesh of the model
             fk = interp1d(z_aux, Tk_mean)
@@ -2262,7 +2264,7 @@ else:
                 params = curve_fit(fit_func, zcut, tcut)
                 [a, b] = params[0]
 
-                tfit = a*z + b
+                tfit = a*z_aux + b
 
                 #selecting region inside the lithosphere
                 cond_litho = (z_aux <= thickness_litho+thickness_sa + 50.0e3)
@@ -2395,8 +2397,9 @@ cbar.set_label("Temperature [°C]")
 
 
 if(keel_adjust==True):
-    ax1.plot(T[:, 110], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{cratonic}}$')
-    ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='r', label=r'T$_{\mathrm{non-cratonic}}$')
+    idx = find_nearest(x, Lx/2 - Lcraton/2 - length_non_cratonic/2) #non-cratonic
+    ax1.plot(T[:, idx], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{non-cratonic}}$')
+    ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='r', label=r'T$_{\mathrm{cratonic}}$')
     if(free_continent==True):
         ax1.plot(T_out_continent_interp, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{out-continent}}$')
     # ax1.plot(tfit, (z - thickness_sa) / 1.0e3, '--', color='b', label=r'T$_{\mathrm{fit}}$')
