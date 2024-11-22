@@ -67,12 +67,17 @@ for rank in range(20):
         x = np.append(x,x1)
         z = np.append(z,z1)
 
-cond = (z>-45.0E3) & (layer_vec<5) & (layer_vec>0) # todas as partículas nos últimos 5km e que não pertençam ao ar (cc==6)
+h_air = 40.0e3
+search_thickness = 5.0e3
+
+cond = (z>-(h_air + search_thickness)) & (layer_vec<5) & (layer_vec>0) # todas as partículas nos últimos 5km e que não pertençam ao ar (cc==6)
 
 part_selec = id_vec[cond]
+layers_selec = layer_vec[cond] #get the layer numbers of the selected particles
+n_tracked = np.size(part_selec)
 
-print(np.size(x))
-print(np.size(part_selec))
+print(f"x size: {np.size(x)}")
+print(f"Number of tracked particles (n): {np.size(part_selec)}")
 
 pressure = []
 temperature = []
@@ -171,13 +176,16 @@ ds = xr.Dataset(
         "ztrack": (["index"], all_vecz_track),
         "ptrack": (["index"], all_present_pressure),
         "ttrack": (["index"], all_present_temperature),
-        "step": (["index"], all_steps),
-        "time": (["index"], all_times)
+        "step": Tdataset.step.values[::-1],
+        "time": Tdataset.time.values[::-1],
+        "ntracked": int(n_tracked),
+        "particles_layers": layers_selec
     },
     coords={
         "index": np.arange(len(all_vecx_track))
     }
 )
+
 ds.to_netcdf("_track_xzPT_all_steps.nc")
 
 

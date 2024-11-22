@@ -6,6 +6,23 @@ import os
 import matplotlib.collections as mcollections
 import xarray as xr
 
+def find_nearest(array, value):
+    '''Return the index in array nearest to a given value.
+    
+    Parameters
+    ----------
+    
+    array: array_like
+        1D array used to find the index
+        
+    value: float
+        Value to be seached
+    '''
+    
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
+
 argv = sys.argv
 
 model_path = os.getcwd() # Get local file
@@ -15,34 +32,52 @@ print(f"Model name: {model_name}\n")
 print(f"Model path: {model_path}\n")
 print(f"Output path: {output_path}\n")
 
-Tdataset = xr.open_dataset("_output_temperature.nc")
+# Tdataset = xr.open_dataset("_output_temperature.nc")
 # Pdataset = xr.open_dataset("_output_pressure.nc")
+trackdataset = xr.open_dataset("_track_xzPT_all_steps.nc")
+x = trackdataset.xtrack.values[::-1]
+z = trackdataset.ztrack.values[::-1]
+P = trackdataset.ptrack.values[::-1]
+T = trackdataset.ttrack.values[::-1]
+time = trackdataset.time.values[::-1]
+steps = trackdataset.step.values[::-1]
 
+# if len(argv)>1:
+#     begin = int(sys.argv[1])
+#     end = int(sys.argv[2])
+#     d_step = int(sys.argv[3])
 
-if len(argv)>1:
-    step_initial = int(sys.argv[1])
-    step_final = int(sys.argv[2])
-    d_step = int(sys.argv[3])
-else:
-    step_initial = Tdataset.step.values[0]
-    step_final = Tdataset.step.values[-1] 
-    d_step = Tdataset.step.values[1] - Tdataset.step.values[0]
+#     idx_step_initial = find_nearest(steps, begin)
+#     idx_step_final = find_nearest(steps, end)
+#     didx = d_step//(steps[1] - steps[0])
 
-x=[]
-z=[]
-P=[]
-T=[]
+#     x = trackdataset.xtrack.values[idx_step_initial:idx_step_final:didx]
+#     z = trackdataset.ztrack.values[idx_step_initial:idx_step_final:didx]
+#     P = trackdataset.ptrack.values[idx_step_initial:idx_step_final:didx]
+#     T = trackdataset.ttrack.values[idx_step_initial:idx_step_final:didx]
+#     time = trackdataset.time.values[idx_step_initial:idx_step_final:didx]
+#     steps = trackdataset.step.values[idx_step_initial:idx_step_final:didx]
 
-for cont in range(step_initial, step_final + d_step, d_step): 
-    xp,zp,Pp,Tp = np.loadtxt(f"track_xzPT_step_{str(cont).zfill(6)}.txt",unpack=True)
-    n = np.size(xp)
+# else:
+#     step_initial = steps[0]
+#     step_final = steps[-1] 
+#     d_step = steps[1] - steps[0]
 
-    x = np.append(x,xp)
-    z = np.append(z,zp)
-    P = np.append(P,Pp)
-    T = np.append(T,Tp)
+# x=[]
+# z=[]
+# P=[]
+# T=[]
 
+# for cont in range(step_initial, step_final + d_step, d_step): 
+#     xp, zp, Pp, Tp = np.loadtxt(f"track_xzPT_step_{str(cont).zfill(6)}.txt",unpack=True)
+#     n = np.size(xp)
 
+#     x = np.append(x,xp)
+#     z = np.append(z,zp)
+#     P = np.append(P,Pp)
+#     T = np.append(T,Tp)
+
+n = int(trackdataset.ntracked.values)
 nTotal = np.size(x)
 steps = nTotal//n
 
@@ -57,7 +92,8 @@ plt.close()
 fig, ax = plt.subplots(1, 1, figsize=(6, 5), constrained_layout=True)
 
 # time = np.arange(step_initial, step_final + d_step, d_step)
-time = Tdataset.time.values
+
+dt = 5 #Myr
 
 for i in range(n):
     #organizing the data 
@@ -73,6 +109,14 @@ for i in range(n):
     # plt.plot(T[:,i], P[:,i])
     ax.add_collection(lc)
     ax.autoscale()
+
+    #plotting points at each 5 Myr
+    for j in np.arange(0, time.max()+dt, dt):
+        idx = find_nearest(time, j)
+        if(j==0):
+            ax.plot(T[idx,i], P[idx,i], '*', color='xkcd:blue', markersize=10.0)
+        else:
+            ax.plot(T[idx,i], P[idx,i], 'o', color='xkcd:blue', markersize=2.0)
 
 #adding colorbar
 clb = fig.colorbar(lc)

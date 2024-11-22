@@ -19,6 +19,7 @@ make_gifs = True
 zip_files = True
 
 Tdataset = xr.open_dataset("_output_temperature.nc")
+trackdataset = xr.open_dataset("_track_xzPT_all_steps.nc")
 
 #reading param files
 with open("param.txt", "r") as f:
