@@ -5,7 +5,19 @@ import sys
 import os
 import subprocess
 import xarray as xr
+import multiprocessing #needed to run pymp in mac
+multiprocessing.set_start_method('fork') #needed to run pymp in mac
+import pymp
 
+path = os.getcwd().split('/')
+machine_path = f'/{path[1]}/{path[2]}' #cat the /home/user/ or /Users/user from system using path
+
+path_to_functions = f"{machine_path}/opt/scripts"
+sys.path.append(os.path.abspath(path_to_functions))
+
+if '' in sys.path:
+    sys.path.remove('')
+from functions.mandyocIO import read_datasets, change_dataset, single_plot
 
 model_path = os.getcwd() # Get local file
 model_name = model_path.split('/')[-1]
