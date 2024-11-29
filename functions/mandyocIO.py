@@ -1141,9 +1141,9 @@ def _extract_interface(z, Z, Nx, field_datai, value_to_search):
         interface_inverted = interp_function(Z)[::-1] #inverted array: from top to bottom
 
         idx = np.argmax(interface_inverted > value_to_search) #first occurrence of rho in the inverted array
-        idx_corected = len(interface_inverted) - idx #correcting the index to the original array
+        idx_corrected = len(interface_inverted) - idx #correcting the index to the original array
 
-        depth = Z[idx_corected]
+        depth = Z[idx_corrected]
 
         mapped_interface = np.append(mapped_interface, depth)
 
@@ -1452,7 +1452,9 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                                 0.35),
                 ncores=20,
                 step_plot=1,
-                plot_melt=False):
+                plot_melt=False,
+                color_incremental_melt = 'xkcd:bright pink',
+                color_depleted_mantle='xkcd:bright purple',):
     '''
     Plot data from mandyoc according to a given property and domain limits.
 
@@ -1526,8 +1528,6 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
 #                    'viscosity':           [np.log10(1.0E18), np.log10(1.0E25)]
                   }
 
-    model_name = model_path.split('/')[-1] #os.path.split(model_path)[0].split('/')[-1]
-
     Nx = int(dataset.nx)
     Nz = int(dataset.nz)
     Lx = float(dataset.lx)
@@ -1570,10 +1570,11 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         melt = dataset.melt.T #depleted mantle
 
         levels_contourf = np.arange(0.02, 0.5, 0.02)
+        
         for i in levels_contourf:
             alpha = 0.9/levels_contourf[-1]*i + 0.1
 
-            cs0 = ax.contourf(xx, zz, melt, levels=[i, i+0.02], colors='xkcd:black', alpha=alpha, zorder=30)
+            cs0 = ax.contourf(xx, zz, melt, levels=[i, i+0.02], colors=color_depleted_mantle, alpha=alpha, zorder=30)
 
 
         levels_melt = [0.1, 0.2] #np.arange(0.2, 0.7, 0.4)#[0.2, 0.6]
@@ -1581,7 +1582,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                     zz,
                     melt,
                     levels = levels_melt,
-                    colors='xkcd:blue',
+                    colors=color_depleted_mantle,
                     # cmap = 'inferno',
                     zorder=30,
                     )
@@ -1597,7 +1598,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                     zz,
                     incremental_melt/scale,#, 'dashdot', 'dashed'],
                     levels = levels_incremental_melt,
-                    colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
+                    colors=color_incremental_melt,#['xkcd:bright pink', 'xkcd:pink'],
                     # colors=colors,
                     alpha=0.4,
                     zorder=30)
@@ -1607,7 +1608,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                     incremental_melt/scale,
                     linestyles=['solid'],#, 'dashdot', 'dashed'],
                     levels = [5.0E-10,1.0E-8],
-                    colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
+                    colors=color_incremental_melt,#['xkcd:bright pink', 'xkcd:pink'],
                     # colors=colors,
                     alpha=1.0,
                     zorder=30)
@@ -1706,7 +1707,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                                 loc='lower right',
                                 width="100%",  # respective to parent_bbox width
                                 height="100%",  # respective to parent_bbox width
-                                bbox_to_anchor=(0.12,#horizontal position respective to parent_bbox or "loc" position
+                                bbox_to_anchor=(0.05,#horizontal position respective to parent_bbox or "loc" position
                                                 0.3,# vertical position
                                                 0.4,# width
                                                 0.05),# height

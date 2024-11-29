@@ -93,37 +93,48 @@ particles_layers = trackdataset.particles_layers.values[::-1]
 mlit_code = 1
 crust_code = 4 #lower crust
 
-cond_mlit = particles_layers == mlit_code
-cond_crust = particles_layers == crust_code
-
-particles_mlit = particles_layers[cond_mlit]
-particles_crust = particles_layers[cond_crust]
-
 T_initial = T[0]
 
-T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
-T_initial_crust_sorted = np.sort(T_initial_crust)
+if(mlit_code in particles_layers):
+    cond_mlit = particles_layers == mlit_code
+    particles_mlit = particles_layers[cond_mlit]
 
-Ti_crust_max = np.max(T_initial_crust_sorted)
-mid_index = len(T_initial_crust_sorted)//2
-Ti_crust_mid = T_initial_crust_sorted[mid_index]
-Ti_crust_min = np.min(T_initial_crust_sorted)
+    T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
+    T_initial_mlit_sorted = np.sort(T_initial_mlit)
 
-cond_crust2plot = (T_initial == Ti_crust_min) | (T_initial == Ti_crust_mid) | (T_initial == Ti_crust_max)
+    Ti_mlit_max = np.max(T_initial_mlit_sorted)
+    mid_index = len(T_initial_mlit_sorted)//2
+    Ti_mlit_mid = T_initial_mlit_sorted[mid_index]
+    Ti_mlit_min = np.min(T_initial_mlit_sorted)
 
-T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
-T_initial_mlit_sorted = np.sort(T_initial_mlit)
+    cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
 
-Ti_mlit_max = np.max(T_initial_mlit_sorted)
-mid_index = len(T_initial_mlit_sorted)//2
-Ti_mlit_mid = T_initial_mlit_sorted[mid_index]
-Ti_mlit_min = np.min(T_initial_mlit_sorted)
+    plot_mlit_particles = True
+    dict_mlit_markers = {Ti_mlit_max: '*',
+                        Ti_mlit_mid: '^',
+                        Ti_mlit_min: 'D'}
+else:
+    plot_mlit_particles = False
+    cond_mlit2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
 
-cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
+if(crust_code in particles_layers):
+    cond_crust = particles_layers == crust_code
+    particles_crust = particles_layers[cond_crust]
 
-dict_mlit_markers = {Ti_mlit_max: '*',
-                     Ti_mlit_mid: '^',
-                     Ti_mlit_min: 'D'}
+    T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
+    T_initial_crust_sorted = np.sort(T_initial_crust)
+
+    Ti_crust_max = np.max(T_initial_crust_sorted)
+    mid_index = len(T_initial_crust_sorted)//2
+    Ti_crust_mid = T_initial_crust_sorted[mid_index]
+    Ti_crust_min = np.min(T_initial_crust_sorted)
+
+    cond_crust2plot = (T_initial == Ti_crust_min) | (T_initial == Ti_crust_mid) | (T_initial == Ti_crust_max)
+    plot_crust_particles = True
+else:
+    plot_crust_particles = False
+    cond_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
+
 
 plt.close()
 fig, ax = plt.subplots(1, 1, figsize=(6, 5), constrained_layout=True)
@@ -132,11 +143,37 @@ fig, ax = plt.subplots(1, 1, figsize=(6, 5), constrained_layout=True)
 
 dt = 5 #Myr
 
+print(f"Plot crustal particles: {plot_crust_particles}")
+print(f"Plot lithospheric mantle particles: {plot_mlit_particles}")
+
 for i, particle_layer, crust2plot, mlit2plot in zip(range(n), particles_layers, cond_crust2plot, cond_mlit2plot):
 
-    if(particle_layer != mlit_code): #crustal layers
-        if(crust2plot == True):
-            #organizing the data 
+    if(plot_crust_particles == True):
+        if(particle_layer != mlit_code): #crustal layers
+            if(crust2plot == True):
+                #organizing the data 
+                points = np.array([T[:,i], P[:,i]]).T.reshape(-1, 1, 2) #-1 tells numpy to figure out the length by itself
+
+                segments = np.concatenate([points[:-1], points[1:]], axis=1) #creating the segments of consecutive points
+
+                norm = plt.Normalize(time.min(), time.max()) #mapping the time dimenstion according to a colomap
+                lc = mcollections.LineCollection(segments, cmap='inferno', norm=norm, linewidths=1.0) #mapping the segments to a colormap
+                lc.set_array(time) #setting the dimension to be colorized
+
+                # plt.plot(T[:,i], P[:,i])
+                ax.add_collection(lc)
+                ax.autoscale()
+
+                #plotting points at each 5 Myr
+                for j in np.arange(0, time.max()+dt, dt):
+                    idx = find_nearest(time, j)
+                    if(j==0):
+                        ax.plot(T[idx,i], P[idx,i], '^', color='xkcd:blue', markersize=10.0)
+                    else:
+                        ax.plot(T[idx,i], P[idx,i], 'o', color='xkcd:blue', markersize=2.0)
+                        
+    if(plot_mlit_particles == True):
+        if(mlit2plot == True):
             points = np.array([T[:,i], P[:,i]]).T.reshape(-1, 1, 2) #-1 tells numpy to figure out the length by itself
 
             segments = np.concatenate([points[:-1], points[1:]], axis=1) #creating the segments of consecutive points
@@ -153,30 +190,9 @@ for i, particle_layer, crust2plot, mlit2plot in zip(range(n), particles_layers, 
             for j in np.arange(0, time.max()+dt, dt):
                 idx = find_nearest(time, j)
                 if(j==0):
-                    ax.plot(T[idx,i], P[idx,i], '^', color='xkcd:blue', markersize=10.0)
+                    ax.plot(T[idx,i], P[idx,i], '*', color='xkcd:blue', markersize=10.0)
                 else:
                     ax.plot(T[idx,i], P[idx,i], 'o', color='xkcd:blue', markersize=2.0)
-
-    if(mlit2plot == True):
-        points = np.array([T[:,i], P[:,i]]).T.reshape(-1, 1, 2) #-1 tells numpy to figure out the length by itself
-
-        segments = np.concatenate([points[:-1], points[1:]], axis=1) #creating the segments of consecutive points
-
-        norm = plt.Normalize(time.min(), time.max()) #mapping the time dimenstion according to a colomap
-        lc = mcollections.LineCollection(segments, cmap='inferno', norm=norm, linewidths=1.0) #mapping the segments to a colormap
-        lc.set_array(time) #setting the dimension to be colorized
-
-        # plt.plot(T[:,i], P[:,i])
-        ax.add_collection(lc)
-        ax.autoscale()
-
-        #plotting points at each 5 Myr
-        for j in np.arange(0, time.max()+dt, dt):
-            idx = find_nearest(time, j)
-            if(j==0):
-                ax.plot(T[idx,i], P[idx,i], '*', color='xkcd:blue', markersize=10.0)
-            else:
-                ax.plot(T[idx,i], P[idx,i], 'o', color='xkcd:blue', markersize=2.0)
 
 #plot ghost points to add the legend
 ax.plot(-100, -100, '^', color='xkcd:blue', markersize=10.0, label=r'Crustal Particles (0 Myr)')

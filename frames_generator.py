@@ -85,13 +85,13 @@ datasets = [#Properties from mandyoc. Comment/uncomment to select properties of 
 properties = [#Properties from mandyoc. Comment/uncomment to select which ones you would like to plot
 #              'density',
 #              'radiogenic_heat',
-             'lithology',
+            #  'lithology',
 #              'pressure',
             #  'strain',
             #  'strain_rate',
             #  'temperature',
              'temperature_anomaly',
-             'surface',
+            #  'surface',
             #  'viscosity'
              ]
 
@@ -237,9 +237,7 @@ with pymp.Parallel() as p:
                             # step_plot = 3,
                             isotherms = [500, 1300],
                             plot_melt = plot_melt,
-                            melt_method = melt_method)
-            
-            
+                            melt_method = melt_method)  
         del data
         gc.collect()
 

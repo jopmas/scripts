@@ -130,11 +130,11 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-# scenario_kind = 'rifting'
+scenario_kind = 'rifting'
 # scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
-scenario_kind = 'stab_keel'
+# scenario_kind = 'stab_keel'
 
 experiemnts = {'rifting': 'Rifting experiment',
                'stab': 'LAB (1300 oC) stability',
@@ -160,8 +160,8 @@ if(scenario_kind == 'rifting'):
     #Viscosity scale factor
     C_ast = 1.0
     C_mlit = 1.0
-    C_lower_crust = 1.0
-    # C_lower_crust = 10.0
+    # C_lower_crust = 1.0
+    C_lower_crust = 10.0
     C_upper_crust = 1.0
     C_air = 1.0
 
@@ -181,6 +181,9 @@ if(scenario_kind == 'rifting'):
 
     rheology_mlit = 'dry_olivine'
     # rheology_mlit = 'wet_olivine'
+
+    ramp_mlit = True
+    # ramp_mlit = False
 
     if(rheology_mlit == 'dry_olivine'):
         #pre exponential constant (Pa^-n s^-1)
@@ -307,11 +310,11 @@ if(scenario_kind == 'rifting'):
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
     
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/'
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT370oC_Hlit120km_Hast7e-12/'
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT370oC_Hlit120km_Hast7e-12/'
 
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150k   m/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
 
     # scenario = '/Doutorado/cenarios/mandyoc/keel/stable_DT200_keel_HprodAst/'
@@ -425,6 +428,7 @@ if(scenario_kind == 'rifting'):
     if(seed_in_litho):
         print(f'C seed: {C_seed}')
     print(f'C asthenosphere: {C_ast}')
+    print(f'Ramp mantle lithosphere: {ramp_mlit}')
     print(f'Preset of initial temperature field: {preset}')
     print(f'Force cold cratonic keel: {keel_adjust}')
     if(preset == True):
@@ -449,6 +453,7 @@ if(scenario_kind == 'rifting'):
         scenario_infos.append(f'C seed: {C_seed}')
         scenario_infos.append(f'Seed extra fragil: {extra_fragil}')
     scenario_infos.append(f'C asthenosphere: {C_ast}')
+    scenario_infos.append(f'Ramp mantle lithosphere: {ramp_mlit}')
     scenario_infos.append(' ')
     scenario_infos.append(f'Preset of initial temperature field: {preset}')
     scenario_infos.append(f'Force cold cratonic keel: {keel_adjust}')
@@ -1896,6 +1901,7 @@ else:
         "air": np.ones(Nx) * (thickness_sa),
         }
 
+
 if(scenario_kind == 'accordion' or scenario_kind == 'rifting'):
     if(extra_fragil == True):
         C_seed = 0.01
@@ -1905,6 +1911,47 @@ if(scenario_kind == 'accordion' or scenario_kind == 'rifting'):
         thinning = thickness_litho - 20.0e3
         Nfragil = int(Lfragil//dx) #largura em indices
         interfaces['litho'][Nx//2 - Nfragil//2 : Nx//2 + Nfragil//2] = thickness_sa + thinning
+
+    if(ramp_mlit): #Building a ramp in the lithosphere to represent a smooth transition from 120 km to 80 km
+
+        xcenter = Lx / 2.0
+        dx = Lx / (Nx - 1)
+
+        #central part - must thin to 80 km
+        central_begin = xcenter - 100.0e3
+        central_end = xcenter + 100.0e3
+        Lcentral = central_end - central_begin
+        Ncentral = int(Lcentral//dx)
+        thinning = 40.0e3
+        interfaces['litho'][Nx//2 - Ncentral//2 : Nx//2 + Ncentral//2] = thickness_sa + thickness_litho - thinning
+
+        #building the ramp of letf side
+        xrampl_begin = xcenter - 200.0e3
+        xrampl_end = xrampl_begin + 100.0e3
+
+        idxl = np.where(x == xrampl_begin)[0][0]
+        idxr = np.where(x == xrampl_end)[0][0]
+
+        yrampl_begin = thickness_sa + thickness_litho
+        yrampl_end = thickness_sa + thickness_litho - thinning
+        
+        ramp_slope = (yrampl_end - yrampl_begin) / (xrampl_end - xrampl_begin)
+        for i in range(idxl, idxr):
+            interfaces['litho'][i] = yrampl_begin + ramp_slope * (x[i] - xrampl_begin)
+
+        #building the ramp of right side
+        xrampr_begin = xcenter + 100.0e3
+        xrampr_end = xrampr_begin + 100.0e3
+
+        idxl = np.where(x == xrampr_begin)[0][0]
+        idxr = np.where(x == xrampr_end)[0][0]
+
+        yrampr_begin = thickness_sa + thickness_litho - thinning
+        yrampr_end = thickness_sa + thickness_litho
+
+        ramp_slope = (yrampr_end - yrampr_begin) / (xrampr_end - xrampr_begin)
+        for i in range(idxl, idxr):
+            interfaces['litho'][i] = yrampr_begin + ramp_slope * (x[i] - xrampr_begin)
 
 if(scenario_kind == 'quiescence'):
     dx = Lx/(Nx-1)

@@ -33,7 +33,7 @@ sys.path.append(os.path.abspath(path_to_functions))
 
 if '' in sys.path:
     sys.path.remove('')
-from functions.mandyocIO import read_datasets, change_dataset, plot_property
+from functions.mandyocIO import read_datasets, change_dataset, plot_property, find_nearest
 
 ####################################################################################################################################
 model_path = os.getcwd() # Get local file
@@ -43,17 +43,10 @@ print(f"Model name: {model_name}\n")
 print(f"Model path: {model_path}\n")
 print(f"Output path: {output_path}\n")
 
-make_videos = True
-# make_videos = False
-make_gifs = True
-# make_gifs = False
-zip_files = True
-# zip_files = False
-
 plot_isotherms = True
 # plot_isotherms = False
-# plot_melt = True
-plot_melt = False
+plot_melt = True
+# plot_melt = False
 
 plot_particles=False
 
@@ -81,7 +74,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
             #  'strain',
             #  'strain_rate',
             #  'temperature',
-            #  'temperature_anomaly',
+             'temperature_anomaly',
             #  'surface',
             #  'viscosity'
              ]
@@ -110,18 +103,18 @@ if (plot_isotherms): #add datasets needed to plot isotherms
         new_datasets = change_dataset(properties, datasets)
         to_remove.append('temperature')
 
-# print(f"newdataset4 {new_datasets}")
+# print(f"newdatasets: {new_datasets}")
 
 if (plot_melt): #add datasets needed to plot melt fraction
-    if ('pressure' not in new_datasets):
-        properties.append('pressure')
-    if ('temperature' not in new_datasets):
-        properties.append('temperature')
+    if ('melt' not in properties):
+        properties.append('melt')
+    if ('incremental_melt' not in properties):
+        properties.append('incremental_melt')
     new_datasets = change_dataset(properties, datasets)
 
     #removing the auxiliary datasets to not plot
-    to_remove.append('pressure')
-    to_remove.append('temperature')
+    to_remove.append('melt')
+    to_remove.append('incremental_melt')
 
 if(clean_plot): #a clean plot
     new_datasets = change_dataset(properties, datasets)
@@ -167,42 +160,54 @@ T = np.reshape(T,(steps,n))
 particles_layers = trackdataset.particles_layers.values[::-1]
 mlit_code = 1
 crust_code = 4 #lower crust
-
-cond_mlit = particles_layers == mlit_code
-cond_crust = particles_layers == crust_code
-
-particles_mlit = particles_layers[cond_mlit]
-particles_crust = particles_layers[cond_crust]
-
 T_initial = T[0]
 
-T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
-T_initial_crust_sorted = np.sort(T_initial_crust)
+if(mlit_code in particles_layers):
+    cond_mlit = particles_layers == mlit_code
+    particles_mlit = particles_layers[cond_mlit]
 
-Ti_crust_max = np.max(T_initial_crust_sorted)
-mid_index = len(T_initial_crust_sorted)//2
-Ti_crust_mid = T_initial_crust_sorted[mid_index]
-Ti_crust_min = np.min(T_initial_crust_sorted)
+    T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
+    T_initial_mlit_sorted = np.sort(T_initial_mlit)
 
-cond_crust2plot = (T_initial == Ti_crust_min) | (T_initial == Ti_crust_mid) | (T_initial == Ti_crust_max)
+    Ti_mlit_max = np.max(T_initial_mlit_sorted)
+    mid_index = len(T_initial_mlit_sorted)//2
+    Ti_mlit_mid = T_initial_mlit_sorted[mid_index]
+    Ti_mlit_min = np.min(T_initial_mlit_sorted)
 
-T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
-T_initial_mlit_sorted = np.sort(T_initial_mlit)
+    cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
 
-Ti_mlit_max = np.max(T_initial_mlit_sorted)
-mid_index = len(T_initial_mlit_sorted)//2
-Ti_mlit_mid = T_initial_mlit_sorted[mid_index]
-Ti_mlit_min = np.min(T_initial_mlit_sorted)
+    plot_mlit_particles = True
 
-cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
+    dict_mlit_markers = {Ti_mlit_max: '*',
+                         Ti_mlit_mid: '^',
+                         Ti_mlit_min: 'D'}
 
-dict_mlit_markers = {Ti_mlit_max: '*',
-                     Ti_mlit_mid: '^',
-                     Ti_mlit_min: 'D'}
+    dict_mlit_colors = {Ti_mlit_min: 'xkcd:cerulean blue',
+                        Ti_mlit_mid: 'xkcd:scarlet',
+                        Ti_mlit_max: 'xkcd:dark green'}
+else:
+    plot_mlit_particles = False
+    cond_mlit2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
 
-dict_mlit_colors = {Ti_mlit_min: 'xkcd:cerulean blue',
-                    Ti_mlit_mid: 'xkcd:scarlet',
-                    Ti_mlit_max: 'xkcd:dark green'}
+if(crust_code in particles_layers):
+    cond_crust = particles_layers == crust_code
+    particles_crust = particles_layers[cond_crust]
+
+    T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
+    T_initial_crust_sorted = np.sort(T_initial_crust)
+
+    Ti_crust_max = np.max(T_initial_crust_sorted)
+    mid_index = len(T_initial_crust_sorted)//2
+    Ti_crust_mid = T_initial_crust_sorted[mid_index]
+    Ti_crust_min = np.min(T_initial_crust_sorted)
+
+    cond_crust2plot = (T_initial == Ti_crust_min) | (T_initial == Ti_crust_mid) | (T_initial == Ti_crust_max)
+    plot_crust_particles = True
+else:
+    plot_crust_particles = False
+    cond_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
+
+
 ############################################################################################################################
   
 # Plotting
@@ -217,22 +222,39 @@ start = int(t0)
 end = int(dataset.time.size - 1)
 step = 1
 
+# start = 4
+# end = 5
+# step = 1
+
+make_videos = True
+# make_videos = False
+
+make_gifs = True
+# make_gifs = False
+
+zip_files = True
+# zip_files = False
+
 print("Generating frames...")
 linewidth = 0.85
 markersize = 8
 color_crust='xkcd:grey'
 
+color_incremental_melt = 'xkcd:bright pink'
+color_depleted_mantle='xkcd:bright purple'
+
 with pymp.Parallel() as p:
     for i in p.range(start, end+step, step):
-        plt.close()
-        fig, axs = plt.subplots(1, 2, figsize=(12, 3), constrained_layout=True, gridspec_kw={'width_ratios': [1, 0.4]})
-
+        
         data = dataset.isel(time=i)
-        xlims = [0, float(data.lx) / 1.0e3]
-        # ylims = [-float(data.lz) / 1.0e3 + 40, 40]
-        ylims = [-150, 40]
-
         for prop in properties:
+            fig, axs = plt.subplots(1, 2, figsize=(12, 3), constrained_layout=True, gridspec_kw={'width_ratios': [1, 0.4]})
+            
+            current_time = float(data.time.values)
+            xlims = [0, float(data.lx) / 1.0e3]
+            # ylims = [-float(data.lz) / 1.0e3 + 40, 40]
+            ylims = [-150, 40]
+
             plot_property(data, prop, xlims, ylims, model_path,
                         fig,
                         axs[0],
@@ -243,49 +265,73 @@ with pymp.Parallel() as p:
                                         0.20,# vertical position
                                         0.12,# width
                                         0.35),
-                        # plot_melt = plot_melt,
+                        plot_melt = plot_melt,
+                        color_incremental_melt = color_incremental_melt,
+                        color_depleted_mantle = color_depleted_mantle
                         )
             
             for particle, particle_layer, mlit2plot in zip(range(n), particles_layers, cond_mlit2plot):
                 #Plot particles in prop subplot
-                if(particle_layer != mlit_code): #crustal particles
-                    # print(particle_layer)
-                    if(cond_crust2plot[particle] == True):
-                        axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_crust, markersize=markersize-2, zorder=60)
-                        axs[1].plot(T[i, particle], P[i, particle], '.', color=color_crust, markersize=markersize)
-                        axs[1].plot(T[:i, particle], P[:i, particle], '-', color=color_crust, linewidth=linewidth, alpha=1.0, zorder=60)
 
-                else: #lithospheric mantle particles
-                    if(mlit2plot==True):
-                        # print(f"Particle: {particle}, Layer: {particle_layer}, T_initial: {T_initial[particle]}")
-                        axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air,
-                                    dict_mlit_markers[T_initial[particle]],
-                                    color=dict_mlit_colors[T_initial[particle]],
-                                    markersize=markersize-2, zorder=60)
-                        
-                        axs[1].plot(T[i, particle], P[i, particle],
-                                    dict_mlit_markers[T_initial[particle]],
-                                    color=dict_mlit_colors[T_initial[particle]], markersize=10) #current PTt point
+                if(plot_crust_particles == True):
+                    if(particle_layer != mlit_code): #crustal particles
+                        # print(particle_layer)
+                        if(cond_crust2plot[particle] == True):
+                            axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_crust, markersize=markersize-2, zorder=60)
+                            axs[1].plot(T[i, particle], P[i, particle], '.', color=color_crust, markersize=markersize) #current PTt point
+                            axs[1].plot(T[:i, particle], P[:i, particle], '-', color=color_crust, linewidth=linewidth, alpha=1.0, zorder=60) #PTt path
+                            #plotting points at each 5 Myr
+                            for j in np.arange(0, current_time, 5):
+                                idx = find_nearest(time, j)
+                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=2)
 
-                        axs[1].plot(T[:i, particle], P[:i, particle], '-', color=dict_mlit_colors[T_initial[particle]], linewidth=linewidth, alpha=0.8, zorder=60) #PTt path
 
-        # Setting plot details
-        fsize = 14
-        axs[0].set_xlabel('Distance [km]', fontsize=fsize)
-        axs[0].set_ylabel('Depth [km]', fontsize=fsize)
-        axs[0].tick_params(axis='both', labelsize=fsize)
+                if(plot_mlit_particles == True): #lithospheric mantle particles
+                    if(particle_layer == mlit_code):
+                        if(mlit2plot==True):
+                            # print(f"Particle: {particle}, Layer: {particle_layer}, T_initial: {T_initial[particle]}")
+                            axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air,
+                                        dict_mlit_markers[T_initial[particle]],
+                                        color=dict_mlit_colors[T_initial[particle]],
+                                        markersize=markersize-2, zorder=60)
+                            
+                            axs[1].plot(T[i, particle], P[i, particle],
+                                        dict_mlit_markers[T_initial[particle]],
+                                        color=dict_mlit_colors[T_initial[particle]], markersize=10) #current PTt point
 
-        axs[1].set_xlim([0, 1500])
-        axs[1].set_ylim([0, 4000])
-        axs[1].set_xlabel(r'Temperature [$^{\circ}$C]', fontsize=fsize)
-        axs[1].set_ylabel('Pressure [MPa]', fontsize=fsize)
-        axs[1].yaxis.set_label_position("right")
-        axs[1].tick_params(axis='y', labelright=True, labelleft=False, labelsize=fsize)
-        axs[1].tick_params(axis='x', labelsize=fsize)
-        axs[1].grid('-k', alpha=0.7)
+                            axs[1].plot(T[:i, particle], P[:i, particle], '-', color=dict_mlit_colors[T_initial[particle]], linewidth=linewidth, alpha=0.8, zorder=60) #PTt path
+                            #plotting points at each 5 Myr
+                            
+                            for j in np.arange(0, current_time, 5):
+                                idx = find_nearest(time, j)
+                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=2)
 
-        figname = f"{model_name}_{prop}_and_PTt_{str(int(data.step)).zfill(6)}.png"
-        fig.savefig(f"_output/{figname}", dpi=300)
+            # Setting plot details
+            fsize = 14
+            axs[0].set_xlabel('Distance [km]', fontsize=fsize)
+            axs[0].set_ylabel('Depth [km]', fontsize=fsize)
+            axs[0].tick_params(axis='both', labelsize=fsize)
+
+            axs[1].set_xlim([0, 1500])
+            axs[1].set_ylim([0, 4000])
+            axs[1].set_xlabel(r'Temperature [$^{\circ}$C]', fontsize=fsize)
+            axs[1].set_ylabel('Pressure [MPa]', fontsize=fsize)
+            axs[1].yaxis.set_label_position("right")
+            axs[1].tick_params(axis='y', labelright=True, labelleft=False, labelsize=fsize)
+            axs[1].tick_params(axis='x', labelsize=fsize)
+            axs[1].grid('-k', alpha=0.7)
+
+            if(plot_melt):
+                #plotting melt legend
+                text_fsize = 12
+                axs[0].text(0.01, 0.90, r'Melt Fraction $\left(\frac{\partial \phi}{\partial t}\right)$', color='xkcd:bright pink', fontsize=text_fsize, transform=axs[0].transAxes, zorder=60)
+                axs[0].text(0.01, 0.80, r'Depleted Mantle ($\phi$)', color='xkcd:bright purple', fontsize=text_fsize, transform=axs[0].transAxes, zorder=60)
+
+                figname = f"{model_name}_{prop}_and_PTt_MeltFrac_{str(int(data.step)).zfill(6)}.png"
+            else:
+                figname = f"{model_name}_{prop}_and_PTt_{str(int(data.step)).zfill(6)}.png"
+            fig.savefig(f"_output/{figname}", dpi=300)
+            plt.close('all')
 
         del data
         gc.collect()
@@ -296,7 +342,7 @@ print("Done!")
 if(make_videos):
     print("Generating videos...")
 
-    fps = 30    
+    fps = 24
     for prop in properties:
         videoname = f'{model_path}/_output/{model_name}_{prop}_and_PTt'
 
