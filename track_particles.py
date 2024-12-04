@@ -112,7 +112,7 @@ for i in range(end, start-step, -step):
                 file_name,
                 delimiter=" ",
                 comment="P",
-                skiprows=2,
+                # skiprows=2,
                 header=None,
             )
             A = A.to_numpy()

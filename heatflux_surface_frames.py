@@ -238,7 +238,7 @@ with pymp.Parallel() as p:
         axs[0].text(0.01, 1.03, f'{time} Myr', transform=axs[0].transAxes, fontsize=fsize)
         axs[1].set_xlim(0, Lx/1000.0)
         axs[0].set_ylim(0, 300)
-        axs[1].set_ylim(-6, 6)
+        axs[1].set_ylim(-10, 10)
         axs[0].set_ylabel(r'q [mW/m$^2$]', fontsize=fsize)
         axs[1].set_ylabel(r'Depth [km]', fontsize=fsize)
         axs[1].set_xlabel(r'Distance [km]', fontsize=fsize)

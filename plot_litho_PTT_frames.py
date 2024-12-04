@@ -13,14 +13,7 @@ import xarray as xr
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
-from matplotlib import rc
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from matplotlib.transforms import Bbox
-from matplotlib.patches import FancyBboxPatch
-from matplotlib.font_manager import FontProperties
-from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
-                               AutoMinorLocator)
+import matplotlib.ticker
 
 
 matplotlib.use('agg')
@@ -42,6 +35,9 @@ output_path = '_output'
 print(f"Model name: {model_name}\n")
 print(f"Model path: {model_path}\n")
 print(f"Output path: {output_path}\n")
+
+if not os.path.isdir(output_path):
+    os.makedirs(output_path)
 
 plot_isotherms = True
 # plot_isotherms = False
@@ -313,13 +309,25 @@ with pymp.Parallel() as p:
             axs[0].tick_params(axis='both', labelsize=fsize)
 
             axs[1].set_xlim([0, 1500])
-            axs[1].set_ylim([0, 4000])
+            ylims = np.array([0, 4000])
+            axs[1].set_ylim(ylims)
             axs[1].set_xlabel(r'Temperature [$^{\circ}$C]', fontsize=fsize)
             axs[1].set_ylabel('Pressure [MPa]', fontsize=fsize)
-            axs[1].yaxis.set_label_position("right")
-            axs[1].tick_params(axis='y', labelright=True, labelleft=False, labelsize=fsize)
-            axs[1].tick_params(axis='x', labelsize=fsize)
+            # axs[1].yaxis.set_label_position("right")
+            # axs[1].tick_params(axis='y', labelright=True, labelleft=False, labelsize=fsize)
+            
+            axs[1].tick_params(axis='both', labelsize=fsize-2)
             axs[1].grid('-k', alpha=0.7)
+
+            #creating depth axis to PTt plot
+            ax1 = axs[1].twinx()
+            ax1.set_ylim(ylims/30)
+            # ax1.tick_params(axis='y', labelright=False, labelleft=True, labelsize=fsize)
+            ax1.set_ylabel('Depth [km]', fontsize=fsize)
+            ax1.tick_params(axis='y', labelsize=fsize-2)
+            # nticks = len(axs[1].get_yticks())
+            # ax1.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(nticks))
+            # ax1.yaxis.set_label_position("left")
 
             if(plot_melt):
                 #plotting melt legend
