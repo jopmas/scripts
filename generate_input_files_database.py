@@ -130,11 +130,11 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-scenario_kind = 'rifting'
+# scenario_kind = 'rifting'
 # scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
-# scenario_kind = 'stab_keel'
+scenario_kind = 'stab_keel'
 
 experiemnts = {'rifting': 'Rifting experiment',
                'stab': 'LAB (1300 oC) stability',
@@ -566,13 +566,13 @@ elif(scenario_kind == 'stab'):
                     """
 
     # DeltaT = 0
-    # DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
+    DeltaT = 200 #oC incrase in initial guess of mantle potential temperature
     # DeltaT = 250
     # DeltaT = 230
     # DeltaT = 290
     # DeltaT = 300
     # DeltaT = 350
-    DeltaT = 370
+    # DeltaT = 370
     # DeltaT = 500 #testar
     # DeltaT = 600 #testar
     # DeltaT = 700
@@ -1458,8 +1458,8 @@ elif(scenario_kind == 'stab_keel'):
         V_upper_crust = 0.0
         V_air = 0.0
     
-    mobile_belt = True
-    # mobile_belt = False
+    # mobile_belt = True
+    mobile_belt = False
     shift_mb = 0.0e3
     # shift_mb = 200.0e3 #m
 
@@ -1541,11 +1541,11 @@ elif(scenario_kind == 'stab_keel'):
     shift_craton = 0.0e3 #m
     # shift_craton = 700.0e3 #m
     
-    # free_continent = False
-    free_continent = True
+    free_continent = False
+    # free_continent = True
 
-    hot_surface = True
-    # hot_surface = False
+    # hot_surface = True
+    hot_surface = False
 
     # seed = False
     # seed = True
@@ -1586,8 +1586,8 @@ elif(scenario_kind == 'stab_keel'):
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
     
-    # ast_wind                         = True
-    ast_wind                         = False
+    ast_wind                         = True
+    # ast_wind                         = False
 
     velocity = 1.0 #cm/yr
 
@@ -2444,7 +2444,11 @@ cbar.set_label("Temperature [°C]")
 
 
 if(keel_adjust==True):
-    idx = find_nearest(x, Lx/2 - Lcraton/2 - length_non_cratonic/2) #non-cratonic
+    if(free_continent==True): #non-cratonic position
+        idx = find_nearest(x, Lx/2 - Lcraton/2 - length_non_cratonic/2) #non-cratonic
+    else:
+        idx = 0
+
     ax1.plot(T[:, idx], (z - thickness_sa) / 1.0e3, "--k", label=r'T$_{\mathrm{non-cratonic}}$')
     ax1.plot(Tk_mean_interp, (z - thickness_sa) / 1.0e3, '--', color='r', label=r'T$_{\mathrm{cratonic}}$')
     if(free_continent==True):
