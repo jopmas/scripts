@@ -130,11 +130,11 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-# scenario_kind = 'rifting'
+scenario_kind = 'rifting'
 # scenario_kind = 'stab'
 # scenario_kind = 'accordion'
 # scenario_kind = 'accordion_lit_hetero'
-scenario_kind = 'stab_keel'
+# scenario_kind = 'stab_keel'
 
 experiemnts = {'rifting': 'Rifting experiment',
                'stab': 'LAB (1300 oC) stability',
@@ -338,8 +338,8 @@ if(scenario_kind == 'rifting'):
     #climate change
 
     # velocity = 0.5 #cm/yr
-    # velocity = 1.0 #cm/yr
-    velocity = 2.0 #cm/yr
+    velocity = 1.0 #cm/yr
+    # velocity = 2.0 #cm/yr
 
     # variable_bcv                     = True
     variable_bcv                     = False
@@ -358,7 +358,11 @@ if(scenario_kind == 'rifting'):
     #step files
     print_step_files                 = True
     checkered = False
-    # checkered = True   
+    # checkered = True
+
+    #magmatism
+    magmatism = False
+    # magmatism = True
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -429,6 +433,7 @@ if(scenario_kind == 'rifting'):
         print(f'C seed: {C_seed}')
     print(f'C asthenosphere: {C_ast}')
     print(f'Ramp mantle lithosphere: {ramp_mlit}')
+    print(f'Magmatism: {magmatism}')
     print(f'Preset of initial temperature field: {preset}')
     print(f'Force cold cratonic keel: {keel_adjust}')
     if(preset == True):
@@ -454,6 +459,7 @@ if(scenario_kind == 'rifting'):
         scenario_infos.append(f'Seed extra fragil: {extra_fragil}')
     scenario_infos.append(f'C asthenosphere: {C_ast}')
     scenario_infos.append(f'Ramp mantle lithosphere: {ramp_mlit}')
+    scenario_infos.append(f'Magmatism: {magmatism}')
     scenario_infos.append(' ')
     scenario_infos.append(f'Preset of initial temperature field: {preset}')
     scenario_infos.append(f'Force cold cratonic keel: {keel_adjust}')
@@ -2073,7 +2079,7 @@ heat_capacity                       = 1250          # ok #default is 1250
 non_linear_method                   = on            # ok
 adiabatic_component                 = on            # ok
 radiogenic_component                = on            # ok
-magmatism                           = on            # ok
+magmatism                           = {magmatism}   # ok
 # Velocity boundary conditions
 top_normal_velocity                 = fixed         # ok
 top_tangential_velocity             = free          # ok
