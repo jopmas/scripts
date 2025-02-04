@@ -1,47 +1,47 @@
 MODEL INFORMATION:
  
 Saving input files at: scripts
-Experiment: Rifting experiment
+Experiment: Cratonic Keel
 Chosen number of cores:  20
  
 Scale factors (C):
-C air: 1.0
-C upper crust: 1.0
-C lower crust: 10.0
-C mantle lithosphere: 1.0
-C seed: 0.1
 C asthenosphere: 1.0
+C lithospheric mantle: 1.0
+C mobile_belt: 1.0
+C lower crust: 1.0
+C upper crust: 1.0
+C air: 1.0
  
-Preset of initial temperature field: True
+Preset of initial temperature field: False
+Force cold cratonic keel: True
+Shift of craton: 0.0 km
+Craton with Mobile Belt: True
  
 High kappa in asthenosphere: False
  
 Surface process: False
  
-Velocity field True
-	Velocity: 1.0 cm/yr
-	Variable velocity field: False
+Velocity field False
  
 Climate change: False
  
 Domain parameters:
-	Lx: 1000.0 km
-	Lz: 300.0 km
-	Nx: 1001
-	Nz: 301
-	Resolution dx x dz: 1 x 1 km2
+	Lx: 4000.0 km
+	Lz: 700.0 km
+	Nx: 801
+	Nz: 141
+	Resolution dx x dz: 5 x 5 km2
  
 Layers thickness:
 	H air: 40.0 km
 	H upper crust: 20.0 km
 	H lower crust: 15.0 km
-	H mantle lithosphere: 85.0 km
-	H lithosphere: 120.0 km
-	H seed: 12.0 km
+	H mantle lithosphere: 45.0 km
+	H lithosphere: 80.0 km
  
 Initial temperature field setup:
-	Path to external scenario used for build initial temperature field: /Volumes/Joao_Macedo/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/
-	Using ascii file
 	Selection in preset: False
 	Use horizontal mean of temperature from preset in lithosphere: False
-	Interpolation method: horizontal_mean
+	Increase in mantle basal temperature (Ta): 0 oC
+	Assumed mantle Potential Temperature: 1262 oC
+	Adjust to cold cratonic keel: True

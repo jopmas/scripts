@@ -361,8 +361,8 @@ if(scenario_kind == 'rifting'):
     # checkered = True
 
     #magmatism
-    magmatism = False
-    # magmatism = True
+    magmatism = 'off'
+    # magmatism = 'on'
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -634,6 +634,10 @@ elif(scenario_kind == 'stab'):
     # checkered = False
     checkered = True
 
+    #magmatism
+    magmatism = 'off'
+    # magmatism = 'on'
+
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
     top_tangential_velocity             = 'free '         # ok
@@ -690,6 +694,7 @@ elif(scenario_kind == 'stab'):
     print(f'C lower crust: {C_lower_crust}')
     print(f'C mantle lithosphere: {C_mlit}')
     print(f'C asthenosphere: {C_ast}')
+    print(f'Magmatism: {magmatism}')
     print(f'Asthenospheric rad. heat production: {H_ast} W/m3')
     print(f'Preset of initial temperature field: {preset}')
     print(f'Force cold cratonic keel: {keel_adjust}')
@@ -707,6 +712,8 @@ elif(scenario_kind == 'stab'):
     scenario_infos.append(f'C mantle lithosphere: {C_mlit}')
     scenario_infos.append(f'C asthenosphere: {C_ast}')
     scenario_infos.append(' ')
+    scenario_infos.append(f'Magmatism: {magmatism}')
+    scenario_infos.append(f' ')
     scenario_infos.append(f'Asthenospheric rad. heat production: {H_ast} W/m3')
     scenario_infos.append(' ')
     scenario_infos.append(f'Preset of initial temperature field: {preset}')
@@ -932,6 +939,10 @@ elif(scenario_kind == 'accordion'):
     checkered = False
     # checkered = True
 
+    #magmatism
+    magmatism = 'off'
+    # magmatism = 'on'
+
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
     top_tangential_velocity             = 'free '         # ok
@@ -1033,6 +1044,7 @@ elif(scenario_kind == 'accordion'):
     if(seed_in_litho):
         print(f'C seed: {C_seed}')
     print(f'C asthenosphere: {C_ast}')
+    print(f'magmatism: {magmatism}')
     print(f'Preset of initial temperature field: {preset}')
     print(f'Force cold cratonic keel: {keel_adjust}')
     if(preset == True):
@@ -1057,6 +1069,7 @@ elif(scenario_kind == 'accordion'):
         scenario_infos.append(f'C seed: {C_seed}')
     scenario_infos.append(f'C asthenosphere: {C_ast}')
     scenario_infos.append(' ')
+    scenario_infos.append(f'magmatism: {magmatism}')
     scenario_infos.append(f'Preset of initial temperature field: {preset}')
     scenario_infos.append(f'Force cold cratonic keel: {keel_adjust}')
     if(preset == True):
@@ -1276,6 +1289,10 @@ elif(scenario_kind == 'accordion_lit_hetero'):
     checkered = False
     # checkered = True
 
+    #magmatism
+    magmatism = 'off'
+    # magmatism = 'on'
+
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
     top_tangential_velocity             = 'free '         # ok
@@ -1337,6 +1354,7 @@ elif(scenario_kind == 'accordion_lit_hetero'):
     print(f'C lower crust: {C_lower_crust}')
     print(f'C mantle lithosphere: {C_mlit}')
     print(f'C asthenosphere: {C_ast}')
+    print(f'magmatism: {magmatism}')
     print(f'Preset of initial temperature field: {preset}')
     print(f'Force cold cratonic keel: {keel_adjust}')
     if(preset == True):
@@ -1358,6 +1376,8 @@ elif(scenario_kind == 'accordion_lit_hetero'):
     scenario_infos.append(f'C lower crust: {C_lower_crust}')
     scenario_infos.append(f'C mantle lithosphere: {C_mlit}')
     scenario_infos.append(f'C asthenosphere: {C_ast}')
+    scenario_infos.append(' ')
+    scenario_infos.append(f'magmatism: {magmatism}')
     scenario_infos.append(' ')
     scenario_infos.append(f'Preset of initial temperature field: {preset}')
     scenario_infos.append(f'Force cold cratonic keel: {keel_adjust}')
@@ -1630,6 +1650,10 @@ elif(scenario_kind == 'stab_keel'):
     # checkered = False
     checkered = True
 
+    #magmatism
+    magmatism = 'off'
+    # magmatism = 'on'
+
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
     top_tangential_velocity             = 'free '         # ok
@@ -1698,7 +1722,7 @@ elif(scenario_kind == 'stab_keel'):
     if(mobile_belt):
         print(f'C mobile belt: {C_mobile_belt}')
     print(f'C asthenosphere: {C_ast}')
-
+    print(f'magmatism: {magmatism}')
     scenario_infos.append('Scale factors (C):')
     scenario_infos.append(f'C air: {C_air}')
     scenario_infos.append(f'C upper crust: {C_upper_crust}')
@@ -1707,6 +1731,8 @@ elif(scenario_kind == 'stab_keel'):
     if(mobile_belt):
         scenario_infos.append(f'C mobile belt: {C_mobile_belt}')
     scenario_infos.append(f'C asthenosphere: {C_ast}')
+    scenario_infos.append(' ')
+    scenario_infos.append(f'magmatism: {magmatism}')
 
 
 x = np.linspace(0, Lx, Nx)
