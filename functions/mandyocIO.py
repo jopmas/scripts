@@ -1627,7 +1627,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         
     elif(prop == 'surface'):
         # print('Dealing with data')
-#         topo_from_density = True
+        # topo_from_density = True
         topo_from_density = False
         
         if(topo_from_density == True):
@@ -1747,11 +1747,21 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         ax.plot(dataset.x/1.0e3, data, alpha = 1, linewidth = 2.0, color = "blueviolet")
         
     elif(prop == 'lithology'): #shaded lithology plot
+        # cr = 255.
+        # color_uc = (228. / cr, 156. / cr, 124. / cr)
+        # color_lc = (240. / cr, 209. / cr, 188. / cr)
+        # color_lit = (155. / cr, 194. / cr, 155. / cr)
+        # color_ast = (207. / cr, 226. / cr, 205. / cr)
+
         cr = 255.
-        color_uc = (228. / cr, 156. / cr, 124. / cr)
-        color_lc = (240. / cr, 209. / cr, 188. / cr)
-        color_lit = (155. / cr, 194. / cr, 155. / cr)
-        color_ast = (207. / cr, 226. / cr, 205. / cr)
+        color_sed = (241./cr,184./cr,68./cr)
+        color_dec = (137./cr,81./cr,151./cr)
+        color_uc = (228./cr,156./cr,124./cr)
+        color_lc = (240./cr,209./cr,188./cr)
+        color_lit = (155./cr,194./cr,155./cr)
+        color_mlit_uc = (180. / cr, 194. / cr, 162. / cr)
+        color_mlit_lc = (155. / cr, 194. / cr, 155. / cr)
+        color_ast = (207./cr,226./cr,205./cr)
         
         Rhoi = dataset.density.T
         # interfaces=[2900, 3365]
@@ -1770,8 +1780,10 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         ax.contourf(xx,
                     zz,
                     Rhoi,
-                    levels = [200., 2750, 2900, 3365, 3900],
-                    colors = [color_uc, color_lc, color_lit, color_ast])
+                    # levels = [200., 2750, 2900, 3365, 3900],
+                    # colors = [color_uc, color_lc, color_lit, color_ast]
+                    levels=[200.,2350,2450,2750,2900,3325,3355,3365,3378],
+                    colors=[color_sed,color_dec,color_uc,color_lc,color_lit,color_mlit_uc,color_mlit_lc,color_ast])
         
         im=ax.imshow(data.T,
                      cmap = 'Greys',
@@ -1865,20 +1877,20 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
 
     if(prop != 'surface'):
         #Filling above topographic surface
-        # Rhoi = dataset.density.T
+        Rhoi = dataset.density.T
         # interfaces=[2900, 3365]
         # ##Extract layer topography
-        # z = np.linspace(Lz/1000.0, 0, Nz)
-        # Z = np.linspace(Lz/1000.0, 0, 8001) #zi
-        # x = np.linspace(Lx/1000.0, 0, Nx)
+        z = np.linspace(Lz/1000.0, 0, Nz)
+        Z = np.linspace(Lz/1000.0, 0, 8001) #zi
+        x = np.linspace(Lx/1000.0, 0, Nx)
+        
+        topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
+        condx = (xi >= 100) & (xi <= 600)
+        z_mean = np.mean(topo_interface[condx])
+        topo_interface -= np.abs(z_mean)
+        topo_interface = -1.0*topo_interface
 
-        # topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
-        # condx = (xi >= 100) & (xi <= 600)
-        # z_mean = np.mean(topo_interface[condx])
-        # topo_interface -= np.abs(z_mean)
-        # topo_interface = -1.0*topo_interface
-
-        topo_interface = dataset.surface/1.0e3 + 40.0
+        # topo_interface = dataset.surface/1.0e3 + 40.0
         xaux = xx[0]
         condaux = (xaux>=xlims[0]) & (xaux<=xlims[1])
         xaux = xaux[condaux]

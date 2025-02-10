@@ -1,3 +1,7 @@
+##########################################################
+# YOU MUST UNZIP THE step*.txt FILES BEFORE RUNNING THIS #
+##########################################################
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -41,9 +45,10 @@ x=[]
 z=[]
 id_vec=[]
 layer_vec=[]
-
+# ncores = 20
+ncores = 16
 #Reading the data of final step
-for rank in range(20):
+for rank in range(ncores):
     file_name = f"step_{step_final}_{rank}.txt"
 
     if os.path.getsize(file_name)>0:
@@ -67,11 +72,20 @@ for rank in range(20):
         x = np.append(x,x1)
         z = np.append(z,z1)
 
+
+###########################################################################
+#Selecting the particles to track                                         #
+# All particles above search_thickness and between x_begin and x_end [km] #
+# and does not belong to air (cc==6)                                      #
+###########################################################################
+
 h_air = 40.0e3
-search_thickness = 5.0e3
+# search_thickness = 5.0e3
+search_thickness = 35.0e3
+x_begin = 400.0e3
+x_end = 1200.0e3
 
-cond = (z>-(h_air + search_thickness)) & (layer_vec<5) & (layer_vec>0) # todas as partículas nos últimos 5km e que não pertençam ao ar (cc==6)
-
+cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<5) & (layer_vec>0)
 part_selec = id_vec[cond]
 layers_selec = layer_vec[cond] #get the layer numbers of the selected particles
 n_tracked = np.size(part_selec)
@@ -105,7 +119,7 @@ for i in range(end, start-step, -step):
     layer_vec=[]
 
     #getting data from step files
-    for rank in range(20):
+    for rank in range(ncores):
         file_name = f"step_{Tdataset.step.values[i]}_{rank}.txt"
         if os.path.getsize(file_name)>0:
             A = pd.read_csv(
@@ -128,7 +142,7 @@ for i in range(end, start-step, -step):
             z = np.append(z,z1)
 
 
-    cond = (layer_vec<6) & (layer_vec>0) #lithospheric layers
+    cond = (layer_vec<6) & (layer_vec>0) #lithospheric layers only
     x = x[cond]
     z = z[cond]
     id_vec = id_vec[cond]
@@ -169,7 +183,7 @@ for i in range(end, start-step, -step):
     np.savetxt(f"track_xzPT_step_{str(Tdataset.step.values[i]).zfill(6)}.txt", np.c_[vecx_track, vecz_track, present_pressure/1.0E6, present_temperature], fmt="%.5f")
     
 
-# Criar o xarray.Dataset com todos os dados coletados
+# Creatiing the xarray dataset with the tracked particles
 ds = xr.Dataset(
     {
         "xtrack": (["index"], all_vecx_track),

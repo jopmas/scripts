@@ -41,9 +41,8 @@ if not os.path.isdir(output_path):
 
 plot_isotherms = True
 # plot_isotherms = False
-plot_melt = True
-# plot_melt = False
-
+# plot_melt = True
+plot_melt = False
 plot_particles=False
 
 if(plot_isotherms or plot_melt):
@@ -75,7 +74,9 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
             #  'viscosity'
              ]
 
-# Read ascii outputs and save them as xarray.Datasets
+#######################################################
+# Read ascii outputs and save them as xarray.Datasets #
+#######################################################
 
 new_datasets = change_dataset(properties, datasets)
 # print(new_datasets)
@@ -126,6 +127,10 @@ if ("velocity_x" and "velocity_z") in dataset.data_vars:
     dataset.velocity_x[:] = dataset.velocity_x[:] / v_max
     dataset.velocity_z[:] = dataset.velocity_z[:] / v_max
 
+#########################################
+# Get domain and particles informations #
+#########################################
+
 Nx = int(dataset.nx)
 Nz = int(dataset.nz)
 Lx = float(dataset.lx)
@@ -151,9 +156,11 @@ z_track = np.reshape(z_track,(steps,n))
 P = np.reshape(P,(steps,n))
 T = np.reshape(T,(steps,n))
 
-############################################################################################################################
-#take the index of particles_layers which corresponds to mlit layer: coldest, hotterst, and the one in the middle
-particles_layers = trackdataset.particles_layers.values[::-1]
+####################################################################################################################
+# Take the index of particles_layers which corresponds to mlit layer: coldest, hotterst, and the one in the middle #
+####################################################################################################################
+
+particles_layers = trackdataset.particles_layers.values[::-1] #code of the tracked layers
 mlit_code = 1
 crust_code = 4 #lower crust
 T_initial = T[0]
@@ -183,7 +190,7 @@ if(mlit_code in particles_layers):
                         Ti_mlit_max: 'xkcd:dark green'}
 else:
     plot_mlit_particles = False
-    cond_mlit2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
+    cond_mlit2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
 
 if(crust_code in particles_layers):
     cond_crust = particles_layers == crust_code
@@ -205,7 +212,6 @@ else:
 
 
 ############################################################################################################################
-  
 # Plotting
 plot_colorbar = True
 h_air = 40.0
@@ -216,7 +222,7 @@ dt = int(t1 - t0)
 
 start = int(t0)
 end = int(dataset.time.size - 1)
-step = 1
+step = 5
 
 # start = 4
 # end = 5
@@ -240,7 +246,7 @@ color_incremental_melt = 'xkcd:bright pink'
 color_depleted_mantle='xkcd:bright purple'
 
 with pymp.Parallel() as p:
-    for i in p.range(start, end+step, step):
+    for i in p.range(start, end, step):
         
         data = dataset.isel(time=i)
         for prop in properties:
@@ -248,8 +254,9 @@ with pymp.Parallel() as p:
             
             current_time = float(data.time.values)
             xlims = [0, float(data.lx) / 1.0e3]
-            # ylims = [-float(data.lz) / 1.0e3 + 40, 40]
-            ylims = [-150, 40]
+            ylims = [-float(data.lz) / 1.0e3 + 40, 40]
+            # ylims = [-150, 40]
+            # ylims = [-400, 40]
 
             plot_property(data, prop, xlims, ylims, model_path,
                         fig,
