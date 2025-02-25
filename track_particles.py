@@ -45,8 +45,8 @@ x=[]
 z=[]
 id_vec=[]
 layer_vec=[]
-# ncores = 20
-ncores = 16
+ncores = 20
+# ncores = 16
 #Reading the data of final step
 for rank in range(ncores):
     file_name = f"step_{step_final}_{rank}.txt"
@@ -80,10 +80,10 @@ for rank in range(ncores):
 ###########################################################################
 
 h_air = 40.0e3
-# search_thickness = 5.0e3
-search_thickness = 35.0e3
-x_begin = 400.0e3
-x_end = 1200.0e3
+search_thickness = 5.0e3
+# search_thickness = 35.0e3
+x_begin = 0.0e3
+x_end = Lx
 
 cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<5) & (layer_vec>0)
 part_selec = id_vec[cond]

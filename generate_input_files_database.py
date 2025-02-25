@@ -104,6 +104,28 @@ class WetQuartz:
         self.activation_energy = 222.0e3
         self.activation_volume = 0.0
 
+class DryQuartz:
+    """
+    Dry quartz rheological properties
+    """
+    def __init__(self):
+        self.name = 'dry_quartz'
+        self.pre_exponential_constant = 0.0
+        self.power_law_exponent = 0.0
+        self.activation_energy = 0.0
+        self.activation_volume = 0.0
+
+class Plagioclase:
+    """
+    Plagioclase rheological properties (Shelton and Tullis, 1981)
+    """
+    def __init__(self):
+        self.name = 'plagioclase' 
+        self.pre_exponential_constant = 0.0
+        self.power_law_exponent = 3.05
+        self.activation_energy = 276.e3
+        self.activation_volume = 0.0
+
 class Air:
     """
     Air rheological properties

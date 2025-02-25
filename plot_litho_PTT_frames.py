@@ -69,7 +69,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
             #  'strain',
             #  'strain_rate',
             #  'temperature',
-             'temperature_anomaly',
+            #  'temperature_anomaly',
             #  'surface',
             #  'viscosity'
              ]
@@ -162,7 +162,7 @@ T = np.reshape(T,(steps,n))
 
 particles_layers = trackdataset.particles_layers.values[::-1] #code of the tracked layers
 mlit_code = 1
-crust_code = 4 #lower crust
+lower_crust_code = 4 #lower crust
 T_initial = T[0]
 
 if(mlit_code in particles_layers):
@@ -192,8 +192,8 @@ else:
     plot_mlit_particles = False
     cond_mlit2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
 
-if(crust_code in particles_layers):
-    cond_crust = particles_layers == crust_code
+if(lower_crust_code in particles_layers):
+    cond_crust = particles_layers == lower_crust_code
     particles_crust = particles_layers[cond_crust]
 
     T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
@@ -210,7 +210,7 @@ else:
     plot_crust_particles = False
     cond_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
 
-
+# print(particles_layers)
 ############################################################################################################################
 # Plotting
 plot_colorbar = True
