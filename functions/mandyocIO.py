@@ -1518,8 +1518,8 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                    'lithology':           [None, None],
                    'pressure':            [-1.0E-3, 1.0],
                    'strain':              [None, None],
-                   # 'strain_rate':         [1.0E-19, 1.0E-14],
-                   'strain_rate':         [1.0E-20, 1.0E-15],
+                   'strain_rate':         [1.0E-18, 1.0E-14],
+                #    'strain_rate':         [1.0E-20, 1.0E-15],
 #                    'strain_rate':         [np.log10(1.0E-19), np.log10(1.0E-14)],
                    'temperature':         [0, 1600],
                    'temperature_anomaly': [-150, 150],
@@ -1876,19 +1876,23 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
             # ax.plot(data_x[cond_ast][::step_plot*4]/1000, data_z[cond_ast][::step_plot*4]/1000+40, particle_marker, color=color_ast, markersize=particle_size-0.95, alpha=1.0, zorder=30)
 
     if(prop != 'surface'):
-        #Filling above topographic surface
-        Rhoi = dataset.density.T
-        # interfaces=[2900, 3365]
-        # ##Extract layer topography
-        z = np.linspace(Lz/1000.0, 0, Nz)
-        Z = np.linspace(Lz/1000.0, 0, 8001) #zi
-        x = np.linspace(Lx/1000.0, 0, Nx)
-        
-        topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
-        condx = (xi >= 100) & (xi <= 600)
-        z_mean = np.mean(topo_interface[condx])
-        topo_interface -= np.abs(z_mean)
-        topo_interface = -1.0*topo_interface
+        # topo_from_density = True
+        topo_from_density = False
+        if(topo_from_density==True):
+            Rhoi = dataset.density.T
+            # interfaces=[2900, 3365]
+            # ##Extract layer topography
+            z = np.linspace(Lz/1000.0, 0, Nz)
+            Z = np.linspace(Lz/1000.0, 0, 8001) #zi
+            x = np.linspace(Lx/1000.0, 0, Nx)
+
+            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
+            condx = (xi >= 100) & (xi <= 600)
+            z_mean = np.mean(topo_interface[condx])
+            topo_interface -= np.abs(z_mean)
+            topo_interface = -1.0*topo_interface
+        else:
+            topo_interface = dataset.surface/1.0e3 + 40.0
 
         # topo_interface = dataset.surface/1.0e3 + 40.0
         xaux = xx[0]
@@ -2360,8 +2364,8 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
     
     if(prop != 'surface'):
         #Filling above topographic surface
-        # topo_from_density = True
-        topo_from_density = False
+        topo_from_density = True
+        # topo_from_density = False
         if(topo_from_density==True):
             Rhoi = dataset.density.T
             # interfaces=[2900, 3365]
@@ -2370,7 +2374,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
             Z = np.linspace(Lz/1000.0, 0, 8001) #zi
             x = np.linspace(Lx/1000.0, 0, Nx)
 
-            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
+            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
             condx = (xi >= 100) & (xi <= 600)
             z_mean = np.mean(topo_interface[condx])
             topo_interface -= np.abs(z_mean)
