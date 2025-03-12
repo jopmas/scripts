@@ -26,7 +26,7 @@ sys.path.append(os.path.abspath(path_to_functions))
 
 if '' in sys.path:
     sys.path.remove('')
-from functions.mandyocIO import read_datasets, change_dataset, plot_property, find_nearest
+from functions.mandyocIO import read_datasets, change_dataset, plot_property, find_nearest, _extract_interface
 
 ####################################################################################################################################
 model_path = os.getcwd() # Get local file
@@ -149,7 +149,7 @@ time = trackdataset.time.values[::-1]
 steps = trackdataset.step.values[::-1]
 n = int(trackdataset.ntracked.values)
 nTotal = np.size(x_track)
-steps = nTotal//n
+steps = nTotal//n #
 
 x_track = np.reshape(x_track,(steps,n))
 z_track = np.reshape(z_track,(steps,n))
@@ -161,12 +161,29 @@ T = np.reshape(T,(steps,n))
 ####################################################################################################################
 
 particles_layers = trackdataset.particles_layers.values[::-1] #code of the tracked layers
+asthenosphere_code = 0 #asthenosphere
 mlit_code = 1
 lower_crust_code = 4 #lower crust
-T_initial = T[0]
+
+T_initial = T[0] #initial temperature of particles
+P_initial = P[0] #initial pressure of particles 
+
+if(asthenosphere_code in particles_layers):
+    cond_ast = particles_layers == asthenosphere_code #condition to select asthenospheric particles
+    particles_ast = particles_layers[cond_ast]
+
+    #Selecting particles with P0 <= 4000 MPa
+    cond_ast2plot = P_initial <= 4000
+    plot_ast_particles = True
+
+    ast_color = 'xkcd:violet'
+    ast_marker = '.'
+else:
+    plot_ast_particles = False
+    cond_ast2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
 
 if(mlit_code in particles_layers):
-    cond_mlit = particles_layers == mlit_code
+    cond_mlit = particles_layers == mlit_code #condition to select lithospheric mantle particles
     particles_mlit = particles_layers[cond_mlit]
 
     T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
@@ -216,17 +233,21 @@ else:
 plot_colorbar = True
 h_air = 40.0
 
-t0 = dataset.time[0]
-t1 = dataset.time[1]
-dt = int(t1 - t0)
+# t0 = dataset.time[0]
+# t1 = dataset.time[1]
+# dt = int(t1 - t0)
 
-start = int(t0)
-end = int(dataset.time.size - 1)
-step = 5
+# start = int(t0)
+# end = int(dataset.time.size - 1)
+# step = 5
 
 # start = 4
 # end = 5
 # step = 1
+
+start = 0
+end = int(trackdataset.time.size)
+step = 1
 
 make_videos = True
 # make_videos = False
@@ -240,15 +261,36 @@ zip_files = True
 print("Generating frames...")
 linewidth = 0.85
 markersize = 8
-color_crust='xkcd:grey'
+color_crust='xkcd:brown'
 
 color_incremental_melt = 'xkcd:bright pink'
 color_depleted_mantle='xkcd:bright purple'
+# topo_from_density = False
+topo_from_density = True
+
+plot_other_particles = True
+# plot_other_particles = False
+
+correction = True
+# correction = False
 
 with pymp.Parallel() as p:
     for i in p.range(start, end, step):
-        
         data = dataset.isel(time=i)
+        if(correction):
+            Rhoi = data.density.T
+            z_aux = z
+            x_aux = x
+            Z_aux = np.linspace(Lz/1000.0, 0, 8001)
+            condx = (x_aux>50) & (x_aux<300)
+
+            interface = _extract_interface(z_aux, Z_aux, Nx, Rhoi, 200.0)
+            z_mean = np.mean(interface[condx])
+            correction_factor = np.abs(z_mean-h_air)
+            # print(correction_factor)
+        else:
+            correction_factor = 0.0
+
         for prop in properties:
             fig, axs = plt.subplots(1, 2, figsize=(12, 3), constrained_layout=True, gridspec_kw={'width_ratios': [1, 0.4]})
             
@@ -263,6 +305,7 @@ with pymp.Parallel() as p:
                         axs[0],
                         plot_isotherms = plot_isotherms,
                         isotherms = [500, 600, 700, 1300],
+                        topo_from_density=topo_from_density,
                         plot_colorbar=plot_colorbar,
                         bbox_to_anchor=(0.85,#horizontal position respective to parent_bbox or "loc" position
                                         0.20,# vertical position
@@ -275,18 +318,17 @@ with pymp.Parallel() as p:
             
             for particle, particle_layer, mlit2plot in zip(range(n), particles_layers, cond_mlit2plot):
                 #Plot particles in prop subplot
-
                 if(plot_crust_particles == True):
-                    if(particle_layer != mlit_code): #crustal particles
+                    if(particle_layer == lower_crust_code): #crustal particles
                         # print(particle_layer)
                         if(cond_crust2plot[particle] == True):
-                            axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_crust, markersize=markersize-2, zorder=60)
-                            axs[1].plot(T[i, particle], P[i, particle], '.', color=color_crust, markersize=markersize) #current PTt point
+                            axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_crust, markersize=markersize-2, zorder=61)
+                            axs[1].plot(T[i, particle], P[i, particle], '.', color=color_crust, markersize=markersize, zorder=60) #current PTt point
                             axs[1].plot(T[:i, particle], P[:i, particle], '-', color=color_crust, linewidth=linewidth, alpha=1.0, zorder=60) #PTt path
                             #plotting points at each 5 Myr
                             for j in np.arange(0, current_time, 5):
                                 idx = find_nearest(time, j)
-                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=2)
+                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=2, zorder=60)
 
 
                 if(plot_mlit_particles == True): #lithospheric mantle particles
@@ -296,18 +338,42 @@ with pymp.Parallel() as p:
                             axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air,
                                         dict_mlit_markers[T_initial[particle]],
                                         color=dict_mlit_colors[T_initial[particle]],
-                                        markersize=markersize-2, zorder=60)
+                                        markersize=markersize-2, zorder=61)
                             
                             axs[1].plot(T[i, particle], P[i, particle],
                                         dict_mlit_markers[T_initial[particle]],
-                                        color=dict_mlit_colors[T_initial[particle]], markersize=10) #current PTt point
+                                        color=dict_mlit_colors[T_initial[particle]], markersize=10, zorder=61) #current PTt point
 
-                            axs[1].plot(T[:i, particle], P[:i, particle], '-', color=dict_mlit_colors[T_initial[particle]], linewidth=linewidth, alpha=0.8, zorder=60) #PTt path
+                            axs[1].plot(T[:i, particle], P[:i, particle], '-', color=dict_mlit_colors[T_initial[particle]], linewidth=linewidth, alpha=0.8, zorder=61) #PTt path
                             #plotting points at each 5 Myr
                             
                             for j in np.arange(0, current_time, 5):
                                 idx = find_nearest(time, j)
-                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=2)
+                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=2, zorder=60)
+                        else:
+                            if(plot_other_particles == True): #plotting the other lithospheric mantle particles
+                                axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color='xkcd:grey', markersize=markersize-6, zorder=60)
+                                axs[1].plot(T[i, particle], P[i, particle],
+                                            '.', color='xkcd:black',
+                                            markersize=int(markersize/2), zorder=60) #current PTt point
+                                axs[1].plot(T[:i, particle], P[:i, particle],
+                                            '-', color='xkcd:black',
+                                            linewidth=0.1, alpha = 1.0, zorder=60) #PTt path
+                                #plotting points at each 5 Myr
+                                for j in np.arange(0, current_time, 5):
+                                    idx = find_nearest(time, j)
+                                    axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.7, zorder=59)
+
+                if(plot_ast_particles == True):
+                    if(particle_layer == asthenosphere_code):
+                        if(cond_ast2plot[particle] == True):
+                            axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=ast_color, markersize=markersize-6, zorder=61)
+                            axs[1].plot(T[i, particle], P[i, particle], '.', color=ast_color, markersize=int(markersize/2), zorder=60)
+                            axs[1].plot(T[:i, particle], P[:i, particle], '-', color=ast_color, linewidth=linewidth-1, alpha=1.0, zorder=60) #PTt path
+                            #plotting points at each 5 Myr
+                            for j in np.arange(0, current_time, 5):
+                                idx = find_nearest(time, j)
+                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.5, zorder=60)
 
             # Setting plot details
             fsize = 14
@@ -453,3 +519,4 @@ if(zip_files):
     subprocess.run(f"zip {model_name}_gifs.zip *.gif", shell=True, check=True, capture_output=True, text=True)
     subprocess.run(f"rm *.png", shell=True, check=True, capture_output=True, text=True)
     print('Zipping complete!')
+    os.chdir(f'{model_path}')

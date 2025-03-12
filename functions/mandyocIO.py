@@ -1437,11 +1437,239 @@ def measure_crustal_thickness(dataset, Nx, Nz, Lx, Lz, x_begin=600.0, x_end=900.
 
     return position_max_thickness, topo_max_thickness, crustal_thickness, lower_crust_interface, topography_interface, total_crustal_thickness
 
+def plot_tracked_particles(trackdataset, ax, i, plot_other_particles=False, color_other_particles='xkcd:black', size_other_particles=5):
+    """
+    Plot tracked particles in the subplot ax
+
+    Parameters
+    ----------
+    trackdataset : xarray.Dataset
+        Dataset containing the tracked particles
+    ax : matplotlib.axes._subplots.AxesSubplot
+        Subplot to plot the tracked particles
+    i : int
+        Current time step
+    """
+    x_track = trackdataset.xtrack.values[::-1]
+    z_track = trackdataset.ztrack.values[::-1]
+    P = trackdataset.ptrack.values[::-1]
+    T = trackdataset.ttrack.values[::-1]
+    time = trackdataset.time.values[::-1]
+    steps = trackdataset.step.values[::-1]
+    n = int(trackdataset.ntracked.values)
+    nTotal = np.size(x_track)
+    steps = nTotal//n
+
+    x_track = np.reshape(x_track,(steps,n))
+    z_track = np.reshape(z_track,(steps,n))
+    P = np.reshape(P,(steps,n))
+    T = np.reshape(T,(steps,n))
+    particles_layers = trackdataset.particles_layers.values[::-1] #code of the tracked layers
+
+    mlit_code = 1
+    lower_crust_code = 4
+    T_initial = T[0]
+
+    if(mlit_code in particles_layers):
+        cond_mlit = particles_layers == mlit_code
+        particles_mlit = particles_layers[cond_mlit]
+
+        T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
+        T_initial_mlit_sorted = np.sort(T_initial_mlit)
+
+        Ti_mlit_max = np.max(T_initial_mlit_sorted)
+        mid_index = len(T_initial_mlit_sorted)//2
+        Ti_mlit_mid = T_initial_mlit_sorted[mid_index]
+        Ti_mlit_min = np.min(T_initial_mlit_sorted)
+
+        cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
+
+        plot_mlit_particles = True
+
+        dict_mlit_markers = {Ti_mlit_max: '*',
+                            Ti_mlit_mid: '^',
+                            Ti_mlit_min: 'D'}
+
+        dict_mlit_colors = {Ti_mlit_min: 'xkcd:cerulean blue',
+                            Ti_mlit_mid: 'xkcd:scarlet',
+                            Ti_mlit_max: 'xkcd:dark green'}
+    else:
+        plot_mlit_particles = False
+        cond_mlit2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
+
+    if(lower_crust_code in particles_layers):
+        cond_crust = particles_layers == lower_crust_code
+        particles_crust = particles_layers[cond_crust]
+
+        T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
+        T_initial_crust_sorted = np.sort(T_initial_crust)
+
+        Ti_crust_max = np.max(T_initial_crust_sorted)
+        mid_index = len(T_initial_crust_sorted)//2
+        Ti_crust_mid = T_initial_crust_sorted[mid_index]
+        Ti_crust_min = np.min(T_initial_crust_sorted)
+
+        cond_crust2plot = (T_initial == Ti_crust_min) | (T_initial == Ti_crust_mid) | (T_initial == Ti_crust_max)
+        plot_crust_particles = True
+    else:
+        plot_crust_particles = False
+        cond_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
+
+    # linewidth = 0.85
+    markersize = 10
+    color_crust='xkcd:brown'
+    h_air = 40.0
+
+    for particle, particle_layer, mlit2plot in zip(range(n), particles_layers, cond_mlit2plot):
+        #Plot particles in prop subplot
+
+        if(plot_crust_particles == True): #lower crust particles
+            if(particle_layer == lower_crust_code): #crustal particles
+                # print(particle_layer)
+                if(cond_crust2plot[particle] == True):
+                    ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_crust, markersize=markersize-2, zorder=61)
+
+
+        if(plot_mlit_particles == True): #lithospheric mantle particles
+            if(particle_layer == mlit_code):
+                if(mlit2plot==True):
+                    # print(f"Particle: {particle}, Layer: {particle_layer}, T_initial: {T_initial[particle]}")
+                    ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air,
+                                dict_mlit_markers[T_initial[particle]],
+                                color=dict_mlit_colors[T_initial[particle]],
+                                markersize=markersize-2, zorder=61)
+                else:
+                    if(plot_other_particles == True):
+                        ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_other_particles, markersize=size_other_particles, zorder=60)
+
+def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, color_other_particles='xkcd:black', size_other_particles=0.7):
+    """
+    Plot PTt path of tracked particles in the subplot ax
+
+    Parameters
+    ----------
+    trackdataset : xarray.Dataset
+        Dataset containing the tracked particles
+    ax : matplotlib.axes._subplots.AxesSubplot
+        Subplot to plot the PTt path
+    instants : list
+        List of instants to plot the PTt path
+    """
+    x_track = trackdataset.xtrack.values[::-1]
+    z_track = trackdataset.ztrack.values[::-1]
+    P = trackdataset.ptrack.values[::-1]
+    T = trackdataset.ttrack.values[::-1]
+    time = trackdataset.time.values[::-1]
+    steps = trackdataset.step.values[::-1]
+    n = int(trackdataset.ntracked.values)
+    nTotal = np.size(x_track)
+    steps = nTotal//n
+
+    x_track = np.reshape(x_track,(steps,n))
+    z_track = np.reshape(z_track,(steps,n))
+    P = np.reshape(P,(steps,n))
+    T = np.reshape(T,(steps,n))
+    particles_layers = trackdataset.particles_layers.values[::-1] #code of the tracked layers
+
+    mlit_code = 1
+    lower_crust_code = 4
+    T_initial = T[0]
+
+    if(mlit_code in particles_layers):
+        cond_mlit = particles_layers == mlit_code
+        particles_mlit = particles_layers[cond_mlit]
+
+        T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
+        T_initial_mlit_sorted = np.sort(T_initial_mlit)
+
+        Ti_mlit_max = np.max(T_initial_mlit_sorted)
+        mid_index = len(T_initial_mlit_sorted)//2
+        Ti_mlit_mid = T_initial_mlit_sorted[mid_index]
+        Ti_mlit_min = np.min(T_initial_mlit_sorted)
+
+        cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
+
+        plot_mlit_particles = True
+
+        dict_mlit_markers = {Ti_mlit_max: '*',
+                            Ti_mlit_mid: '^',
+                            Ti_mlit_min: 'D'}
+
+        dict_mlit_colors = {Ti_mlit_min: 'xkcd:cerulean blue',
+                            Ti_mlit_mid: 'xkcd:scarlet',
+                            Ti_mlit_max: 'xkcd:dark green'}
+    else:
+        plot_mlit_particles = False
+        cond_mlit2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
+
+    if(lower_crust_code in particles_layers):
+        cond_crust = particles_layers == lower_crust_code
+        particles_crust = particles_layers[cond_crust]
+
+        T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
+        T_initial_crust_sorted = np.sort(T_initial_crust)
+
+        Ti_crust_max = np.max(T_initial_crust_sorted)
+        mid_index = len(T_initial_crust_sorted)//2
+        Ti_crust_mid = T_initial_crust_sorted[mid_index]
+        Ti_crust_min = np.min(T_initial_crust_sorted)
+
+        cond_crust2plot = (T_initial == Ti_crust_min) | (T_initial == Ti_crust_mid) | (T_initial == Ti_crust_max)
+        plot_crust_particles = True
+    else:
+        plot_crust_particles = False
+        cond_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
+
+    linewidth = 0.85
+    markersize = 10
+    color_crust='xkcd:brown'
+
+    for particle, particle_layer, mlit2plot in zip(range(n), particles_layers, cond_mlit2plot):
+        #Plot particles in prop subplot
+
+        if(plot_crust_particles == True):
+            if(particle_layer == lower_crust_code): #crustal particles
+                # print(particle_layer)
+                if(cond_crust2plot[particle] == True):
+                    ax.plot(T[::, particle], P[::, particle], '-', color=color_crust, linewidth=linewidth, alpha=1.0, zorder=60) #PTt path
+                    
+                    if(len(instants)>0):
+                        for instant in instants:
+                            idx = find_nearest(time, instant)
+                            ax.plot(T[idx, particle], P[idx, particle], '.', color=color_crust, markersize=markersize, zorder=60)
+                    else: #plotting points at each 5 Myr
+                        for j in np.arange(0, time[-1], 5):
+                            idx = find_nearest(time, j)
+                            ax.plot(T[idx, particle], P[idx, particle], '.', color=color_crust, markersize=markersize, zorder=60)
+
+
+        if(plot_mlit_particles == True): #lithospheric mantle particles
+            if(particle_layer == mlit_code):
+                if(mlit2plot==True):
+                    ax.plot(T[::, particle], P[::, particle], '-', color=dict_mlit_colors[T_initial[particle]], linewidth=linewidth, alpha=0.8, zorder=61) #PTt path
+                    
+                    if(len(instants)>0):
+                        for instant in instants:
+                            idx = find_nearest(time, instant)
+                            ax.plot(T[idx, particle], P[idx, particle], dict_mlit_markers[T_initial[particle]], color=dict_mlit_colors[T_initial[particle]], markersize=markersize, zorder=60)
+                    else: #plotting points at each 5 Myr
+                        for j in np.arange(0, time[-1], 5):
+                            idx = find_nearest(time, j)
+                            ax.plot(T[idx, particle], P[idx, particle], dict_mlit_markers[T_initial[particle]], color=dict_mlit_colors[T_initial[particle]], markersize=markersize, zorder=60)
+                else:
+                    if(plot_other_particles == True):
+                        ax.plot(T[::, particle], P[::, particle], '-', color=color_other_particles, linewidth=0.1, alpha=1.0, zorder=60)
+                        for j in np.arange(0, time[-1], 5):
+                            idx = find_nearest(time, j)
+                            ax.plot(T[idx, particle], P[idx, particle], '.', color=color_other_particles, markersize=size_other_particles, zorder=59)
+
 
 def plot_property(dataset, prop, xlims, ylims, model_path,
                 fig,
                 ax,
+                correction_factor=0.0,
                 plot_isotherms=True, isotherms=[400, 600, 800, 1000, 1300],
+                topo_from_density=True,
                 plot_particles=False,
                 particle_size=0.2,
                 particle_marker="o",
@@ -1628,7 +1856,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
     elif(prop == 'surface'):
         # print('Dealing with data')
         # topo_from_density = True
-        topo_from_density = False
+        # topo_from_density = False
         
         if(topo_from_density == True):
             Rhoi = dataset.density.T
@@ -1747,21 +1975,21 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         ax.plot(dataset.x/1.0e3, data, alpha = 1, linewidth = 2.0, color = "blueviolet")
         
     elif(prop == 'lithology'): #shaded lithology plot
-        # cr = 255.
-        # color_uc = (228. / cr, 156. / cr, 124. / cr)
-        # color_lc = (240. / cr, 209. / cr, 188. / cr)
-        # color_lit = (155. / cr, 194. / cr, 155. / cr)
-        # color_ast = (207. / cr, 226. / cr, 205. / cr)
-
         cr = 255.
-        color_sed = (241./cr,184./cr,68./cr)
-        color_dec = (137./cr,81./cr,151./cr)
-        color_uc = (228./cr,156./cr,124./cr)
-        color_lc = (240./cr,209./cr,188./cr)
-        color_lit = (155./cr,194./cr,155./cr)
-        color_mlit_uc = (180. / cr, 194. / cr, 162. / cr)
-        color_mlit_lc = (155. / cr, 194. / cr, 155. / cr)
-        color_ast = (207./cr,226./cr,205./cr)
+        color_uc = (228. / cr, 156. / cr, 124. / cr)
+        color_lc = (240. / cr, 209. / cr, 188. / cr)
+        color_lit = (155. / cr, 194. / cr, 155. / cr)
+        color_ast = (207. / cr, 226. / cr, 205. / cr)
+
+        # cr = 255.
+        # color_sed = (241./cr,184./cr,68./cr)
+        # color_dec = (137./cr,81./cr,151./cr)
+        # color_uc = (228./cr,156./cr,124./cr)
+        # color_lc = (240./cr,209./cr,188./cr)
+        # color_lit = (155./cr,194./cr,155./cr)
+        # color_mlit_uc = (180. / cr, 194. / cr, 162. / cr)
+        # color_mlit_lc = (155. / cr, 194. / cr, 155. / cr)
+        # color_ast = (207./cr,226./cr,205./cr)
         
         Rhoi = dataset.density.T
         # interfaces=[2900, 3365]
@@ -1772,23 +2000,25 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         # x = np.linspace(Lx/1000.0, 0, Nx)
             
         # topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
-        # condx = (xi >= 100) & (xi <= 600)
+        # condx = (xi >= 100) & (xi <= 400)
         # z_mean = np.mean(topo_interface[condx])
         # topo_interface -= np.abs(z_mean)
         # topo_interface = -1.0*topo_interface
         
+        #Density field
         ax.contourf(xx,
-                    zz,
+                    zz+correction_factor,
                     Rhoi,
-                    # levels = [200., 2750, 2900, 3365, 3900],
-                    # colors = [color_uc, color_lc, color_lit, color_ast]
-                    levels=[200.,2350,2450,2750,2900,3325,3355,3365,3378],
-                    colors=[color_sed,color_dec,color_uc,color_lc,color_lit,color_mlit_uc,color_mlit_lc,color_ast])
-        
+                    levels = [200., 2750, 2900, 3365, 3900],
+                    colors = [color_uc, color_lc, color_lit, color_ast],
+                    # levels=[200.,2350,2450,2750,2900,3325,3355,3365,3378],
+                    # colors=[color_sed,color_dec,color_uc,color_lc,color_lit,color_mlit_uc,color_mlit_lc,color_ast],
+                    )
+        #Strain shaded areas
         im=ax.imshow(data.T,
                      cmap = 'Greys',
                      origin = 'lower',
-                     extent = (0, Lx / 1.0E3, -Lz / 1.0E3 + 40,0 + 40),
+                     extent = (0, Lx / 1.0E3, -Lz / 1.0E3 + 40+correction_factor, 0 + 40+correction_factor),
                      # extent = (xlims[0], xlims[1], ylims[0], ylims[1]),
                      zorder = 50,
                      alpha = 0.2, vmin=-0.5,
@@ -1874,10 +2104,11 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
             ax.plot(data_x[cond_mb][::step_plot]/1000, data_z[cond_mb][::step_plot]/1000+40, particle_marker, color=color_mb, markersize=particle_size, alpha=1.0, zorder=30)
             ax.plot(data_x[cond_ast][::step_plot]/1000, data_z[cond_ast][::step_plot]/1000+40, particle_marker, color=color_ast, markersize=particle_size, alpha=1.0, zorder=30)
             # ax.plot(data_x[cond_ast][::step_plot*4]/1000, data_z[cond_ast][::step_plot*4]/1000+40, particle_marker, color=color_ast, markersize=particle_size-0.95, alpha=1.0, zorder=30)
-
+    
+    #Fill above topography with white color
     if(prop != 'surface'):
         # topo_from_density = True
-        topo_from_density = False
+        # topo_from_density = False
         if(topo_from_density==True):
             Rhoi = dataset.density.T
             # interfaces=[2900, 3365]
@@ -1886,11 +2117,11 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
             Z = np.linspace(Lz/1000.0, 0, 8001) #zi
             x = np.linspace(Lx/1000.0, 0, Nx)
 
-            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
-            condx = (xi >= 100) & (xi <= 600)
-            z_mean = np.mean(topo_interface[condx])
-            topo_interface -= np.abs(z_mean)
-            topo_interface = -1.0*topo_interface
+            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
+            # condx = (xi >= 100) & (xi <= 400)
+            # z_mean = np.mean(topo_interface[condx])
+            # topo_interface -= np.abs(z_mean)
+            topo_interface = -1.0*topo_interface + 40.0 - correction_factor
         else:
             topo_interface = dataset.surface/1.0e3 + 40.0
 
@@ -1917,6 +2148,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
 def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
                 save_frames=True,
                 plot_isotherms=True,
+                topo_from_density=True,
                 plot_particles=False,
                 particle_size=0.2,
                 particle_marker="o",
@@ -2103,7 +2335,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
     elif(prop == 'surface'):
         # print('Dealing with data')
         # topo_from_density = True
-        topo_from_density = False
+        # topo_from_density = False
         
         if(topo_from_density == True):
             Rhoi = dataset.density.T
@@ -2115,7 +2347,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
 
             topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
             
-            condx = (xi >= 100) & (xi <= 600)
+            condx = (xi >= 100) & (xi <= 400)
             z_mean = np.mean(topo_interface[condx])
             
             topo_interface -= np.abs(z_mean)
@@ -2240,7 +2472,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
         Z = np.linspace(Lz/1000.0, 0, 8001) #zi
         x = np.linspace(Lx/1000.0, 0, Nx)
             
-        topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
+        topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
         condx = (xi >= 100) & (xi <= 600)
         z_mean = np.mean(topo_interface[condx])
         topo_interface -= np.abs(z_mean)
@@ -2362,9 +2594,9 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
         #     print('Error: You cannot print particles in the Surface plot!')
         #     return()
     
+    #Filling above topographic surface
     if(prop != 'surface'):
-        #Filling above topographic surface
-        topo_from_density = True
+        # topo_from_density = True
         # topo_from_density = False
         if(topo_from_density==True):
             Rhoi = dataset.density.T
@@ -2374,11 +2606,11 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
             Z = np.linspace(Lz/1000.0, 0, 8001) #zi
             x = np.linspace(Lx/1000.0, 0, Nx)
 
-            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 300.) #200 kg/m3 = air/crust interface
-            condx = (xi >= 100) & (xi <= 600)
-            z_mean = np.mean(topo_interface[condx])
-            topo_interface -= np.abs(z_mean)
-            topo_interface = -1.0*topo_interface
+            topo_interface = _extract_interface(z, Z, Nx, Rhoi, 200.) #200 kg/m3 = air/crust interface
+            # condx = (xi >= 100) & (xi <= 600)
+            # z_mean = np.mean(topo_interface[condx])
+            # topo_interface -= np.abs(z_mean)
+            topo_interface = -1.0*topo_interface + 40.0
         else:
             topo_interface = dataset.surface/1.0e3 + 40.0
             
