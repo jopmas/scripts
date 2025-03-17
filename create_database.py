@@ -25,9 +25,9 @@ model_name = os.path.split(model_path)[1]
 
 datasets = (#Properties from mandyoc. Comment/uncomment to select properties of the dataset
             'density',
-            # 'depletion_factor',
-            # 'incremental_melt',
-            # 'melt',
+            'depletion_factor',
+            'incremental_melt',
+            'melt',
             'radiogenic_heat',
             'pressure',
             'strain',

@@ -67,7 +67,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
              'lithology',
             #  'pressure',
             #  'strain',
-            #  'strain_rate',
+             'strain_rate',
             #  'temperature',
             #  'temperature_anomaly',
             #  'surface',
@@ -352,7 +352,7 @@ with pymp.Parallel() as p:
                                 axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=2, zorder=60)
                         else:
                             if(plot_other_particles == True): #plotting the other lithospheric mantle particles
-                                axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color='xkcd:grey', markersize=markersize-6, zorder=60)
+                                axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color='xkcd:black', markersize=markersize-6, zorder=60)
                                 axs[1].plot(T[i, particle], P[i, particle],
                                             '.', color='xkcd:black',
                                             markersize=int(markersize/2), zorder=60) #current PTt point
