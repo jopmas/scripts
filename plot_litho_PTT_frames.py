@@ -146,7 +146,9 @@ z_track = trackdataset.ztrack.values[::-1]
 P = trackdataset.ptrack.values[::-1]
 T = trackdataset.ttrack.values[::-1]
 time = trackdataset.time.values[::-1]
+# print(time)
 steps = trackdataset.step.values[::-1]
+# print(len(steps), len(time))
 n = int(trackdataset.ntracked.values)
 nTotal = np.size(x_track)
 steps = nTotal//n #
@@ -171,7 +173,7 @@ P_initial = P[0] #initial pressure of particles
 if(asthenosphere_code in particles_layers):
     cond_ast = particles_layers == asthenosphere_code #condition to select asthenospheric particles
     particles_ast = particles_layers[cond_ast]
-
+    print(f"N asthenospheric particles: {len(particles_ast)}")
     #Selecting particles with P0 <= 4000 MPa
     cond_ast2plot = P_initial <= 4000
     plot_ast_particles = True
@@ -185,6 +187,7 @@ else:
 if(mlit_code in particles_layers):
     cond_mlit = particles_layers == mlit_code #condition to select lithospheric mantle particles
     particles_mlit = particles_layers[cond_mlit]
+    print(f"N Mmantle lithospheric particles: {len(particles_mlit)}")
 
     T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
     T_initial_mlit_sorted = np.sort(T_initial_mlit)
@@ -212,6 +215,7 @@ else:
 if(lower_crust_code in particles_layers):
     cond_crust = particles_layers == lower_crust_code
     particles_crust = particles_layers[cond_crust]
+    print(f"N crustal particles: {len(particles_crust)}")
 
     T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
     T_initial_crust_sorted = np.sort(T_initial_crust)
@@ -351,7 +355,7 @@ with pymp.Parallel() as p:
                                 idx = find_nearest(time, j)
                                 axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=2, zorder=60)
                         else:
-                            if(plot_other_particles == True): #plotting the other lithospheric mantle particles
+                            if(plot_other_particles == True): #plotting the other lithospheric mantle particles instead only 3
                                 axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color='xkcd:black', markersize=markersize-6, zorder=60)
                                 axs[1].plot(T[i, particle], P[i, particle],
                                             '.', color='xkcd:black',
@@ -367,7 +371,7 @@ with pymp.Parallel() as p:
                 if(plot_ast_particles == True):
                     if(particle_layer == asthenosphere_code):
                         if(cond_ast2plot[particle] == True):
-                            axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=ast_color, markersize=markersize-6, zorder=61)
+                            axs[0].plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=ast_color, markersize=markersize-6, zorder=60)
                             axs[1].plot(T[i, particle], P[i, particle], '.', color=ast_color, markersize=int(markersize/2), zorder=60)
                             axs[1].plot(T[:i, particle], P[:i, particle], '-', color=ast_color, linewidth=linewidth-1, alpha=1.0, zorder=60) #PTt path
                             #plotting points at each 5 Myr

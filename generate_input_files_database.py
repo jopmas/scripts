@@ -254,10 +254,10 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-# experiment = 'rifting'
+experiment = 'rifting'
 # experiment = 'stability'
 # experiment = 'wilson_cycle'
-experiment = 'cratonic_keel'
+# experiment = 'cratonic_keel'
 
 experiments = {'rifting': 'Rifting experiment',
                'stability': 'LAB (1300 oC) stability',
@@ -273,8 +273,8 @@ ncores = 20
 if(experiment == 'rifting'):
     #Rheological and Thermal parameters
 
-    ramp_mlit = True
-    # ramp_mlit = False
+    # ramp_mlit = True
+    ramp_mlit = False
 
     # seed_in_litho = False
     seed_in_litho = True
@@ -338,8 +338,8 @@ if(experiment == 'rifting'):
     #climate change
 
     # velocity = 0.5 #cm/yr
-    velocity = 1.0 #cm/yr
-    # velocity = 2.0 #cm/yr
+    # velocity = 1.0 #cm/yr
+    velocity = 2.0 #cm/yr
 
     # variable_bcv                     = True
     variable_bcv                     = False
@@ -361,16 +361,17 @@ if(experiment == 'rifting'):
     # checkered = True
 
     #magmatism
-    magmatism = 'off'
-    # magmatism = 'on'
+    # magmatism = 'off'
+    magmatism = 'on'
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
-    top_tangential_velocity             = 'free '         # ok
+    top_tangential_velocity             = 'free'         # ok
     bot_normal_velocity                 = 'fixed'         # ok
     bot_tangential_velocity             = 'free '         # ok
     left_normal_velocity                = 'fixed'         # ok
-    left_tangential_velocity            = 'free '         # ok
+    left_tangential_velocity            = 'free'         # ok
+    # left_tangential_velocity            = 'fixed'         # ok
     right_normal_velocity               = 'fixed'         # ok
     right_tangential_velocity           = 'fixed'         # ok
 
@@ -815,16 +816,17 @@ thickness_air = 40 * 1.0e3
 # thickness of upper crust (m)
 thickness_upper_crust = 20 * 1.0e3
 # thickness of lower crust (m)
-thickness_lower_crust = 15 * 1.0e3
+# thickness_lower_crust = 15 * 1.0e3
+thickness_lower_crust = 20 * 1.0e3
 # total thickness of lithosphere (m)
-# thickness_lithospherespheric_mantle = 80 * 1.0e3
-thickness_lithospherespheric_mantle = 120 * 1.0e3
+thickness_lithospherespheric_mantle = 80 * 1.0e3
+# thickness_lithospherespheric_mantle = 120 * 1.0e3
 # thickness_lithospherespheric_mantle = 150 * 1.0e3
 
 thickness_lithosphere = thickness_upper_crust + thickness_lower_crust + thickness_lithospherespheric_mantle
 
 asthenosphere = MandyocLayer('asthenosphere', WetOlivine,
-                            density=3300.0,
+                            density=3378.0,
                             effective_viscosity_scale_factor=1.0,
                             radiogenic_heat_production=7.38e-12)
 
@@ -839,13 +841,14 @@ lithospheric_mantle = MandyocLayer('lithospheric mantle', DryOlivine,
 lower_crust = MandyocLayer('lower crust', WetQuartz,
                             density=2800.0,
                             # interface=np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_air),
-                            effective_viscosity_scale_factor=1.0,
+                            # effective_viscosity_scale_factor=1.0,
+                            effective_viscosity_scale_factor=10.0,
                             radiogenic_heat_production=2.86e-10,
                             base_depth=thickness_air+thickness_upper_crust+thickness_lower_crust,
                             Nx=Nx) #0.8e-6 / 2800.0)
 
 upper_crust = MandyocLayer('upper crust', WetQuartz,
-                            density=2800.0,
+                            density=2700.0,
                             # interface=np.ones(Nx) * (thickness_upper_crust + thickness_air),
                             effective_viscosity_scale_factor=1.0,
                             radiogenic_heat_production=9.26e-10,
@@ -1848,7 +1851,7 @@ run_gcloud = f'''
         MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
         MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=6
-        MANDYOC_OPTIONS={mandyoc_options}
+        MANDYOC_OPTIONS='{mandyoc_options}'
         touch FD.out
         $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
         bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/zipper_gcloud.sh
@@ -1881,7 +1884,7 @@ run_mac = f'''
         MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
         MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=12
-        MANDYOC_OPTIONS={mandyoc_options}
+        MANDYOC_OPTIONS='{mandyoc_options}'
         touch FD.out
         $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
 
@@ -1954,10 +1957,10 @@ run_aguia = f'''
         #SBATCH --mail-type=BEGIN,FAIL,END
         #SBATCH --mail-user=joao.macedo.silva@usp.br
 
-        export PETSC_DIR={main_folders}/opt/petsc
-        export PETSC_ARCH=arch-label-optimized
-        MANDYOC={main_folders}/opt/mandyoc/bin/mandyoc
-        MANDYOC_OPTIONS={mandyoc_options}
+        export PETSC_DIR='{main_folders}/opt/petsc'
+        export PETSC_ARCH='arch-label-optimized'
+        MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
+        MANDYOC_OPTIONS='{mandyoc_options}'
 
         $PETSC_DIR/$PETSC_ARCH/bin/mpiexec -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
 
@@ -2005,6 +2008,76 @@ with open('run_aguia.sh', 'w') as f:
         line = line.strip()
         if len(line):
             f.write(' '.join(line.split()) + '\n')
+
+
+#hypatia run file
+main_folders = '/home/joao'
+run_hypatia = f'''
+    #!/usr/bin/env bash
+    #SBATCH --mail-type=BEGIN,END,FAIL         			# Mail events (NONE, BEGIN, END, FAIL, ALL)
+    #SBATCH --mail-user=joao.macedo.silva@usp.br		# Where to send mail
+    #SBATCH --ntasks={str(int(ncores))}
+    #SBATCH --nodes=2
+    #SBATCH --cpus-per-task=1
+    #SBATCH --time 48:00:00 # 16 horas; poderia ser “2-” para 2 dias; máximo “8-”
+    #SBATCH --job-name mandyoc-jpms
+    #SBATCH --output slurm_%j.log
+
+    #run the application:
+    PETSC_DIR='{main_folders}/opt/petsc'
+    PETSC_ARCH='arch-label-optimized/bin/mpirun'
+    MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
+    MANDYOC_OPTIONS='{mandyoc_options}'
+    $PETSC_DIR/$PETSC_ARCH -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
+
+
+    DIRNAME={dirname}
+
+    zip $DIRNAME.zip interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
+    zip -u $DIRNAME.zip bc_velocity_*.txt
+    zip -u $DIRNAME.zip density_*.txt
+    zip -u $DIRNAME.zip heat_*.txt
+    zip -u $DIRNAME.zip pressure_*.txt
+    zip -u $DIRNAME.zip sp_surface_global_*.txt
+    zip -u $DIRNAME.zip strain_*.txt
+    zip -u $DIRNAME.zip temperature_*.txt
+    zip -u $DIRNAME.zip time_*.txt
+    zip -u $DIRNAME.zip velocity_*.txt
+    zip -u $DIRNAME.zip viscosity_*.txt
+    zip -u $DIRNAME.zip scale_bcv.txt
+    zip -u $DIRNAME.zip step*.txt
+    zip -u $DIRNAME.zip Phi*.txt
+    zip -u $DIRNAME.zip dPhi*.txt
+    zip -u $DIRNAME.zip X_depletion*.txt
+    zip -u $DIRNAME.zip *.log
+
+    #rm *.log
+    rm vel_bc*
+    rm velz*
+    rm bc_velocity*
+    rm velocity*
+    rm step*
+    rm temperature*
+    rm density*
+    rm viscosity*
+    rm heat*
+    rm strain_*
+    rm time*
+    rm pressure_*
+    rm sp_surface_global*
+    rm scale_bcv.txt
+    rm Phi*
+    rm dPhi*
+    rm X_depletion*
+
+    '''
+with open('run_hypatia.sh', 'w') as f:
+    for line in run_hypatia.split('\n'):
+        line = line.strip()
+        if len(line):
+            f.write(' '.join(line.split()) + '\n')
+
+
 
 #zip input files
 filename = 'inputs_'+path[-1]+'.zip'

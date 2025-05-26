@@ -41,8 +41,12 @@ zs = []
 
 verif=0
 
-# take_middle = True
-take_middle = False
+#flag to track the particles until the middle of simulation (in time) in case of fast extension rate
+take_middle = True
+# take_middle = False
+
+# take_specific_time = True
+take_specific_time = False
 
 # take_asthenosphere = True
 take_asthenosphere = False
@@ -50,6 +54,11 @@ take_asthenosphere = False
 
 if(take_middle):
     instant_to_take = 20 #Myr
+    print(f"Track particles until {instant_to_take} Myr")
+    idx = (np.abs(Tdataset.time.values - instant_to_take)).argmin()
+    step_final = Tdataset.step.values[idx]
+elif(take_specific_time):
+    instant_to_take = 35 #Myr
     print(f"Track particles until {instant_to_take} Myr")
     idx = (np.abs(Tdataset.time.values - instant_to_take)).argmin()
     step_final = Tdataset.step.values[idx]
@@ -102,9 +111,13 @@ for rank in range(ncores):
 
 h_air = 40.0e3
 # search_thickness = 5.0e3 
-search_thickness = 10.0e3
+# search_thickness = 10.0e3
+# search_thickness = 12.0e3
+search_thickness = 15.0e3
+#for Claudio
 # search_thickness = 50.0e3
 # search_thickness = 35.0e3
+
 # x_begin = 0.0e3
 # x_end = Lx
 x_begin = 400.0e3
@@ -125,6 +138,11 @@ if(take_middle):
     else:
         cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<upper_crust_code) & (layer_vec>asthenosphere_code) #to take particles from lithosphere
     # cond = (z>-(h_air-2.0e3 + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec==0)
+elif(take_specific_time):
+    if(take_asthenosphere):
+        cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<upper_crust_code) & (layer_vec>=asthenosphere_code) #to take particles from asthenosphere and lithosphere.
+    else:
+        cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<upper_crust_code) & (layer_vec>asthenosphere_code) #to take particles from lithosphere
 else:
     if(take_asthenosphere):
         cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<upper_crust_code) & (layer_vec>=asthenosphere_code) #to take particles from lithosphere
@@ -146,8 +164,9 @@ temperature = []
 #Reading backwards in time the P and T data
 start = int(Tdataset.time.values[0])
 end = int(Tdataset.time[:idx+1].size) if take_middle else int(Tdataset.time.size - 1)
+# end = int(Tdataset.time[:idx].size) if take_middle else int(Tdataset.time.size - 1)
 # end = int(Tdataset.time[:idx+15].size)
-print(f'Start: {start}, End: {end}, time: {Tdataset.time.values[end]}')
+print(f'Start idx: {start}, End idx: {end}, time of end: {Tdataset.time.values[end]}')
 step = 1
 
 # all_vecx_track = []
@@ -165,6 +184,7 @@ present_temperature_evolution = pymp.shared.dict()
 
 with pymp.Parallel() as p:
     for i in p.range(end, start-step, -step):
+    # for i in p.range(end, start, -step):
         # print(f"Step: {Tdataset.step.values[i]}")
         temperature = Tdataset.temperature[i].values.T
         pressure = Pdataset.pressure[i].values.T
