@@ -42,8 +42,8 @@ zs = []
 verif=0
 
 #flag to track the particles until the middle of simulation (in time) in case of fast extension rate
-take_middle = True
-# take_middle = False
+# take_middle = True
+take_middle = False
 
 # take_specific_time = True
 take_specific_time = False
@@ -113,16 +113,19 @@ h_air = 40.0e3
 # search_thickness = 5.0e3 
 # search_thickness = 10.0e3
 # search_thickness = 12.0e3
-search_thickness = 15.0e3
+# search_thickness = 15.0e3
 #for Claudio
-# search_thickness = 50.0e3
+search_thickness = 50.0e3
 # search_thickness = 35.0e3
 
 # x_begin = 0.0e3
 # x_end = Lx
 x_begin = 400.0e3
 x_end = 1000.0e3
-# x_end = 1200.0e3
+
+#claudio
+# x_begin = 750.0e3
+# x_end = 1150.0e3
 
 asthenosphere_code = 0
 mantle_lithosphere1_code = 1
