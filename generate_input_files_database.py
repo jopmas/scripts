@@ -265,7 +265,7 @@ experiments = {'rifting': 'Rifting experiment',
                'cratonic_keel': 'Cratonic Keel',
                }
 
-ncores = 20
+ncores = 40
 
 #Main parameters used to construct param .txt that changes accordind to
 #tectonic regime
@@ -370,8 +370,8 @@ if(experiment == 'rifting'):
     bot_normal_velocity                 = 'fixed'         # ok
     bot_tangential_velocity             = 'free '         # ok
     left_normal_velocity                = 'fixed'         # ok
-    left_tangential_velocity            = 'free'         # ok
-    # left_tangential_velocity            = 'fixed'         # ok
+    # left_tangential_velocity            = 'free'         # ok
+    left_tangential_velocity            = 'fixed'         # ok
     right_normal_velocity               = 'fixed'         # ok
     right_tangential_velocity           = 'fixed'         # ok
 
@@ -391,28 +391,28 @@ if(experiment == 'rifting'):
 
     ##################################################################
     # total model horizontal extent (m)
-    Lx = 1000 * 1.0e3
+    Lx = 1600 * 1.0e3
     # total model vertical extent (m)
-    Lz = 300 * 1.0e3 #400 * 1.0e3
+    Lz = 400 * 1.0e3 #400 * 1.0e3
     # Lz = 440 * 1.0e3
     # number of points in horizontal direction
     # Nx = 501 #
     # Nx = 801
-    Nx = 1001
+    Nx = 1601
     # number of points in vertical direction
     # Nz = 151  #
     # Nz = 111 #Belon
     # Nz = 351
-    Nz = 301
+    Nz = 401
 
     if(seed_in_litho):
         # seed depth bellow base of lower crust (m)
         # seed_depth = 3 * 1.0e3 #9 * 1.0e3 #original
         # thickness_seed = 6 * 1.0e3
-        # seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
-        # thickness_seed = 12 * 1.0e3
-        seed_depth = 8 * 1.0e3 #9 * 1.0e3 #original
-        thickness_seed = 16 * 1.0e3
+        seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
+        thickness_seed = 12 * 1.0e3
+        # seed_depth = 8 * 1.0e3 #9 * 1.0e3 #original
+        # thickness_seed = 16 * 1.0e3
 
 elif(experiment == 'stability'):
     # DeltaT = 0
@@ -820,6 +820,7 @@ thickness_upper_crust = 20 * 1.0e3
 thickness_lower_crust = 20 * 1.0e3
 # total thickness of lithosphere (m)
 thickness_lithospherespheric_mantle = 80 * 1.0e3
+# thickness_lithospherespheric_mantle = 85 * 1.0e3
 # thickness_lithospherespheric_mantle = 120 * 1.0e3
 # thickness_lithospherespheric_mantle = 150 * 1.0e3
 
@@ -1869,7 +1870,7 @@ run_linux = f'''
         MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
         MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
         NUMBER_OF_CORES=12
-        MANDYOC_OPTIONS={mandyoc_options}
+        MANDYOC_OPTIONS='{mandyoc_options}'
         touch FD.out
         $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
     '''
@@ -2017,9 +2018,9 @@ run_hypatia = f'''
     #SBATCH --mail-type=BEGIN,END,FAIL         			# Mail events (NONE, BEGIN, END, FAIL, ALL)
     #SBATCH --mail-user=joao.macedo.silva@usp.br		# Where to send mail
     #SBATCH --ntasks={str(int(ncores))}
-    #SBATCH --nodes=2
+    #SBATCH --nodes=1
     #SBATCH --cpus-per-task=1
-    #SBATCH --time 48:00:00 # 16 horas; poderia ser “2-” para 2 dias; máximo “8-”
+    #SBATCH --time 72:00:00 # 16 horas; poderia ser “2-” para 2 dias; máximo “8-”
     #SBATCH --job-name mandyoc-jpms
     #SBATCH --output slurm_%j.log
 

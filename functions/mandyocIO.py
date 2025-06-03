@@ -1466,12 +1466,28 @@ def plot_tracked_particles(trackdataset, ax, i, plot_other_particles=False, colo
     T = np.reshape(T,(steps,n))
     particles_layers = trackdataset.particles_layers.values[::-1] #code of the tracked layers
 
-    mlit_code = 1
+    asthenosphere_code = 0
+    mantle_lithosphere1_code = 1
+    seed_code = 2
+    mantle_lithosphere2_code = 3
     lower_crust_code = 4
-    T_initial = T[0]
+    upper_crust_code = 5
 
-    if(mlit_code in particles_layers):
-        cond_mlit = particles_layers == mlit_code
+    T_initial = T[0]
+    P_initial = P[0]
+
+    if(asthenosphere_code in particles_layers):
+        cond_ast = particles_layers == asthenosphere_code
+        particles_ast = particles_layers[cond_ast]
+
+        cond_ast2plot = P_initial <= 4000 #only plot asthenosphere particles with initial pressure less than 4000 MPa
+        plot_asthenosphere_particles = True
+    else:
+        plot_asthenosphere_particles = False
+        cond_ast2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
+
+    if((mantle_lithosphere1_code in particles_layers) | (mantle_lithosphere2_code in particles_layers)):
+        cond_mlit = (particles_layers == mantle_lithosphere1_code) | (particles_layers == mantle_lithosphere2_code)
         particles_mlit = particles_layers[cond_mlit]
 
         T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
@@ -1484,7 +1500,7 @@ def plot_tracked_particles(trackdataset, ax, i, plot_other_particles=False, colo
 
         cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
 
-        plot_mlit_particles = True
+        plot_mantle_lithosphere_particles = True
 
         dict_mlit_markers = {Ti_mlit_max: '*',
                             Ti_mlit_mid: '^',
@@ -1494,44 +1510,44 @@ def plot_tracked_particles(trackdataset, ax, i, plot_other_particles=False, colo
                             Ti_mlit_mid: 'xkcd:scarlet',
                             Ti_mlit_max: 'xkcd:dark green'}
     else:
-        plot_mlit_particles = False
+        plot_mantle_lithosphere_particles = False
         cond_mlit2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
 
     if(lower_crust_code in particles_layers):
         cond_crust = particles_layers == lower_crust_code
         particles_crust = particles_layers[cond_crust]
 
-        T_initial_crust = T_initial[cond_crust] #initial temperature of crustal particles
-        T_initial_crust_sorted = np.sort(T_initial_crust)
+        T_initial_lower_crust = T_initial[cond_crust] #initial temperature of crustal particles
+        T_initial_lower_crust_sorted = np.sort(T_initial_lower_crust)
 
-        Ti_crust_max = np.max(T_initial_crust_sorted)
-        mid_index = len(T_initial_crust_sorted)//2
-        Ti_crust_mid = T_initial_crust_sorted[mid_index]
-        Ti_crust_min = np.min(T_initial_crust_sorted)
+        Ti_lower_crust_max = np.max(T_initial_lower_crust_sorted)
+        mid_index = len(T_initial_lower_crust_sorted)//2
+        Ti_lower_crust_mid = T_initial_lower_crust_sorted[mid_index]
+        Ti_lower_crust_min = np.min(T_initial_lower_crust_sorted)
 
-        cond_crust2plot = (T_initial == Ti_crust_min) | (T_initial == Ti_crust_mid) | (T_initial == Ti_crust_max)
-        plot_crust_particles = True
+        cond_lower_crust2plot = (T_initial == Ti_lower_crust_min) | (T_initial == Ti_lower_crust_mid) | (T_initial == Ti_lower_crust_max)
+        plot_lower_crust_particles = True
     else:
-        plot_crust_particles = False
-        cond_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
+        plot_lower_crust_particles = False
+        cond_lower_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
 
     # linewidth = 0.85
     markersize = 10
-    color_crust='xkcd:brown'
+    color_lower_crust='xkcd:brown'
     h_air = 40.0
 
     for particle, particle_layer, mlit2plot in zip(range(n), particles_layers, cond_mlit2plot):
         #Plot particles in prop subplot
 
-        if(plot_crust_particles == True): #lower crust particles
+        if(plot_lower_crust_particles == True): #lower crust particles
             if(particle_layer == lower_crust_code): #crustal particles
                 # print(particle_layer)
-                if(cond_crust2plot[particle] == True):
-                    ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_crust, markersize=markersize-2, zorder=61)
+                if(cond_lower_crust2plot[particle] == True):
+                    ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_lower_crust, markersize=markersize-2, zorder=61)
 
 
-        if(plot_mlit_particles == True): #lithospheric mantle particles
-            if(particle_layer == mlit_code):
+        if(plot_mantle_lithosphere_particles == True): #lithospheric mantle particles
+            if((particle_layer == mantle_lithosphere1_code) | (particle_layer == mantle_lithosphere2_code)): #lithospheric mantle particles
                 if(mlit2plot==True):
                     # print(f"Particle: {particle}, Layer: {particle_layer}, T_initial: {T_initial[particle]}")
                     ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air,
@@ -1541,6 +1557,9 @@ def plot_tracked_particles(trackdataset, ax, i, plot_other_particles=False, colo
                 else:
                     if(plot_other_particles == True):
                         ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_other_particles, markersize=size_other_particles, zorder=60)
+
+        if((plot_asthenosphere_particles == True) & (particle_layer == asthenosphere_code)):
+            ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color='xkcd:violet', markersize=0.5, zorder=60)
 
 def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, color_other_particles='xkcd:black', size_other_particles=0.7):
     """
@@ -1571,12 +1590,27 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
     T = np.reshape(T,(steps,n))
     particles_layers = trackdataset.particles_layers.values[::-1] #code of the tracked layers
 
-    mlit_code = 1
+    asthenosphere_code = 0
+    mantle_lithosphere1_code = 1
+    seed_code = 2
+    mantle_lithosphere2_code = 3
     lower_crust_code = 4
+    upper_crust_code = 5
     T_initial = T[0]
+    P_initial = P[0]
 
-    if(mlit_code in particles_layers):
-        cond_mlit = particles_layers == mlit_code
+    if(asthenosphere_code in particles_layers):
+        cond_ast = particles_layers == asthenosphere_code
+        particles_ast = particles_layers[cond_ast]
+
+        cond_ast2plot = P_initial <= 4000 #only plot asthenosphere particles with initial pressure less than 4000 MPa
+        plot_asthenosphere_particles = True
+    else:
+        plot_asthenosphere_particles = False
+        cond_ast2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
+
+    if((mantle_lithosphere1_code in particles_layers) | (mantle_lithosphere2_code in particles_layers)):
+        cond_mlit = (particles_layers == mantle_lithosphere1_code) | (particles_layers == mantle_lithosphere2_code)
         particles_mlit = particles_layers[cond_mlit]
 
         T_initial_mlit = T_initial[cond_mlit] #initial temperature of lithospheric mantle particles
@@ -1589,7 +1623,7 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
 
         cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
 
-        plot_mlit_particles = True
+        plot_mantle_lithosphere_particles = True
 
         dict_mlit_markers = {Ti_mlit_max: '*',
                             Ti_mlit_mid: '^',
@@ -1599,7 +1633,7 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
                             Ti_mlit_mid: 'xkcd:scarlet',
                             Ti_mlit_max: 'xkcd:dark green'}
     else:
-        plot_mlit_particles = False
+        plot_mantle_lithosphere_particles = False
         cond_mlit2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
 
     if(lower_crust_code in particles_layers):
@@ -1643,8 +1677,8 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
                             ax.plot(T[idx, particle], P[idx, particle], '.', color=color_crust, markersize=markersize, zorder=60)
 
 
-        if(plot_mlit_particles == True): #lithospheric mantle particles
-            if(particle_layer == mlit_code):
+        if(plot_mantle_lithosphere_particles == True): #lithospheric mantle particles
+            if((particle_layer == mantle_lithosphere1_code) | (particle_layer == mantle_lithosphere2_code)):
                 if(mlit2plot==True):
                     ax.plot(T[::, particle], P[::, particle], '-', color=dict_mlit_colors[T_initial[particle]], linewidth=linewidth, alpha=0.8, zorder=61) #PTt path
                     
@@ -1663,6 +1697,18 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
                             idx = find_nearest(time, j)
                             ax.plot(T[idx, particle], P[idx, particle], '.', color=color_other_particles, markersize=size_other_particles, zorder=59)
 
+        if(plot_asthenosphere_particles == True):
+            if(particle_layer == asthenosphere_code):
+                if(cond_ast2plot[particle] == True):
+                    ax.plot(T[::, particle], P[::, particle], '-', color='xkcd:violet', linewidth=linewidth-1, alpha=0.8, zorder=61)
+                    if(len(instants)>0):
+                        for instant in instants:
+                            idx = find_nearest(time, instant)
+                            ax.plot(T[idx, particle], P[idx, particle], 'o', color='xkcd:violet', markersize=markersize-7, zorder=60)
+                    else: #plotting points at each 5 Myr
+                        for j in np.arange(0, time[-1], 5):
+                            idx = find_nearest(time, j)
+                            ax.plot(T[idx, particle], P[idx, particle], 'o', color='xkcd:violet', markersize=markersize-7, zorder=60)
 
 def plot_property(dataset, prop, xlims, ylims, model_path,
                 fig,
