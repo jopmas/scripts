@@ -25,9 +25,9 @@ model_name = os.path.split(model_path)[1]
 
 datasets = (#Properties from mandyoc. Comment/uncomment to select properties of the dataset
             'density',
-            # 'depletion_factor',
-            # 'incremental_melt',
-            # 'melt',
+            'depletion_factor',
+            'incremental_melt',
+            'melt',
             'radiogenic_heat',
             'pressure',
             'strain',
@@ -43,5 +43,5 @@ ds_data = read_mandyoc_output(
         parameters_file="param.txt"
     )
 
-dataset = read_datasets(model_path, datasets, save_big_dataset = True)
+dataset = read_datasets(model_path, datasets, save_big_dataset = False)
 

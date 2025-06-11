@@ -153,6 +153,11 @@ n = int(trackdataset.ntracked.values)
 nTotal = np.size(x_track)
 steps = nTotal//n #
 
+# print(list(time))
+
+print(f"len of:\n x_track: {len(x_track)}\n z_track: {len(z_track)}\n P: {len(P)}\n T: {len(T)}\n time: {len(time)}\n")
+print(f"n_tracked x len(all_time) = {n}*{len(time)} = {n*len(time)}")
+print(f"nTotal: {nTotal}, n: {n}, steps: {steps}")
 x_track = np.reshape(x_track,(steps,n))
 z_track = np.reshape(z_track,(steps,n))
 P = np.reshape(P,(steps,n))
@@ -306,8 +311,8 @@ with pymp.Parallel() as p:
             
             current_time = float(data.time.values)
             xlims = [0, float(data.lx) / 1.0e3]
-            ylims = [-float(data.lz) / 1.0e3 + 40, 40]
-            # ylims = [-150, 40]
+            # ylims = [-float(data.lz) / 1.0e3 + 40, 40]
+            ylims = [-150, 40]
             # ylims = [-400, 40]
 
             plot_property(data, prop, xlims, ylims, model_path,
@@ -370,7 +375,7 @@ with pymp.Parallel() as p:
                                 #plotting points at each 5 Myr
                             for j in np.arange(0, current_time, 5):
                                 idx = find_nearest(time, j)
-                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.7, zorder=59)
+                                axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.7, zorder=60)
 
                 if((plot_asthenosphere_particles == True) & (particle_layer == asthenosphere_code)):
                     if(cond_ast2plot[particle] == True):
@@ -380,7 +385,7 @@ with pymp.Parallel() as p:
                         #plotting points at each 5 Myr
                         for j in np.arange(0, current_time, 5):
                             idx = find_nearest(time, j)
-                            axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.5, zorder=60)
+                            axs[1].plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.5, zorder=59)
 
             # Setting plot details
             fsize = 14

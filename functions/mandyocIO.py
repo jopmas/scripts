@@ -2021,21 +2021,21 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         ax.plot(dataset.x/1.0e3, data, alpha = 1, linewidth = 2.0, color = "blueviolet")
         
     elif(prop == 'lithology'): #shaded lithology plot
-        # cr = 255.
-        # color_uc = (228. / cr, 156. / cr, 124. / cr)
-        # color_lc = (240. / cr, 209. / cr, 188. / cr)
-        # color_lit = (155. / cr, 194. / cr, 155. / cr)
-        # color_ast = (207. / cr, 226. / cr, 205. / cr)
-
         cr = 255.
-        color_sed = (241./cr,184./cr,68./cr)
-        color_dec = (137./cr,81./cr,151./cr)
-        color_uc = (228./cr,156./cr,124./cr)
-        color_lc = (240./cr,209./cr,188./cr)
-        color_lit = (155./cr,194./cr,155./cr)
-        color_mlit_uc = (180. / cr, 194. / cr, 162. / cr)
-        color_mlit_lc = (155. / cr, 194. / cr, 155. / cr)
-        color_ast = (207./cr,226./cr,205./cr)
+        color_uc = (228. / cr, 156. / cr, 124. / cr)
+        color_lc = (240. / cr, 209. / cr, 188. / cr)
+        color_lit = (155. / cr, 194. / cr, 155. / cr)
+        color_ast = (207. / cr, 226. / cr, 205. / cr)
+
+        # cr = 255.
+        # color_sed = (241./cr,184./cr,68./cr)
+        # color_dec = (137./cr,81./cr,151./cr)
+        # color_uc = (228./cr,156./cr,124./cr)
+        # color_lc = (240./cr,209./cr,188./cr)
+        # color_lit = (155./cr,194./cr,155./cr)
+        # color_mlit_uc = (180. / cr, 194. / cr, 162. / cr)
+        # color_mlit_lc = (155. / cr, 194. / cr, 155. / cr)
+        # color_ast = (207./cr,226./cr,205./cr)
         
         Rhoi = dataset.density.T
         # interfaces=[2900, 3365]
@@ -2055,10 +2055,10 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
         ax.contourf(xx,
                     zz+correction_factor,
                     Rhoi,
-                    # levels = [200., 2750, 2900, 3365, 3900],
-                    # colors = [color_uc, color_lc, color_lit, color_ast],
-                    levels=[200.,2350,2450,2750,2900,3325,3355,3365,3378],
-                    colors=[color_sed,color_dec,color_uc,color_lc,color_lit,color_mlit_uc,color_mlit_lc,color_ast],
+                    levels = [200., 2750, 2900, 3365, 3900],
+                    colors = [color_uc, color_lc, color_lit, color_ast],
+                    # levels=[200.,2350,2450,2750,2900,3325,3355,3365,3378],
+                    # colors=[color_sed,color_dec,color_uc,color_lc,color_lit,color_mlit_uc,color_mlit_lc,color_ast],
                     )
         #Strain shaded areas
         im=ax.imshow(data.T,

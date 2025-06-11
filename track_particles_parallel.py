@@ -42,23 +42,15 @@ zs = []
 verif=0
 
 #flag to track the particles until the middle of simulation (in time) in case of fast extension rate
-# take_middle = True
-take_middle = False
-
 # take_specific_time = True
 take_specific_time = False
 
-# take_asthenosphere = True
-take_asthenosphere = False
+take_asthenosphere = True
+# take_asthenosphere = False
 
 
-if(take_middle):
+if(take_specific_time):
     instant_to_take = 20 #Myr
-    print(f"Track particles until {instant_to_take} Myr")
-    idx = (np.abs(Tdataset.time.values - instant_to_take)).argmin()
-    step_final = Tdataset.step.values[idx]
-elif(take_specific_time):
-    instant_to_take = 35 #Myr
     print(f"Track particles until {instant_to_take} Myr")
     idx = (np.abs(Tdataset.time.values - instant_to_take)).argmin()
     step_final = Tdataset.step.values[idx]
@@ -79,6 +71,7 @@ print(f"Number of cores: {ncores}")
 # ncores = 16
 #Reading the data of final step
 for rank in range(ncores):
+    # print(f"rank {rank}")
     file_name = f"step_{step_final}_{rank}.txt"
 
     if os.path.getsize(file_name)>0:
@@ -86,7 +79,7 @@ for rank in range(ncores):
             file_name,
             delimiter=" ",
             comment="P",
-            skiprows=2,
+            # skiprows=2,
             header=None,
         )
 
@@ -112,16 +105,16 @@ for rank in range(ncores):
 h_air = 40.0e3
 # search_thickness = 5.0e3 
 # search_thickness = 10.0e3
-# search_thickness = 12.0e3
+search_thickness = 12.0e3
 # search_thickness = 15.0e3
 #for Claudio
-search_thickness = 50.0e3
+# search_thickness = 50.0e3
 # search_thickness = 35.0e3
 
 # x_begin = 0.0e3
 # x_end = Lx
-x_begin = 400.0e3
-x_end = 1000.0e3
+x_begin = 700.0e3
+x_end = 1400.0e3
 
 #claudio
 # x_begin = 750.0e3
@@ -135,7 +128,7 @@ lower_mantle_code = 4
 upper_crust_code = 5
 air_code = 6
 
-if(take_middle):
+if(take_specific_time):
     if(take_asthenosphere):
         cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<upper_crust_code) & (layer_vec>=asthenosphere_code) #to take particles from asthenosphere and lithosphere.
     else:
@@ -166,8 +159,8 @@ temperature = []
 
 #Reading backwards in time the P and T data
 start = int(Tdataset.time.values[0])
-end = int(Tdataset.time[:idx+1].size) if take_middle else int(Tdataset.time.size - 1)
-# end = int(Tdataset.time[:idx].size) if take_middle else int(Tdataset.time.size - 1)
+# end = int(Tdataset.time[:idx+1].size) if take_specific_time else int(Tdataset.time.size - 1) # DANDO PAU NESSA CARALHA
+end = int(Tdataset.time[:idx].size) if take_specific_time else int(Tdataset.time.size - 1)
 # end = int(Tdataset.time[:idx+15].size)
 print(f'Start idx: {start}, End idx: {end}, time of end: {Tdataset.time.values[end]}')
 step = 1
@@ -184,6 +177,8 @@ vecx_track_evolution = pymp.shared.dict()
 vecz_track_evolution = pymp.shared.dict()
 present_pressure_evolution = pymp.shared.dict()
 present_temperature_evolution = pymp.shared.dict()
+all_time = pymp.shared.list()
+all_step = pymp.shared.list()
 
 with pymp.Parallel() as p:
     for i in p.range(end, start-step, -step):
@@ -191,7 +186,11 @@ with pymp.Parallel() as p:
         # print(f"Step: {Tdataset.step.values[i]}")
         temperature = Tdataset.temperature[i].values.T
         pressure = Pdataset.pressure[i].values.T
-
+        time_current = Tdataset.time.values[i]
+        step_current = Tdataset.step.values[i]
+        all_time.append(time_current)
+        all_step.append(step_current)
+        
         x=[]
         z=[]
         id_vec=[]
@@ -260,19 +259,26 @@ with pymp.Parallel() as p:
         vecz_track_evolution[i] = vecz_track
         present_pressure_evolution[i] = present_pressure / 1.0e6
         present_temperature_evolution[i] = present_temperature
-        
+
         np.savetxt(f"track_xzPT_step_{str(Tdataset.step.values[i]).zfill(6)}.txt", np.c_[vecx_track, vecz_track, present_pressure/1.0E6, present_temperature], fmt="%.5f")
 
+# print(f"len of:\n vecx_track_evolution {len(vecx_track_evolution)}\n vecz_track_evolution {len(vecz_track_evolution)}\n present_pressure_evolution {len(present_pressure_evolution)}\n present_temperature_evolution {len(present_temperature_evolution)}")
 
 vecx_track_dict = dict(vecx_track_evolution)
 vecz_track_dict = dict(vecz_track_evolution)
 present_pressure_dict = dict(present_pressure_evolution)
 present_temperature_dict = dict(present_temperature_evolution)
 
+# print(f"len of:\n vecx_track_dict {len(vecx_track_dict)}\n vecz_track_dict {len(vecz_track_dict)}\n present_pressure_dict {len(present_pressure_dict)}\n present_temperature_dict {len(present_temperature_dict)}\n")
+
 all_vecx_track = []
 all_vecz_track = []
 all_present_pressure = []
 all_present_temperature = []
+
+all_step = sorted(all_step)
+all_time = sorted(all_time)
+# print(all_time)
 
 for i,j,k,l in zip(sorted(vecx_track_dict), sorted(vecz_track_dict), sorted(present_pressure_dict), sorted(present_temperature_dict)):
     all_vecx_track.extend(vecx_track_dict[i])
@@ -280,6 +286,7 @@ for i,j,k,l in zip(sorted(vecx_track_dict), sorted(vecz_track_dict), sorted(pres
     all_present_pressure.extend(present_pressure_dict[k])
     all_present_temperature.extend(present_temperature_dict[l])
 
+print(f"len of:\n all_vecx_track {len(all_vecx_track)}\n all_vecz_track {len(all_vecz_track)}\n all_present_pressure {len(all_present_pressure)}\n all_present_temperature {len(all_present_temperature)}\n all_time {len(all_time)}\n all_step {len(all_step)}")
 # Creatiing the xarray dataset with the tracked particles
 ds = xr.Dataset(
     {
@@ -287,8 +294,10 @@ ds = xr.Dataset(
         "ztrack": (["index"], all_vecz_track[::-1]),
         "ptrack": (["index"], all_present_pressure[::-1]),
         "ttrack": (["index"], all_present_temperature[::-1]),
-        "step": Tdataset.step[:end].values[::-1],
-        "time": Tdataset.time[:end].values[::-1],
+        # "step": Tdataset.step[:end].values[::-1],
+        # "time": Tdataset.time[:end].values[::-1],
+        "step": all_step,
+        "time": all_time,
         "ntracked": int(n_tracked),
         "particles_layers": layers_selec[::-1]
     },
@@ -300,9 +309,13 @@ ds = xr.Dataset(
 ds.to_netcdf("_track_xzPT_all_steps.nc")
 
 
+print(f"n_tracked x len(all_time) = {n_tracked}*{len(all_time)} = {n_tracked*len(all_time)}")
+
 # Compressing the files 
 print("Zipping files")
 model_path = os.getcwd() # Get local file
 model_name = model_path.split('/')[-1]
 subprocess.run(f"zip {model_name}.zip track*.txt", shell=True, check=True, capture_output=True, text=True)
 print("Files zipped")
+
+# print(all_time)

@@ -47,8 +47,8 @@ print(f"Output path: {output_path}\n")
 plot_isotherms = True
 # plot_isotherms = False
 
-plot_melt = True
-# plot_melt = False
+# plot_melt = True
+plot_melt = False
 
 melt_method = 'dry'
 # melt_method = 'wet'
@@ -85,12 +85,12 @@ datasets = [#Properties from mandyoc. Comment/uncomment to select properties of 
 properties = [#Properties from mandyoc. Comment/uncomment to select which ones you would like to plot
 #              'density',
 #              'radiogenic_heat',
-            #  'lithology',
+             'lithology',
 #              'pressure',
             #  'strain',
             #  'strain_rate',
             #  'temperature',
-             'temperature_anomaly',
+            #  'temperature_anomaly',
             #  'surface',
             #  'viscosity'
              ]

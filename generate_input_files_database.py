@@ -320,7 +320,8 @@ if(experiment == 'rifting'):
     # scenario = '/Doutorado/cenarios/mandyoc/keel/stable_DT200_keel_HprodAst/'
 
     #Convergence criteria
-    denok                            = 1.0e-15
+    # denok                            = 1.0e-15
+    denok                            = 1.0e-14
     particles_per_element            = 100
 
     #Surface constrains
@@ -338,8 +339,8 @@ if(experiment == 'rifting'):
     #climate change
 
     # velocity = 0.5 #cm/yr
-    # velocity = 1.0 #cm/yr
-    velocity = 2.0 #cm/yr
+    velocity = 1.0 #cm/yr
+    # velocity = 2.0 #cm/yr
 
     # variable_bcv                     = True
     variable_bcv                     = False
@@ -401,7 +402,7 @@ if(experiment == 'rifting'):
     Nx = 1601
     # number of points in vertical direction
     # Nz = 151  #
-    # Nz = 111 #Belon
+    # Nz = 201
     # Nz = 351
     Nz = 401
 
@@ -816,8 +817,8 @@ thickness_air = 40 * 1.0e3
 # thickness of upper crust (m)
 thickness_upper_crust = 20 * 1.0e3
 # thickness of lower crust (m)
-# thickness_lower_crust = 15 * 1.0e3
-thickness_lower_crust = 20 * 1.0e3
+thickness_lower_crust = 15 * 1.0e3
+# thickness_lower_crust = 20 * 1.0e3
 # total thickness of lithosphere (m)
 thickness_lithospherespheric_mantle = 80 * 1.0e3
 # thickness_lithospherespheric_mantle = 85 * 1.0e3
@@ -1106,7 +1107,7 @@ particles_per_element               = {particles_per_element}          # default
 particles_perturb_factor            = 0.7           # default is 0.5 [values are between 0 and 1]
 rtol                                = 1.0e-7        # the absolute size of the residual norm (relevant only for iterative methods), default is 1.0E-5
 RK4                                 = Euler         # default is Euler [Euler/Runge-Kutta]
-Xi_min                              = 1.0e-7       # default is 1.0E-14
+Xi_min                              = 1.0e-6       # default is 1.0E-14
 random_initial_strain               = 0.2           # default is 0.0
 pressure_const                      = -1.0          # default is -1.0 (not used) - useful only in horizontal 2D models
 initial_dynamic_range               = True         # default is False [True/False]
