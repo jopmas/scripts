@@ -2613,8 +2613,8 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
                 data_lithology = np.append(data_lithology, aux_lithology)
                 data_strain = np.append(data_strain, aux_strain)
 
-            cond_litho = data_lithology > 1
-            cond_mb = data_lithology == 1
+            cond_litho = (data_lithology >= 1) & (data_lithology <= 8)
+            # cond_mb = data_lithology == 1
             cond_ast = data_lithology == 0
 
             # if(prop=='lithology'):
@@ -2632,7 +2632,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
             ax.plot(data_x[cond_litho][::step_plot]/1000, data_z[cond_litho][::step_plot]/1000+40, particle_marker, color=color_litho, markersize=particle_size, alpha=1.0, zorder=30)
 
             # ax.plot(data_x[cond_mb][::step_plot]/1000, data_z[cond_mb][::step_plot]/1000+40, particle_marker, color=color_mb, markersize=particle_size, alpha=1.0, zorder=30)
-            ax.plot(data_x[cond_mb][::step_plot]/1000, data_z[cond_mb][::step_plot]/1000+40, particle_marker, color=color_mb, markersize=particle_size*10, alpha=1.0, zorder=30)
+            # ax.plot(data_x[cond_mb][::step_plot]/1000, data_z[cond_mb][::step_plot]/1000+40, particle_marker, color=color_mb, markersize=particle_size*10, alpha=1.0, zorder=30)
 
             ax.plot(data_x[cond_ast][::step_plot]/1000, data_z[cond_ast][::step_plot]/1000+40, particle_marker, color=color_ast, markersize=particle_size, alpha=1.0, zorder=30)
             

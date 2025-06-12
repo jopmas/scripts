@@ -158,8 +158,8 @@ if ("velocity_x" and "velocity_z") in dataset.data_vars:
 print("Datasets read!")
 ##########################################################################################################################################################################
 
-# plot_particles = True 
-plot_particles = False
+plot_particles = True 
+# plot_particles = False
 unzip_steps = False
 
 if(plot_particles):
@@ -230,8 +230,8 @@ with pymp.Parallel() as p:
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
                             plot_isotherms = plot_isotherms,
                             plot_particles = plot_particles,
-                            particle_size = 0.02,
-                            # particle_size = 0.2,
+                            # particle_size = 0.02,
+                            particle_size = 0.2,
                             particle_marker = ".",
                             ncores = 20,
                             # step_plot = 3,

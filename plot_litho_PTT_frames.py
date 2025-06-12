@@ -286,25 +286,10 @@ topo_from_density = True
 plot_other_particles = True
 # plot_other_particles = False
 
-# correction = True
-correction = False
-
+# time = time[::-1]
 with pymp.Parallel() as p:
     for i in p.range(start, end, step):
         data = dataset.isel(time=i)
-        if(correction):
-            Rhoi = data.density.T
-            z_aux = z
-            x_aux = x
-            Z_aux = np.linspace(Lz/1000.0, 0, 8001)
-            condx = (x_aux>50) & (x_aux<300)
-
-            interface = _extract_interface(z_aux, Z_aux, Nx, Rhoi, 200.0)
-            z_mean = np.mean(interface[condx])
-            correction_factor = np.abs(z_mean-h_air)
-            # print(correction_factor)
-        else:
-            correction_factor = 0.0
 
         for prop in properties:
             fig, axs = plt.subplots(1, 2, figsize=(12, 3), constrained_layout=True, gridspec_kw={'width_ratios': [1, 0.4]})

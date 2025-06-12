@@ -45,8 +45,8 @@ verif=0
 # take_specific_time = True
 take_specific_time = False
 
-take_asthenosphere = True
-# take_asthenosphere = False
+# take_asthenosphere = True
+take_asthenosphere = False
 
 
 if(take_specific_time):
@@ -101,40 +101,67 @@ for rank in range(ncores):
 # All particles above search_thickness and between x_begin and x_end [km] #
 # and does not belong to air (cc==6)                                      #
 ###########################################################################
+dk_paper = False
+# dk_paper = True
 
 h_air = 40.0e3
-# search_thickness = 5.0e3 
-# search_thickness = 10.0e3
-search_thickness = 12.0e3
-# search_thickness = 15.0e3
-#for Claudio
-# search_thickness = 50.0e3
-# search_thickness = 35.0e3
 
-# x_begin = 0.0e3
-# x_end = Lx
-x_begin = 700.0e3
-x_end = 1400.0e3
+if(dk_paper == True):
+    #for Claudio
+    search_thickness = 50.0e3
+    # search_thickness = 35.0e3
 
-#claudio
-# x_begin = 750.0e3
-# x_end = 1150.0e3
+    # x_begin = 0.0e3
+    # x_end = Lx
 
-asthenosphere_code = 0
-mantle_lithosphere1_code = 1
-seed_code = 2
-mantle_lithosphere2_code = 3
-lower_mantle_code = 4
-upper_crust_code = 5
-air_code = 6
+    x_begin = 750.0e3
+    x_end = 1150.0e3
+
+    double_keel = False
+    # double_keel = True
+
+    if(double_keel):
+        asthenosphere_code = 0
+        lower_craton_code = 1
+        upper_craton_code = 2
+        mantle_lithosphere_code = 3
+        lower_crust1_code = 4
+        seed_code = 5
+        lower_crust2_code = 6
+        upper_crust_code = 7
+        decolement_code = 8
+        sediments_code = 9
+        air_code = 10
+    else:
+        asthenosphere_code = 0
+        mantle_lithosphere_code = 1
+        lower_crust1_code = 2
+        seed_code = 3
+        lower_crust2_code = 4
+        upper_crust_code = 5
+        decolement_code = 6
+        sediments_code = 7
+        air_code = 8
+else: #
+    # search_thickness = 5.0e3 
+    # search_thickness = 10.0e3
+    search_thickness = 12.0e3
+    # search_thickness = 15.0e3
+
+    x_begin = 700.0e3
+    x_end = 1400.0e3
+
+    asthenosphere_code = 0
+    mantle_lithosphere1_code = 1
+    seed_code = 2
+    mantle_lithosphere2_code = 3
+    lower_crust_code = 4
+    upper_crust_code = 5
+    air_code = 6
+
+print(f"Selecting particles between {x_begin/1000} and {x_end/1000} km, above {search_thickness/1000} km")
 
 if(take_specific_time):
-    if(take_asthenosphere):
-        cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<upper_crust_code) & (layer_vec>=asthenosphere_code) #to take particles from asthenosphere and lithosphere.
-    else:
-        cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<upper_crust_code) & (layer_vec>asthenosphere_code) #to take particles from lithosphere
-    # cond = (z>-(h_air-2.0e3 + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec==0)
-elif(take_specific_time):
     if(take_asthenosphere):
         cond = (z>-(h_air + search_thickness)) & (x>=x_begin) & (x<=x_end) & (layer_vec<upper_crust_code) & (layer_vec>=asthenosphere_code) #to take particles from asthenosphere and lithosphere.
     else:
@@ -152,7 +179,39 @@ layers_selec = layer_vec[cond] #get the layer numbers of the selected particles
 n_tracked = np.size(part_selec)
 
 print(f"x size: {np.size(x)}")
-print(f"Number of tracked particles (n): {np.size(part_selec)}")
+print(f"Number of tracked particles (n): {np.size(part_selec)}, where:")
+if(dk_paper == True):
+    n_tracked_ast = layers_selec[layers_selec==asthenosphere_code].size
+    if(double_keel):
+        n_tracked_lower_craton = layers_selec[layers_selec==lower_craton_code].size
+        n_tracked_upper_craton = layers_selec[layers_selec==upper_craton_code].size
+    n_tracked_mantle_lithosphere = layers_selec[layers_selec==mantle_lithosphere_code].size
+    n_tracked_lower_crust1 = layers_selec[layers_selec==lower_crust1_code].size
+    n_tracked_lower_crust2 = layers_selec[layers_selec==lower_crust2_code].size
+    n_tracked_upper_crust = layers_selec[layers_selec==upper_crust_code].size
+    n_tracked_decolement = layers_selec[layers_selec==decolement_code].size
+    n_tracked_sediments = layers_selec[layers_selec==sediments_code].size
+
+    print(f"Asthenosphere: {n_tracked_ast}")
+    if(double_keel):
+        print(f"Lower Craton: {n_tracked_lower_craton}")
+        print(f"Upper Craton: {n_tracked_upper_craton}")
+    print(f"Mantle Lithosphere: {n_tracked_mantle_lithosphere}")
+    print(f"Lower Crust: {n_tracked_lower_crust1 + n_tracked_lower_crust2} ")
+    print(f"Upper Crust: {n_tracked_upper_crust}")
+    print(f"Decolement: {n_tracked_decolement}")
+    print(f"Sediments: {n_tracked_sediments}\n")
+else:
+    n_tracked_ast = layers_selec[layers_selec==asthenosphere_code].size
+    n_tracked_mantle_lithosphere1 = layers_selec[layers_selec==mantle_lithosphere1_code].size
+    n_tracked_mantle_lithosphere2 = layers_selec[layers_selec==mantle_lithosphere2_code].size
+    n_tracked_lower_crust = layers_selec[layers_selec==lower_crust_code].size
+    n_tracked_upper_crust = layers_selec[layers_selec==upper_crust_code].size
+
+    print(f"Asthenosphere: {n_tracked_ast}")
+    print(f"Mantle Lithosphere: {n_tracked_mantle_lithosphere1+n_tracked_mantle_lithosphere2}")
+    print(f"Upper Crust: {n_tracked_upper_crust}")
+    print(f"Lower Crust: {n_tracked_lower_crust}\n")
 
 pressure = []
 temperature = []
@@ -296,8 +355,8 @@ ds = xr.Dataset(
         "ttrack": (["index"], all_present_temperature[::-1]),
         # "step": Tdataset.step[:end].values[::-1],
         # "time": Tdataset.time[:end].values[::-1],
-        "step": all_step,
-        "time": all_time,
+        "step": all_step[::-1],
+        "time": all_time[::-1],
         "ntracked": int(n_tracked),
         "particles_layers": layers_selec[::-1]
     },
