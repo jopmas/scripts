@@ -42,8 +42,8 @@ zs = []
 verif=0
 
 #flag to track the particles until the middle of simulation (in time) in case of fast extension rate
-# take_specific_time = True
-take_specific_time = False
+take_specific_time = True
+# take_specific_time = False
 
 # take_asthenosphere = True
 take_asthenosphere = False

@@ -1498,7 +1498,7 @@ def plot_tracked_particles(trackdataset, ax, i, plot_other_particles=False, colo
         Ti_mlit_mid = T_initial_mlit_sorted[mid_index]
         Ti_mlit_min = np.min(T_initial_mlit_sorted)
 
-        cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
+        cond_mantle_lithosphere2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
 
         plot_mantle_lithosphere_particles = True
 
@@ -1511,7 +1511,7 @@ def plot_tracked_particles(trackdataset, ax, i, plot_other_particles=False, colo
                             Ti_mlit_max: 'xkcd:dark green'}
     else:
         plot_mantle_lithosphere_particles = False
-        cond_mlit2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
+        cond_mantle_lithosphere2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
 
     if(lower_crust_code in particles_layers):
         cond_crust = particles_layers == lower_crust_code
@@ -1532,34 +1532,33 @@ def plot_tracked_particles(trackdataset, ax, i, plot_other_particles=False, colo
         cond_lower_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
 
     # linewidth = 0.85
-    markersize = 10
+    markersize = 8
     color_lower_crust='xkcd:brown'
     h_air = 40.0
 
-    for particle, particle_layer, mlit2plot in zip(range(n), particles_layers, cond_mlit2plot):
+    for particle, particle_layer in zip(range(n), particles_layers):
         #Plot particles in prop subplot
 
-        if(plot_lower_crust_particles == True): #lower crust particles
-            if(particle_layer == lower_crust_code): #crustal particles
-                # print(particle_layer)
-                if(cond_lower_crust2plot[particle] == True):
-                    ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_lower_crust, markersize=markersize-2, zorder=61)
+        if((plot_lower_crust_particles == True) & (particle_layer == lower_crust_code)): #crustal particles
+            # print(particle_layer)
+            if(cond_lower_crust2plot[particle] == True):
+                ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_lower_crust, markersize=markersize-2, zorder=61)
 
 
-        if(plot_mantle_lithosphere_particles == True): #lithospheric mantle particles
-            if((particle_layer == mantle_lithosphere1_code) | (particle_layer == mantle_lithosphere2_code)): #lithospheric mantle particles
-                if(mlit2plot==True):
-                    # print(f"Particle: {particle}, Layer: {particle_layer}, T_initial: {T_initial[particle]}")
-                    ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air,
-                                dict_mlit_markers[T_initial[particle]],
-                                color=dict_mlit_colors[T_initial[particle]],
-                                markersize=markersize-2, zorder=61)
-                else:
-                    if(plot_other_particles == True):
-                        ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_other_particles, markersize=size_other_particles, zorder=60)
+        if((plot_mantle_lithosphere_particles == True) & ((particle_layer == mantle_lithosphere1_code) | (particle_layer == mantle_lithosphere2_code))): #lithospheric mantle particles
+            if(cond_mantle_lithosphere2plot[particle]==True):
+                # print(f"Particle: {particle}, Layer: {particle_layer}, T_initial: {T_initial[particle]}")
+                ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air,
+                            dict_mlit_markers[T_initial[particle]],
+                            color=dict_mlit_colors[T_initial[particle]],
+                            markersize=markersize-2, zorder=61)
+            else:
+                if(plot_other_particles == True):
+                    ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color=color_other_particles, markersize=size_other_particles, zorder=60)
 
         if((plot_asthenosphere_particles == True) & (particle_layer == asthenosphere_code)):
-            ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color='xkcd:violet', markersize=0.5, zorder=60)
+            if(cond_ast2plot[particle] == True):
+                ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air, '.', color='xkcd:violet', markersize=markersize-6, zorder=60)
 
 def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, color_other_particles='xkcd:black', size_other_particles=0.7):
     """
@@ -1621,7 +1620,7 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
         Ti_mlit_mid = T_initial_mlit_sorted[mid_index]
         Ti_mlit_min = np.min(T_initial_mlit_sorted)
 
-        cond_mlit2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
+        cond_mantle_lithosphere2plot = (T_initial == Ti_mlit_min) | (T_initial == Ti_mlit_mid) | (T_initial == Ti_mlit_max)
 
         plot_mantle_lithosphere_particles = True
 
@@ -1634,7 +1633,7 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
                             Ti_mlit_max: 'xkcd:dark green'}
     else:
         plot_mantle_lithosphere_particles = False
-        cond_mlit2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
+        cond_mantle_lithosphere2plot = np.arange(0, n, 1) == np.arange(0, n, 1) + 1
 
     if(lower_crust_code in particles_layers):
         cond_crust = particles_layers == lower_crust_code
@@ -1649,66 +1648,62 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
         Ti_crust_min = np.min(T_initial_crust_sorted)
 
         cond_crust2plot = (T_initial == Ti_crust_min) | (T_initial == Ti_crust_mid) | (T_initial == Ti_crust_max)
-        plot_crust_particles = True
+        plot_lower_crust_particles = True
     else:
-        plot_crust_particles = False
+        plot_lower_crust_particles = False
         cond_crust2plot = np.arange(0, n, 1) == np.arange(0,n,1) + 1
 
     linewidth = 0.85
-    markersize = 10
+    markersize = 8
     color_crust='xkcd:brown'
 
-    for particle, particle_layer, mlit2plot in zip(range(n), particles_layers, cond_mlit2plot):
+    for particle, particle_layer in zip(range(n), particles_layers):
         #Plot particles in prop subplot
 
-        if(plot_crust_particles == True):
-            if(particle_layer == lower_crust_code): #crustal particles
-                # print(particle_layer)
-                if(cond_crust2plot[particle] == True):
-                    ax.plot(T[::, particle], P[::, particle], '-', color=color_crust, linewidth=linewidth, alpha=1.0, zorder=60) #PTt path
-                    
-                    if(len(instants)>0):
-                        for instant in instants:
-                            idx = find_nearest(time, instant)
-                            ax.plot(T[idx, particle], P[idx, particle], '.', color=color_crust, markersize=markersize, zorder=60)
-                    else: #plotting points at each 5 Myr
-                        for j in np.arange(0, time[-1], 5):
-                            idx = find_nearest(time, j)
-                            ax.plot(T[idx, particle], P[idx, particle], '.', color=color_crust, markersize=markersize, zorder=60)
+        if((plot_lower_crust_particles == True) & (particle_layer == lower_crust_code)):
+            if(cond_crust2plot[particle] == True):
+                ax.plot(T[::, particle], P[::, particle], '-', color=color_crust, linewidth=linewidth, alpha=1.0, zorder=60) #PTt path
+                
+                if(len(instants)>0):
+                    for instant in instants:
+                        idx = find_nearest(time, instant)
+                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_crust, markersize=markersize, zorder=60)
+                else: #plotting points at each 5 Myr
+                    for j in np.arange(0, time[-1], 5):
+                        idx = find_nearest(time, j)
+                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_crust, markersize=2, zorder=60)
 
 
-        if(plot_mantle_lithosphere_particles == True): #lithospheric mantle particles
-            if((particle_layer == mantle_lithosphere1_code) | (particle_layer == mantle_lithosphere2_code)):
-                if(mlit2plot==True):
-                    ax.plot(T[::, particle], P[::, particle], '-', color=dict_mlit_colors[T_initial[particle]], linewidth=linewidth, alpha=0.8, zorder=61) #PTt path
-                    
-                    if(len(instants)>0):
-                        for instant in instants:
-                            idx = find_nearest(time, instant)
-                            ax.plot(T[idx, particle], P[idx, particle], dict_mlit_markers[T_initial[particle]], color=dict_mlit_colors[T_initial[particle]], markersize=markersize, zorder=60)
-                    else: #plotting points at each 5 Myr
-                        for j in np.arange(0, time[-1], 5):
-                            idx = find_nearest(time, j)
-                            ax.plot(T[idx, particle], P[idx, particle], dict_mlit_markers[T_initial[particle]], color=dict_mlit_colors[T_initial[particle]], markersize=markersize, zorder=60)
-                else:
-                    if(plot_other_particles == True):
-                        ax.plot(T[::, particle], P[::, particle], '-', color=color_other_particles, linewidth=0.1, alpha=1.0, zorder=60)
-                        for j in np.arange(0, time[-1], 5):
-                            idx = find_nearest(time, j)
-                            ax.plot(T[idx, particle], P[idx, particle], '.', color=color_other_particles, markersize=size_other_particles, zorder=59)
+        if((plot_mantle_lithosphere_particles == True) & ((particle_layer == mantle_lithosphere1_code) | (particle_layer == mantle_lithosphere2_code))): #lithospheric mantle particles
+            if(cond_mantle_lithosphere2plot[particle]==True):
+                ax.plot(T[::, particle], P[::, particle], '-', color=dict_mlit_colors[T_initial[particle]], linewidth=linewidth, alpha=0.8, zorder=61) #PTt path
+                
+                if(len(instants)>0):
+                    for instant in instants:
+                        idx = find_nearest(time, instant)
+                        ax.plot(T[idx, particle], P[idx, particle], dict_mlit_markers[T_initial[particle]], color=dict_mlit_colors[T_initial[particle]], markersize=markersize, zorder=60)
+                else: #plotting points at each 5 Myr
+                    for j in np.arange(0, time[-1], 5):
+                        idx = find_nearest(time, j)
+                        ax.plot(T[idx, particle], P[idx, particle], dict_mlit_markers[T_initial[particle]], color=dict_mlit_colors[T_initial[particle]], markersize=markersize, zorder=60)
+            else:
+                if(plot_other_particles == True):
+                    ax.plot(T[::, particle], P[::, particle], '-', color=color_other_particles, linewidth=0.1, alpha=1.0, zorder=60)
+                    for j in np.arange(0, time[-1], 5):
+                        idx = find_nearest(time, j)
+                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_other_particles, markersize=size_other_particles, zorder=59)
 
-        if(plot_asthenosphere_particles == True):
-            if(particle_layer == asthenosphere_code):
-                if(cond_ast2plot[particle] == True):
-                    ax.plot(T[::, particle], P[::, particle], '-', color='xkcd:violet', linewidth=linewidth-1, alpha=0.8, zorder=61)
-                    if(len(instants)>0):
-                        for instant in instants:
-                            idx = find_nearest(time, instant)
-                            ax.plot(T[idx, particle], P[idx, particle], 'o', color='xkcd:violet', markersize=markersize-7, zorder=60)
-                    else: #plotting points at each 5 Myr
-                        for j in np.arange(0, time[-1], 5):
-                            idx = find_nearest(time, j)
-                            ax.plot(T[idx, particle], P[idx, particle], 'o', color='xkcd:violet', markersize=markersize-7, zorder=60)
+        if((plot_asthenosphere_particles == True) & (particle_layer == asthenosphere_code)):
+            if(cond_ast2plot[particle] == True):
+                ax.plot(T[::, particle], P[::, particle], '-', color='xkcd:violet', linewidth=linewidth-1, alpha=0.8, zorder=61)
+                if(len(instants)>0):
+                    for instant in instants:
+                        idx = find_nearest(time, instant)
+                        ax.plot(T[idx, particle], P[idx, particle], '.', color='xkcd:violet', markersize=4, zorder=60)
+                else: #plotting points at each 5 Myr
+                    for j in np.arange(0, time[-1], 5):
+                        idx = find_nearest(time, j)
+                        ax.plot(T[idx, particle], P[idx, particle], '.', color='xkcd:violet', markersize=0.7, zorder=60)
 
 def plot_property(dataset, prop, xlims, ylims, model_path,
                 fig,
