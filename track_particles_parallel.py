@@ -42,11 +42,11 @@ zs = []
 verif=0
 
 #flag to track the particles until the middle of simulation (in time) in case of fast extension rate
-take_specific_time = True
-# take_specific_time = False
+# take_specific_time = True
+take_specific_time = False
 
-# take_asthenosphere = True
-take_asthenosphere = False
+take_asthenosphere = True
+# take_asthenosphere = False
 
 
 if(take_specific_time):
@@ -142,14 +142,15 @@ if(dk_paper == True):
         decolement_code = 6
         sediments_code = 7
         air_code = 8
-else: #
+else: #For rifting models
     # search_thickness = 5.0e3 
     # search_thickness = 10.0e3
     search_thickness = 12.0e3
     # search_thickness = 15.0e3
 
     x_begin = 700.0e3
-    x_end = 1400.0e3
+    # x_end = 1400.0e3
+    x_end = 1600.0e3
 
     asthenosphere_code = 0
     mantle_lithosphere1_code = 1

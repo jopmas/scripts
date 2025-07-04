@@ -1708,6 +1708,7 @@ def plot_ptt_paths(trackdataset, ax, instants=[], plot_other_particles=True, col
 def plot_property(dataset, prop, xlims, ylims, model_path,
                 fig,
                 ax,
+                print_time=True,
                 correction_factor=0.0,
                 plot_isotherms=True, isotherms=[400, 600, 800, 1000, 1300],
                 topo_from_density=True,
@@ -1814,7 +1815,8 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
     
     #plot Time in Myr
     # ax.text(0.68, 1.035, ' {:01} Myr'.format(instant), bbox=dict(facecolor='white', edgecolor='white', alpha=0.0), fontsize = 14, zorder=52, transform=ax.transAxes)
-    ax.text(0.78, 1.035, ' {:01} Myr'.format(instant), bbox=dict(facecolor='white', edgecolor='white', alpha=0.0), fontsize = 14, zorder=52, transform=ax.transAxes)
+    if(print_time == True):
+        ax.text(0.78, 1.035, ' {:01} Myr'.format(instant), bbox=dict(facecolor='white', edgecolor='white', alpha=0.0), fontsize = 14, zorder=52, transform=ax.transAxes)
     
     val_minmax = vals_minmax[prop]
     
@@ -1836,14 +1838,15 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
 
     if(plot_melt == True and prop != 'surface'):
 
+        #TRYING TO PLOT MELT
+        # melt = xr.open_dataset(f'{model_path}/_output_melt.nc')
         melt = dataset.melt.T #depleted mantle
 
         levels_contourf = np.arange(0.02, 0.5, 0.02)
-        
         for i in levels_contourf:
             alpha = 0.9/levels_contourf[-1]*i + 0.1
 
-            cs0 = ax.contourf(xx, zz, melt, levels=[i, i+0.02], colors=color_depleted_mantle, alpha=alpha, zorder=30)
+            cs0 = ax.contourf(xx, zz, melt, levels=[i, i+0.02], colors='xkcd:black', alpha=alpha, zorder=30)
 
 
         levels_melt = [0.1, 0.2] #np.arange(0.2, 0.7, 0.4)#[0.2, 0.6]
@@ -1851,7 +1854,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                     zz,
                     melt,
                     levels = levels_melt,
-                    colors=color_depleted_mantle,
+                    colors='xkcd:blue',
                     # cmap = 'inferno',
                     zorder=30,
                     )
@@ -1867,7 +1870,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                     zz,
                     incremental_melt/scale,#, 'dashdot', 'dashed'],
                     levels = levels_incremental_melt,
-                    colors=color_incremental_melt,#['xkcd:bright pink', 'xkcd:pink'],
+                    colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
                     # colors=colors,
                     alpha=0.4,
                     zorder=30)
@@ -1877,7 +1880,7 @@ def plot_property(dataset, prop, xlims, ylims, model_path,
                     incremental_melt/scale,
                     linestyles=['solid'],#, 'dashdot', 'dashed'],
                     levels = [5.0E-10,1.0E-8],
-                    colors=color_incremental_melt,#['xkcd:bright pink', 'xkcd:pink'],
+                    colors='xkcd:bright pink',#['xkcd:bright pink', 'xkcd:pink'],
                     # colors=colors,
                     alpha=1.0,
                     zorder=30)

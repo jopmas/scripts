@@ -41,8 +41,8 @@ if not os.path.isdir(output_path):
 
 plot_isotherms = True
 # plot_isotherms = False
-# plot_melt = True
-plot_melt = False
+plot_melt = True
+# plot_melt = False
 plot_particles=False
 
 if(plot_isotherms or plot_melt):
@@ -67,7 +67,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
              'lithology',
             #  'pressure',
             #  'strain',
-             'strain_rate',
+            #  'strain_rate',
             #  'temperature',
             #  'temperature_anomaly',
             #  'surface',
@@ -191,7 +191,7 @@ def take_three_particles(layer_codes, particles_layers, T_initial):
 
     Ti_layer_max = np.max(T_initial_layer_sorted)
     mid_index = len(T_initial_layer_sorted)//2
-    Ti_layer_mid = T_initial_layer_sorted[mid_index]
+    Ti_layer_mid = T_initial_layer_sorted[mid_index] #can bring more than one particle if they have same temperature
     Ti_layer_min = np.min(T_initial_layer_sorted)
 
     cond2plot = (T_initial == Ti_layer_min) | (T_initial == Ti_layer_mid) | (T_initial == Ti_layer_max)
