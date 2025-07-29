@@ -45,8 +45,8 @@ verif=0
 # take_specific_time = True
 take_specific_time = False
 
-take_asthenosphere = True
-# take_asthenosphere = False
+# take_asthenosphere = True
+take_asthenosphere = False
 
 
 if(take_specific_time):

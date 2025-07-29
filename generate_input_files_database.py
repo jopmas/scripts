@@ -254,9 +254,9 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-experiment = 'rifting'
+# experiment = 'rifting'
 # experiment = 'stability'
-# experiment = 'wilson_cycle'
+experiment = 'wilson_cycle'
 # experiment = 'cratonic_keel'
 
 experiments = {'rifting': 'Rifting experiment',
@@ -266,6 +266,7 @@ experiments = {'rifting': 'Rifting experiment',
                }
 
 ncores = 40
+# ncores = 20
 
 #Main parameters used to construct param .txt that changes accordind to
 #tectonic regime
@@ -310,11 +311,11 @@ if(experiment == 'rifting'):
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
     
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/'
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT370oC_Hlit120km_Hast7e-12/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/' #Tp = 1350 oC
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT370oC_Hlit120km_Hast7e-12/' #Tp = 1450 oC
 
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150k   m/'
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT350_rheol19_c1250_C1_HprodAst_Hlit150km/'
 
     # scenario = '/Doutorado/cenarios/mandyoc/keel/stable_DT200_keel_HprodAst/'
@@ -521,8 +522,8 @@ elif(experiment == 'stability'):
     seed_in_litho = False
 
 elif(experiment == 'wilson_cycle'):
-    ramp_mlit = True
-    # ramp_mlit = False
+    # ramp_mlit = True
+    ramp_mlit = False
 
     # # seed_in_litho = False
     seed_in_litho = True
@@ -569,7 +570,7 @@ elif(experiment == 'wilson_cycle'):
     # scenario = 'keel/stable_DT200_keel_HprodAst'
 
     #Convergence criteria
-    denok                            = 1.0e-15
+    denok                            = 1.0e-14
     particles_per_element            = 100
 
     #Surface constrains
@@ -612,11 +613,12 @@ elif(experiment == 'wilson_cycle'):
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
-    top_tangential_velocity             = 'free '         # ok
+    top_tangential_velocity             = 'free'         # ok
     bot_normal_velocity                 = 'fixed'         # ok
-    bot_tangential_velocity             = 'free '         # ok
+    bot_tangential_velocity             = 'free'         # ok
     left_normal_velocity                = 'fixed'         # ok
-    left_tangential_velocity            = 'free '         # ok
+    # left_tangential_velocity            = 'free'         # ok original
+    left_tangential_velocity            = 'fixed'         # ok
     right_normal_velocity               = 'fixed'         # ok
     right_tangential_velocity           = 'fixed'         # ok
 
@@ -636,25 +638,25 @@ elif(experiment == 'wilson_cycle'):
 
     ##################################################################
     # total model horizontal extent (m)
-    Lx = 1000 * 1.0e3 #m
-    # Lx = 1600 * 1.0e3
+    # Lx = 1000 * 1.0e3 #m
+    Lx = 1600 * 1.0e3
     
     # total model vertical extent (m)
     # Lz = 700 * 1.0e3 #400 * 1.0e3
     # Lz = 440 * 1.0e3
-    Lz = 300 * 1.0e3
+    Lz = 400 * 1.0e3
 
     # number of points in horizontal direction
-    Nx = 501
+    # Nx = 501
     # Nx = 401 #
     # Nx = 801
-    # Nx = 1001
+    Nx = 1601
 
     # number of points in vertical direction
-    Nz = 151
+    # Nz = 151
     # Nz = 176  #
     # Nz = 351
-    # Nz = 301
+    Nz = 401
 
     if(seed_in_litho):
         # seed depth bellow base of lower crust (m)
@@ -803,7 +805,6 @@ elif(experiment == 'cratonic_keel'):
     Nz = 141
     seed_in_litho = False
 
-
 x = np.linspace(0, Lx, Nx)
 z = np.linspace(Lz, 0, Nz)
 X, Z = np.meshgrid(x, z)
@@ -820,8 +821,8 @@ thickness_upper_crust = 20 * 1.0e3
 thickness_lower_crust = 15 * 1.0e3
 # thickness_lower_crust = 20 * 1.0e3
 # total thickness of lithosphere (m)
-thickness_lithospherespheric_mantle = 80 * 1.0e3
-# thickness_lithospherespheric_mantle = 85 * 1.0e3
+# thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
+thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
 # thickness_lithospherespheric_mantle = 120 * 1.0e3
 # thickness_lithospherespheric_mantle = 150 * 1.0e3
 
@@ -843,8 +844,8 @@ lithospheric_mantle = MandyocLayer('lithospheric mantle', DryOlivine,
 lower_crust = MandyocLayer('lower crust', WetQuartz,
                             density=2800.0,
                             # interface=np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_air),
-                            # effective_viscosity_scale_factor=1.0,
-                            effective_viscosity_scale_factor=10.0,
+                            effective_viscosity_scale_factor=1.0,
+                            # effective_viscosity_scale_factor=10.0,
                             radiogenic_heat_production=2.86e-10,
                             base_depth=thickness_air+thickness_upper_crust+thickness_lower_crust,
                             Nx=Nx) #0.8e-6 / 2800.0)
@@ -1513,7 +1514,6 @@ ax1.set_xlabel("$^\circ$C", fontsize=label_size)
 cbar = fig.colorbar(im, orientation='horizontal', ax=ax0)
 cbar.set_label("Temperature [°C]")
 
-
 if(keel_adjust==True):
     if(free_continent==True): #non-cratonic position
         idx = find_nearest(x, Lx/2 - Lcraton/2 - length_non_cratonic/2) #non-cratonic
@@ -1748,7 +1748,12 @@ if(velocity_from_ascii == True):
             #             40.0 -1.0
 
             #             """
+            # var_bcv = f""" 2
+            #             40.0 0.001
+            #             50.0 -1000.0
 
+            #             """
+            
             var_bcv = f""" 2
                         40.0 0.001
                         70.0 -1000.0
@@ -1950,9 +1955,9 @@ run_aguia = f'''
         #!/usr/bin/bash
 
         #SBATCH --partition={partition}
-        #SBATCH --ntasks=1
-        #SBATCH --nodes=1
-        #SBATCH --cpus-per-task={str(int(ncores))}
+        #SBATCH --ntasks=2
+        #SBATCH --nodes=2
+        #SBATCH --cpus-per-task={str(int(ncores/2))}
         #SBATCH --time 192:00:00 #16horas/"2-" para 2 dias com max 8 dias
         #SBATCH --job-name mandyoc-jpms
         #SBATCH --output slurm_%j.log #ou FD.out/ %j pega o id do job
