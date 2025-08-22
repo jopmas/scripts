@@ -2040,43 +2040,38 @@ run_hypatia = f'''
 
     DIRNAME={dirname}
 
-    zip $DIRNAME.zip interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
-    zip -u $DIRNAME.zip bc_velocity_*.txt
-    zip -u $DIRNAME.zip density_*.txt
-    zip -u $DIRNAME.zip heat_*.txt
-    zip -u $DIRNAME.zip pressure_*.txt
-    zip -u $DIRNAME.zip sp_surface_global_*.txt
-    zip -u $DIRNAME.zip strain_*.txt
-    zip -u $DIRNAME.zip temperature_*.txt
-    zip -u $DIRNAME.zip time_*.txt
-    zip -u $DIRNAME.zip velocity_*.txt
-    zip -u $DIRNAME.zip viscosity_*.txt
-    zip -u $DIRNAME.zip scale_bcv.txt
-    zip -u $DIRNAME.zip step*.txt
-    zip -u $DIRNAME.zip Phi*.txt
-    zip -u $DIRNAME.zip dPhi*.txt
-    zip -u $DIRNAME.zip X_depletion*.txt
-    zip -u $DIRNAME.zip *.log
+    # Primeiro zipa os arquivos fixos
+    zip "$DIRNAME.zip" interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
 
-    #rm *.log
-    rm vel_bc*
-    rm velz*
-    rm bc_velocity*
-    rm velocity*
-    rm step*
-    rm temperature*
-    rm density*
-    rm viscosity*
-    rm heat*
-    rm strain_*
-    rm time*
-    rm pressure_*
-    rm sp_surface_global*
-    rm scale_bcv.txt
-    rm Phi*
-    rm dPhi*
-    rm X_depletion*
+    # Lista de padrões
+    patterns=(
+        "bc_velocity_*.txt"
+        "density_*.txt"
+        "heat_*.txt"
+        "pressure_*.txt"
+        "sp_surface_global_*.txt"
+        "strain_*.txt"
+        "temperature_*.txt"
+        "time_*.txt"
+        "velocity_*.txt"
+        "viscosity_*.txt"
+        "scale_bcv.txt"
+        "step*.txt"
+        "Phi*.txt"
+        "dPhi*.txt"
+        "X_depletion*.txt"
+        "*.bin*.txt"
+        "bc*-1.txt"
+    )
 
+    # Faz um loop e usa find para evitar o erro "argument list too long"
+    for pat in "${'patterns[@]'}"; do
+        find . -maxdepth 1 -type f -name "$pat" -exec zip -u "$DIRNAME.zip" {{}} +
+    done
+
+    for pat in "${'patterns[@]'}"; do
+        find . -maxdepth 1 -type f -name "$pat" -exec rm -f {{}} +
+    done
     '''
 with open('run_hypatia.sh', 'w') as f:
     for line in run_hypatia.split('\n'):
