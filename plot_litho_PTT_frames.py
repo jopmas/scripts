@@ -329,7 +329,8 @@ with pymp.Parallel() as p:
                 color_mlit_upper='xkcd:bright purple'#'xkcd:cerulean blue'
                 color_mlit_intermediate='xkcd:dark green'#'xkcd:scarlet'
                 color_mlit_lower='xkcd:bright orange'#'xkcd:dark green'
-                linewidth = 0.05
+                # linewidth = 0.05
+                linewidth = 0.08
                 markersize = 6
 
                 plot_tracked_particles_depth_coded(trackdataset, axs[0], i, hcrust=hcrust, markersize=4,
