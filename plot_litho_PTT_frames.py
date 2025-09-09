@@ -43,8 +43,8 @@ if not os.path.isdir(output_path):
 plot_isotherms = True
 # plot_isotherms = False
 
-# plot_melt = True
-plot_melt = False
+plot_melt = True
+# plot_melt = False
 
 plot_particles=False
 
@@ -330,8 +330,8 @@ with pymp.Parallel() as p:
                 color_mlit_intermediate='xkcd:dark green'#'xkcd:scarlet'
                 color_mlit_lower='xkcd:bright orange'#'xkcd:dark green'
                 # linewidth = 0.05
-                linewidth = 0.08
-                markersize = 6
+                linewidth = 0.3
+                markersize = 8
 
                 plot_tracked_particles_depth_coded(trackdataset, axs[0], i, hcrust=hcrust, markersize=4,
                                                    plot_lower_crust_particles=False, plot_mantle_lithosphere_particles=True, plot_asthenosphere_particles=True,
