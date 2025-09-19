@@ -22,6 +22,7 @@ patterns=(
   "track_*.txt"
   "*.bin*.txt"
   "bc*-1.txt"
+  "track_xzPT*.txt"
 )
 
 # Para cada padrão, procurar e remover com segurança

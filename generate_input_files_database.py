@@ -254,9 +254,9 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-# experiment = 'rifting'
+experiment = 'rifting'
 # experiment = 'stability'
-experiment = 'wilson_cycle'
+# experiment = 'wilson_cycle'
 # experiment = 'cratonic_keel'
 
 experiments = {'rifting': 'Rifting experiment',
@@ -265,7 +265,7 @@ experiments = {'rifting': 'Rifting experiment',
                'cratonic_keel': 'Cratonic Keel',
                }
 
-ncores = 40
+ncores = 64
 # ncores = 20
 
 #Main parameters used to construct param .txt that changes accordind to
@@ -311,8 +311,8 @@ if(experiment == 'rifting'):
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT400_rheol19_c1250_C1_HprodAst/'
     
-    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/' #Tp = 1350 oC
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT370oC_Hlit120km_Hast7e-12/' #Tp = 1450 oC
+    scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT230oC_Hlit120km_Hast7e-12/' #Tp = 1350 oC
+    # scenario = '/Doutorado/cenarios/mandyoc/stable/lit120km/STB_DT370oC_Hlit120km_Hast7e-12/' #Tp = 1450 oC
 
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT200_rheol19_c1250_C1_HprodAst_Hlit150km/'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit150km/stable_DT290_rheol19_c1250_C1_HprodAst_Hlit150km/'
@@ -340,8 +340,9 @@ if(experiment == 'rifting'):
     #climate change
 
     # velocity = 0.5 #cm/yr
-    velocity = 1.0 #cm/yr
+    # velocity = 1.0 #cm/yr
     # velocity = 2.0 #cm/yr
+    velocity = 3.0 #cm/yr
 
     # variable_bcv                     = True
     variable_bcv                     = False
@@ -818,12 +819,12 @@ thickness_air = 40 * 1.0e3
 # thickness of upper crust (m)
 thickness_upper_crust = 20 * 1.0e3
 # thickness of lower crust (m)
-thickness_lower_crust = 15 * 1.0e3
-# thickness_lower_crust = 20 * 1.0e3
+# thickness_lower_crust = 15 * 1.0e3
+thickness_lower_crust = 20 * 1.0e3
 # total thickness of lithosphere (m)
 # thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
-thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
-# thickness_lithospherespheric_mantle = 120 * 1.0e3
+# thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
+thickness_lithospherespheric_mantle = 120 * 1.0e3
 # thickness_lithospherespheric_mantle = 150 * 1.0e3
 
 thickness_lithosphere = thickness_upper_crust + thickness_lower_crust + thickness_lithospherespheric_mantle
@@ -844,8 +845,8 @@ lithospheric_mantle = MandyocLayer('lithospheric mantle', DryOlivine,
 lower_crust = MandyocLayer('lower crust', WetQuartz,
                             density=2800.0,
                             # interface=np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_air),
-                            effective_viscosity_scale_factor=1.0,
-                            # effective_viscosity_scale_factor=10.0,
+                            # effective_viscosity_scale_factor=1.0,
+                            effective_viscosity_scale_factor=10.0,
                             radiogenic_heat_production=2.86e-10,
                             base_depth=thickness_air+thickness_upper_crust+thickness_lower_crust,
                             Nx=Nx) #0.8e-6 / 2800.0)
@@ -1847,237 +1848,251 @@ if(sp_surface_processes == True):
 np.savetxt('infos_'+path[-1] + '.txt', scenario_infos, fmt="%s")
 
 #Creating run files
+linux = False
+mac = False
+aguia = False
+hypatia = True
+gcloud = False
+
 dirname = '${PWD##*/}'
 if(experiment == 'rifting' or experiment == 'wilson_cycle'):
     mandyoc_options = '-seed 0,2 -strain_seed 0.0,1.0'
 else:
     mandyoc_options = '-seed 0 -strain_seed 0.0'
 
-run_gcloud = f'''
-        #!/bin/bash
-        MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
-        MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
-        NUMBER_OF_CORES=6
-        MANDYOC_OPTIONS='{mandyoc_options}'
-        touch FD.out
-        $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
-        bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/zipper_gcloud.sh
-        bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/clean_gcloud.sh
-        sudo poweroff
-    '''
-with open('run_gcloud.sh', 'w') as f:
-    for line in run_gcloud.split('\n'):
-        line = line.strip()
-        if len(line):
-            f.write(' '.join(line.split()) + '\n')
+if(gcloud):
+    run_gcloud = f'''
+            #!/bin/bash
+            MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
+            MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
+            NUMBER_OF_CORES=6
+            MANDYOC_OPTIONS='{mandyoc_options}'
+            touch FD.out
+            $MPI_PATH/mpirun -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
+            bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/zipper_gcloud.sh
+            bash /home/joao_macedo/Doutorado/cenarios/mandyoc/scripts/clean_gcloud.sh
+            sudo poweroff
+        '''
+    with open('run_gcloud.sh', 'w') as f:
+        for line in run_gcloud.split('\n'):
+            line = line.strip()
+            if len(line):
+                f.write(' '.join(line.split()) + '\n')
 
-run_linux = f'''
-        #!/bin/bash
-        MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
-        MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
-        NUMBER_OF_CORES=12
-        MANDYOC_OPTIONS='{mandyoc_options}'
-        touch FD.out
-        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
-    '''
-with open('run-linux.sh', 'w') as f:
-    for line in run_linux.split('\n'):
-        line = line.strip()
-        if len(line):
-            f.write(' '.join(line.split()) + '\n')
+if(linux):
+    run_linux = f'''
+            #!/bin/bash
+            MPI_PATH=$HOME/opt/petsc/arch-0-fast/bin
+            MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
+            NUMBER_OF_CORES=12
+            MANDYOC_OPTIONS='{mandyoc_options}'
+            touch FD.out
+            $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
+        '''
+    with open('run-linux.sh', 'w') as f:
+        for line in run_linux.split('\n'):
+            line = line.strip()
+            if len(line):
+                f.write(' '.join(line.split()) + '\n')
+if(mac):
+    run_mac = f'''
+            #!/bin/bash
+            MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
+            MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
+            NUMBER_OF_CORES=12
+            MANDYOC_OPTIONS='{mandyoc_options}'
+            touch FD.out
+            $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
 
-run_mac = f'''
-        #!/bin/bash
-        MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
-        MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
-        NUMBER_OF_CORES=12
-        MANDYOC_OPTIONS='{mandyoc_options}'
-        touch FD.out
-        $MPI_PATH/mpiexec -n $NUMBER_OF_CORES $MANDYOC_PATH $MANDYOC_OPTIONS | tee FD.out
+            DIRNAME={dirname}
 
-        DIRNAME={dirname}
+            zip $DIRNAME.zip interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
+            zip -u $DIRNAME.zip bc_velocity_*.txt
+            zip -u $DIRNAME.zip density_*.txt
+            zip -u $DIRNAME.zip heat_*.txt
+            zip -u $DIRNAME.zip pressure_*.txt
+            zip -u $DIRNAME.zip sp_surface_global_*.txt
+            zip -u $DIRNAME.zip strain_*.txt
+            zip -u $DIRNAME.zip temperature_*.txt
+            zip -u $DIRNAME.zip time_*.txt
+            zip -u $DIRNAME.zip velocity_*.txt
+            zip -u $DIRNAME.zip viscosity_*.txt
+            zip -u $DIRNAME.zip scale_bcv.txt
+            zip -u $DIRNAME.zip step*.txt
+            zip -u $DIRNAME.zip Phi*.txt
+            zip -u $DIRNAME.zip dPhi*.txt
+            zip -u $DIRNAME.zip X_depletion*.txt
+            zip -u $DIRNAME.zip *.log
 
-        zip $DIRNAME.zip interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
-        zip -u $DIRNAME.zip bc_velocity_*.txt
-        zip -u $DIRNAME.zip density_*.txt
-        zip -u $DIRNAME.zip heat_*.txt
-        zip -u $DIRNAME.zip pressure_*.txt
-        zip -u $DIRNAME.zip sp_surface_global_*.txt
-        zip -u $DIRNAME.zip strain_*.txt
-        zip -u $DIRNAME.zip temperature_*.txt
-        zip -u $DIRNAME.zip time_*.txt
-        zip -u $DIRNAME.zip velocity_*.txt
-        zip -u $DIRNAME.zip viscosity_*.txt
-        zip -u $DIRNAME.zip scale_bcv.txt
-        zip -u $DIRNAME.zip step*.txt
-        zip -u $DIRNAME.zip Phi*.txt
-        zip -u $DIRNAME.zip dPhi*.txt
-        zip -u $DIRNAME.zip X_depletion*.txt
-        zip -u $DIRNAME.zip *.log
+            #rm *.log
+            rm vel_bc*
+            rm velz*
+            rm bc_velocity*
+            rm velocity*
+            rm step*
+            rm temperature*
+            rm density*
+            rm viscosity*
+            rm heat*
+            rm strain_*
+            rm time*
+            rm pressure_*
+            rm sp_surface_global*
+            rm scale_bcv.txt
+            rm Phi*
+            rm dPhi*
+            rm X_depletion*
+        '''
+    with open('run_mac.sh', 'w') as f:
+        for line in run_mac.split('\n'):
+            line = line.strip()
+            if len(line):
+                f.write(' '.join(line.split()) + '\n')
 
-        #rm *.log
-        rm vel_bc*
-        rm velz*
-        rm bc_velocity*
-        rm velocity*
-        rm step*
-        rm temperature*
-        rm density*
-        rm viscosity*
-        rm heat*
-        rm strain_*
-        rm time*
-        rm pressure_*
-        rm sp_surface_global*
-        rm scale_bcv.txt
-        rm Phi*
-        rm dPhi*
-        rm X_depletion*
-    '''
-with open('run_mac.sh', 'w') as f:
-    for line in run_mac.split('\n'):
-        line = line.strip()
-        if len(line):
-            f.write(' '.join(line.split()) + '\n')
+if(aguia):
+    aguia = 'aguia4'
+    # aguia = 'aguia3'
 
-aguia = 'aguia4'
-# aguia = 'aguia3'
+    if(aguia == 'aguia4'):
+        partition = 'SP2'
+        main_folders = '/temporario2/8672526'
 
-if(aguia == 'aguia4'):
-    partition = 'SP2'
-    main_folders = '/temporario2/8672526'
+    if(aguia == 'aguia3'):
+        partition = 'SP3'
+        main_folders =  '/scratch/8672526'
 
-if(aguia == 'aguia3'):
-    partition = 'SP3'
-    main_folders =  '/scratch/8672526'
+    run_aguia = f'''
+            #!/usr/bin/bash
 
-run_aguia = f'''
-        #!/usr/bin/bash
+            #SBATCH --partition={partition}
+            #SBATCH --ntasks=2
+            #SBATCH --nodes=2
+            #SBATCH --cpus-per-task={str(int(ncores/2))}
+            #SBATCH --time 192:00:00 #16horas/"2-" para 2 dias com max 8 dias
+            #SBATCH --job-name mandyoc-jpms
+            #SBATCH --output slurm_%j.log #ou FD.out/ %j pega o id do job
+            #SBATCH --mail-type=BEGIN,FAIL,END
+            #SBATCH --mail-user=joao.macedo.silva@usp.br
 
-        #SBATCH --partition={partition}
-        #SBATCH --ntasks=2
-        #SBATCH --nodes=2
-        #SBATCH --cpus-per-task={str(int(ncores/2))}
-        #SBATCH --time 192:00:00 #16horas/"2-" para 2 dias com max 8 dias
-        #SBATCH --job-name mandyoc-jpms
-        #SBATCH --output slurm_%j.log #ou FD.out/ %j pega o id do job
-        #SBATCH --mail-type=BEGIN,FAIL,END
-        #SBATCH --mail-user=joao.macedo.silva@usp.br
+            export PETSC_DIR='{main_folders}/opt/petsc'
+            export PETSC_ARCH='arch-label-optimized'
+            MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
+            MANDYOC_OPTIONS='{mandyoc_options}'
 
-        export PETSC_DIR='{main_folders}/opt/petsc'
-        export PETSC_ARCH='arch-label-optimized'
-        MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
-        MANDYOC_OPTIONS='{mandyoc_options}'
+            $PETSC_DIR/$PETSC_ARCH/bin/mpiexec -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
 
-        $PETSC_DIR/$PETSC_ARCH/bin/mpiexec -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
+            DIRNAME={dirname}
 
-        DIRNAME={dirname}
+            zip $DIRNAME.zip interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
+            zip -u $DIRNAME.zip bc_velocity_*.txt
+            zip -u $DIRNAME.zip density_*.txt
+            zip -u $DIRNAME.zip heat_*.txt
+            zip -u $DIRNAME.zip pressure_*.txt
+            zip -u $DIRNAME.zip sp_surface_global_*.txt
+            zip -u $DIRNAME.zip strain_*.txt
+            zip -u $DIRNAME.zip temperature_*.txt
+            zip -u $DIRNAME.zip time_*.txt
+            zip -u $DIRNAME.zip velocity_*.txt
+            zip -u $DIRNAME.zip viscosity_*.txt
+            zip -u $DIRNAME.zip scale_bcv.txt
+            zip -u $DIRNAME.zip step*.txt
+            zip -u $DIRNAME.zip Phi*.txt
+            zip -u $DIRNAME.zip dPhi*.txt
+            zip -u $DIRNAME.zip X_depletion*.txt
+            zip -u $DIRNAME.zip *.log
 
-        zip $DIRNAME.zip interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
-        zip -u $DIRNAME.zip bc_velocity_*.txt
-        zip -u $DIRNAME.zip density_*.txt
-        zip -u $DIRNAME.zip heat_*.txt
-        zip -u $DIRNAME.zip pressure_*.txt
-        zip -u $DIRNAME.zip sp_surface_global_*.txt
-        zip -u $DIRNAME.zip strain_*.txt
-        zip -u $DIRNAME.zip temperature_*.txt
-        zip -u $DIRNAME.zip time_*.txt
-        zip -u $DIRNAME.zip velocity_*.txt
-        zip -u $DIRNAME.zip viscosity_*.txt
-        zip -u $DIRNAME.zip scale_bcv.txt
-        zip -u $DIRNAME.zip step*.txt
-        zip -u $DIRNAME.zip Phi*.txt
-        zip -u $DIRNAME.zip dPhi*.txt
-        zip -u $DIRNAME.zip X_depletion*.txt
-        zip -u $DIRNAME.zip *.log
-
-        #rm *.log
-        rm vel_bc*
-        rm velz*
-        rm bc_velocity*
-        rm velocity*
-        rm step*
-        rm temperature*
-        rm density*
-        rm viscosity*
-        rm heat*
-        rm strain_*
-        rm time*
-        rm pressure_*
-        rm sp_surface_global*
-        rm scale_bcv.txt
-        rm Phi*
-        rm dPhi*
-        rm X_depletion*
-    '''
-with open('run_aguia.sh', 'w') as f:
-    for line in run_aguia.split('\n'):
-        line = line.strip()
-        if len(line):
-            f.write(' '.join(line.split()) + '\n')
+            #rm *.log
+            rm vel_bc*
+            rm velz*
+            rm bc_velocity*
+            rm velocity*
+            rm step*
+            rm temperature*
+            rm density*
+            rm viscosity*
+            rm heat*
+            rm strain_*
+            rm time*
+            rm pressure_*
+            rm sp_surface_global*
+            rm scale_bcv.txt
+            rm Phi*
+            rm dPhi*
+            rm X_depletion*
+        '''
+    with open('run_aguia.sh', 'w') as f:
+        for line in run_aguia.split('\n'):
+            line = line.strip()
+            if len(line):
+                f.write(' '.join(line.split()) + '\n')
 
 
 #hypatia run file
-main_folders = '/home/joao'
-run_hypatia = f'''
-    #!/usr/bin/env bash
-    #SBATCH --mail-type=BEGIN,END,FAIL         			# Mail events (NONE, BEGIN, END, FAIL, ALL)
-    #SBATCH --mail-user=joao.macedo.silva@usp.br		# Where to send mail
-    #SBATCH --ntasks={str(int(ncores))}
-    #SBATCH --nodes=1
-    #SBATCH --cpus-per-task=1
-    #SBATCH --time 72:00:00 # 16 horas; poderia ser “2-” para 2 dias; máximo “8-”
-    #SBATCH --job-name mandyoc-jpms
-    #SBATCH --output slurm_%j.log
+if(hypatia):
+    main_folders = '/scratch/joao'
+    run_hypatia = f'''
+        #!/usr/bin/env bash
+        #SBATCH --mail-type=BEGIN,END,FAIL         			# Mail events (NONE, BEGIN, END, FAIL, ALL)
+        #SBATCH --mail-user=joao.macedo.silva@usp.br		# Where to send mail
+        #SBATCH --ntasks={str(int(ncores))}
+        #SBATCH --nodes=1
+        #SBATCH --cpus-per-task=1
+        #SBATCH --time 72:00:00 # 16 horas; poderia ser “2-” para 2 dias; máximo “8-”
+        #SBATCH --job-name mandyoc-jpms
+        #SBATCH --output slurm_%j.log
 
-    #run the application:
-    PETSC_DIR='{main_folders}/opt/petsc'
-    PETSC_ARCH='arch-label-optimized/bin/mpirun'
-    MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
-    MANDYOC_OPTIONS='{mandyoc_options}'
-    $PETSC_DIR/$PETSC_ARCH -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
+        #run the application:
+        PETSC_DIR='{main_folders}/opt/petsc'
+        PETSC_ARCH='arch-label-optimized/bin/mpirun'
+        MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
+        MANDYOC_OPTIONS='{mandyoc_options}'
+        $PETSC_DIR/$PETSC_ARCH -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
 
 
-    DIRNAME={dirname}
+        DIRNAME={dirname}
 
-    # Primeiro zipa os arquivos fixos
-    zip "$DIRNAME.zip" interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
+        # Primeiro zipa os arquivos fixos
+        zip "$DIRNAME.zip" interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
 
-    # Lista de padrões
-    patterns=(
-        "bc_velocity_*.txt"
-        "density_*.txt"
-        "heat_*.txt"
-        "pressure_*.txt"
-        "sp_surface_global_*.txt"
-        "strain_*.txt"
-        "temperature_*.txt"
-        "time_*.txt"
-        "velocity_*.txt"
-        "viscosity_*.txt"
-        "scale_bcv.txt"
-        "step*.txt"
-        "Phi*.txt"
-        "dPhi*.txt"
-        "X_depletion*.txt"
-        "*.bin*.txt"
-        "bc*-1.txt"
-    )
+        # Primeiro zipa os arquivos fixos
+            zip "$DIRNAME.zip" interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
 
-    # Faz um loop e usa find para evitar o erro "argument list too long"
-    for pat in "${'patterns[@]'}"; do
-        find . -maxdepth 1 -type f -name "$pat" -exec zip -u "$DIRNAME.zip" {{}} +
-    done
+        # Lista de padrões
+        patterns=(
+            "bc_velocity_*.txt"
+            "density_*.txt"
+            "heat_*.txt"
+            "pressure_*.txt"
+            "sp_surface_global_*.txt"
+            "strain_*.txt"
+            "temperature_*.txt"
+            "time_*.txt"
+            "velocity_*.txt"
+            "viscosity_*.txt"
+            "scale_bcv.txt"
+            "step*.txt"
+            "Phi*.txt"
+            "dPhi*.txt"
+            "X_depletion*.txt"
+            "*.bin*.txt"
+            "bc*-1.txt"
+            )
 
-    for pat in "${'patterns[@]'}"; do
-        find . -maxdepth 1 -type f -name "$pat" -exec rm -f {{}} +
-    done
-    '''
-with open('run_hypatia.sh', 'w') as f:
-    for line in run_hypatia.split('\n'):
-        line = line.strip()
-        if len(line):
-            f.write(' '.join(line.split()) + '\n')
+        # Faz um loop e usa find para evitar o erro "argument list too long"
+        for pat in "${{patterns[@]}}"; do
+            find . -maxdepth 1 -type f -name "$pat" -exec zip -u "$DIRNAME.zip" {{}} +
+        done
+
+        # Para cada padrão, procurar e remover com segurança
+        for pat in "${{patterns[@]}}"; do
+            find . -maxdepth 1 -type f -name "$pat" -exec rm -f {{}} +
+        done
+        '''
+    with open('run_hypatia.sh', 'w') as f:
+        for line in run_hypatia.split('\n'):
+            line = line.strip()
+            if len(line):
+                f.write(' '.join(line.split()) + '\n')
 
 
 
