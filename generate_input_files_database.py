@@ -822,9 +822,9 @@ thickness_upper_crust = 20 * 1.0e3
 # thickness_lower_crust = 15 * 1.0e3
 thickness_lower_crust = 20 * 1.0e3
 # total thickness of lithosphere (m)
-# thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
+thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
 # thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
-thickness_lithospherespheric_mantle = 120 * 1.0e3
+# thickness_lithospherespheric_mantle = 120 * 1.0e3
 # thickness_lithospherespheric_mantle = 150 * 1.0e3
 
 thickness_lithosphere = thickness_upper_crust + thickness_lower_crust + thickness_lithospherespheric_mantle

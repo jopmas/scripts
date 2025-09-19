@@ -51,6 +51,7 @@ take_asthenosphere = False
 
 if(take_specific_time):
     instant_to_take = 20 #Myr
+    # instant_to_take = 8.55 #Myr
     print(f"Track particles until {instant_to_take} Myr")
     idx = (np.abs(Tdataset.time.values - instant_to_take)).argmin()
     step_final = Tdataset.step.values[idx]
