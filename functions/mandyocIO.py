@@ -1458,52 +1458,6 @@ def plot_rift_domains(ax, xnecking_left, xnecking_right, xhyper_left, xhyper_rig
     #Proto-oceanic/oceanic domain
     ax.plot(xoceanic, z_bar, color=color_oceanic, lw=lw, zorder=90) #left
 
-def plot_tracked_particles_depth_coded(trackdataset, ax, i, plot_other_particles=False, size_other_particles=5):
-    """
-    Plot tracked particles in the subplot ax
-
-    Parameters
-    ----------
-    trackdataset : xarray.Dataset
-        Dataset containing the tracked particles
-    ax : matplotlib.axes._subplots.AxesSubplot
-        Subplot to plot the tracked particles
-    i : int
-        Current time step
-    """
-    x_track = trackdataset.xtrack.values[::-1]
-    z_track = trackdataset.ztrack.values[::-1]
-    P = trackdataset.ptrack.values[::-1]
-    T = trackdataset.ttrack.values[::-1]
-    time = trackdataset.time.values[::-1]
-    steps = trackdataset.step.values[::-1]
-    n = int(trackdataset.ntracked.values)
-    nTotal = np.size(x_track)
-    steps = nTotal//n
-
-    x_track = np.reshape(x_track,(steps,n))
-    z_track = np.reshape(z_track,(steps,n))
-    P = np.reshape(P,(steps,n))
-    T = np.reshape(T,(steps,n))
-    particles_layers = trackdataset.particles_layers.values[::-1] #code of the tracked layers
-
-    asthenosphere_code = 0
-    mantle_lithosphere1_code = 1
-    seed_code = 2
-    mantle_lithosphere2_code = 3
-    lower_crust_code = 4
-    upper_crust_code = 5
-
-    T_initial = T[0]
-    P_initial = P[0]
-
-    if(asthenosphere_code in particles_layers):
-        cond_ast = particles_layers == asthenosphere_code
-        particles_ast = particles_layers[cond_ast]
-
-        cond_ast2plot = P_initial <= 4000 #only plot asthenosphere particles with initial pressure less than 4000 MPa
-        plot_asthenosphere_particles = True
-
 def plot_tracked_particles_depth_coded(trackdataset, ax, i, hcrust=35.0e3, markersize=4,
                                        plot_lower_crust_particles=False, plot_mantle_lithosphere_particles=True, plot_asthenosphere_particles=True,
                                        color_lower_crust='xkcd:brown',
