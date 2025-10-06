@@ -158,8 +158,8 @@ if ("velocity_x" and "velocity_z") in dataset.data_vars:
 print("Datasets read!")
 ##########################################################################################################################################################################
 
-plot_particles = True 
-# plot_particles = False
+# plot_particles = True 
+plot_particles = False
 unzip_steps = False
 
 if(plot_particles):
