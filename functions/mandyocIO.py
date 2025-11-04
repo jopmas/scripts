@@ -447,7 +447,7 @@ def read_datasets(model_path, datasets, save_big_dataset=False):
             dataset = dataset_aux
             empty_dataset = False
         else:
-            dataset = dataset.merge(dataset_aux)
+            dataset = dataset.merge(dataset_aux, compat='override')
         del dataset_aux
     gc.collect()
 
@@ -1615,7 +1615,7 @@ def plot_tracked_particles_depth_coded(trackdataset, ax, i, hcrust=35.0e3, marke
             elif(cond_lower_2plot_ast[particle] == True):
                 ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air/1.0e3, '.', color=color_mlit_lower, markersize=markersize, zorder=60, alpha=particles_alpha)
 
-def plot_ptt_paths_depth_coded(trackdataset, ax, instants=[], hcrust=35.0e3, plot_lower_crust_particles=False, plot_mantle_lithosphere_particles=True, plot_asthenosphere_particles=True, color_lower_crust='xkcd:brown', color_mlit_upper='xkcd:cerulean blue', color_mlit_intermediate='xkcd:scarlet', color_mlit_lower='xkcd:dark green'):
+def plot_ptt_paths_depth_coded(trackdataset, ax, instants=[], scale_correction = 1.0e-3, hcrust=35.0e3, plot_lower_crust_particles=False, plot_mantle_lithosphere_particles=True, plot_asthenosphere_particles=True, color_lower_crust='xkcd:brown', color_mlit_upper='xkcd:cerulean blue', color_mlit_intermediate='xkcd:scarlet', color_mlit_lower='xkcd:dark green'):
     """
     Plot PTt path of tracked particles in the subplot ax
 
@@ -1726,86 +1726,87 @@ def plot_ptt_paths_depth_coded(trackdataset, ax, instants=[], hcrust=35.0e3, plo
     color_crust='xkcd:brown'
     alpha = 0.7
 
+    
     for particle, particle_layer in zip(range(n), particles_layers):
         #Plot particles in prop subplot
 
         if((plot_lower_crust_particles == True) & (particle_layer == lower_crust_code)):
             if(cond_lower_crust2plot[particle] == True):
-                ax.plot(T[::, particle], P[::, particle], '-', color=color_crust, linewidth=linewidth, alpha=1.0, zorder=60) #PTt path
+                ax.plot(T[::, particle], P[::, particle]*scale_correction, '-', color=color_crust, linewidth=linewidth, alpha=1.0, zorder=60) #PTt path
                 
                 if(len(instants)>0):
                     for instant in instants:
                         idx = find_nearest(time, instant)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_lower_crust, markersize=markersize, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color=color_lower_crust, markersize=markersize, zorder=60)
                 else: #plotting points at each 5 Myr
                     for j in np.arange(0, time[-1], 5):
                         idx = find_nearest(time, j)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_lower_crust, markersize=2, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color=color_lower_crust, markersize=2, zorder=60)
 
 
         if((plot_mantle_lithosphere_particles == True) & ((particle_layer == mantle_lithosphere1_code) | (particle_layer == mantle_lithosphere2_code))): #lithospheric mantle particles
             if(cond_upper_2plot_mlit[particle] == True):
-                ax.plot(T[::, particle], P[::, particle], '-', color=color_mlit_upper, linewidth=linewidth, alpha=alpha, zorder=61) #PTt path
+                ax.plot(T[::, particle], P[::, particle]*scale_correction, '-', color=color_mlit_upper, linewidth=linewidth, alpha=alpha, zorder=61) #PTt path
                 if(len(instants)>0):
                     for instant in instants:
                         idx = find_nearest(time, instant)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_mlit_upper, markersize=markersize, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color=color_mlit_upper, markersize=markersize, zorder=60)
                 else: #plotting points at each 5 Myr
                     for j in np.arange(0, time[-1], 5):
                         idx = find_nearest(time, j)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=markersize-2, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color='xkcd:black', markersize=markersize-2, zorder=60)
             elif(cond_intermediate_2plot_mlit[particle] == True):
-                ax.plot(T[::, particle], P[::, particle], '-', color=color_mlit_intermediate, linewidth=linewidth, alpha=alpha, zorder=61)
+                ax.plot(T[::, particle], P[::, particle]*scale_correction, '-', color=color_mlit_intermediate, linewidth=linewidth, alpha=alpha, zorder=61)
                 if(len(instants)>0):
                     for instant in instants:
                         idx = find_nearest(time, instant)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_mlit_intermediate, markersize=markersize, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color=color_mlit_intermediate, markersize=markersize, zorder=60)
                 else: #plotting points at each 5 Myr
                     for j in np.arange(0, time[-1], 5): 
                         idx = find_nearest(time, j)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=markersize-2, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color='xkcd:black', markersize=markersize-2, zorder=60)
             elif(cond_lower_2plot_mlit[particle] == True):
-                ax.plot(T[::, particle], P[::, particle], '-', color=color_mlit_lower, linewidth=linewidth, alpha=alpha, zorder=61)
+                ax.plot(T[::, particle], P[::, particle]*scale_correction, '-', color=color_mlit_lower, linewidth=linewidth, alpha=alpha, zorder=61)
                 if(len(instants)>0):
                     for instant in instants:
                         idx = find_nearest(time, instant)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_mlit_lower, markersize=markersize, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color=color_mlit_lower, markersize=markersize, zorder=60)
                 else: #plotting points at each 5 Myr
                     for j in np.arange(0, time[-1], 5):
                         idx = find_nearest(time, j)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=markersize-2, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color='xkcd:black', markersize=markersize-2, zorder=60)
 
         if((plot_asthenosphere_particles == True) & (particle_layer == asthenosphere_code)):
             if(cond_upper_2plot_ast[particle] == True):
-                ax.plot(T[::, particle], P[::, particle], '-', color=color_mlit_upper, linewidth=linewidth-1, alpha=alpha, zorder=61)
+                ax.plot(T[::, particle], P[::, particle]*scale_correction, '-', color=color_mlit_upper, linewidth=linewidth-1, alpha=alpha, zorder=61)
                 if(len(instants)>0):
                     for instant in instants:
                         idx = find_nearest(time, instant)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_mlit_upper, markersize=4, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color=color_mlit_upper, markersize=4, zorder=60)
                 else: #plotting points at each 5 Myr
                     for j in np.arange(0, time[-1], 5):
                         idx = find_nearest(time, j)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.7, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color='xkcd:black', markersize=0.7, zorder=60)
             elif(cond_intermediate_2plot_ast[particle] == True):
-                ax.plot(T[::, particle], P[::, particle], '-', color=color_mlit_intermediate, linewidth=linewidth-1, alpha=alpha, zorder=61)
+                ax.plot(T[::, particle], P[::, particle]*scale_correction, '-', color=color_mlit_intermediate, linewidth=linewidth-1, alpha=alpha, zorder=61)
                 if(len(instants)>0):
                     for instant in instants:
                         idx = find_nearest(time, instant)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_mlit_intermediate, markersize=4, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color=color_mlit_intermediate, markersize=4, zorder=60)
                 else: #plotting points at each 5 Myr
                     for j in np.arange(0, time[-1], 5):
                         idx = find_nearest(time, j)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.7, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color='xkcd:black', markersize=0.7, zorder=60)
             elif(cond_lower_2plot_ast[particle] == True):
-                ax.plot(T[::, particle], P[::, particle], '-', color=color_mlit_lower, linewidth=linewidth-1, alpha=alpha, zorder=61)
+                ax.plot(T[::, particle], P[::, particle]*scale_correction, '-', color=color_mlit_lower, linewidth=linewidth-1, alpha=alpha, zorder=61)
                 if(len(instants)>0):    
                     for instant in instants:
                         idx = find_nearest(time, instant)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color=color_mlit_lower, markersize=4, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color=color_mlit_lower, markersize=4, zorder=60)
                 else: #plotting points at each 5 Myr
                     for j in np.arange(0, time[-1], 5):
                         idx = find_nearest(time, j)
-                        ax.plot(T[idx, particle], P[idx, particle], '.', color='xkcd:black', markersize=0.7, zorder=60)
+                        ax.plot(T[idx, particle], P[idx, particle]*scale_correction, '.', color='xkcd:black', markersize=0.7, zorder=60)
 
 def plot_ptt_paths_depth_coded_frame(trackdataset, ax, i, current_time, hcrust=35.0e3, markersize=6, linewidth=0.35,
                                      plot_lower_crust_particles=False, plot_mantle_lithosphere_particles=True, plot_asthenosphere_particles=True,
