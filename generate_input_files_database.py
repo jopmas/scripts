@@ -256,12 +256,12 @@ scenario_infos.append('Name: ' + path[-1])
 #Setting the kind of tectonic scenario
 experiment = 'rifting'
 # experiment = 'stability'
-# experiment = 'wilson_cycle'
+# experiment = 'accordion'
 # experiment = 'cratonic_keel'
 
 experiments = {'rifting': 'Rifting experiment',
                'stability': 'LAB (1300 oC) stability',
-               'wilson_cycle': 'Wilson Cycle',
+               'accordion': 'Wilson Cycle',
                'cratonic_keel': 'Cratonic Keel',
                }
 
@@ -283,8 +283,8 @@ if(experiment == 'rifting'):
     DeltaT = 0
     # DeltaT = 290 # oC
 
-    preset = True
-    # preset = False
+    # preset = True
+    preset = False
 
     # selection_in_preset = True
     selection_in_preset = False
@@ -323,7 +323,7 @@ if(experiment == 'rifting'):
     #Convergence criteria
     # denok                            = 1.0e-15
     denok                            = 1.0e-14
-    particles_per_element            = 100
+    particles_per_element            = 50
 
     #Surface constrains
     sp_surface_tracking              = True
@@ -331,7 +331,7 @@ if(experiment == 'rifting'):
     # sp_surface_processes             = True
     
     #time constrains 
-    time_max                         = 40.0e6
+    time_max                         = 120.0e6
     dt_max                           = 5.0e3
     # time_max                         = 200.0e6
     step_print                       = 100
@@ -340,9 +340,9 @@ if(experiment == 'rifting'):
     #climate change
 
     # velocity = 0.5 #cm/yr
-    # velocity = 1.0 #cm/yr
+    velocity = 1.0 #cm/yr
     # velocity = 2.0 #cm/yr
-    velocity = 3.0 #cm/yr
+    # velocity = 3.0 #cm/yr
 
     # variable_bcv                     = True
     variable_bcv                     = False
@@ -522,7 +522,7 @@ elif(experiment == 'stability'):
 
     seed_in_litho = False
 
-elif(experiment == 'wilson_cycle'):
+elif(experiment == 'accordion'):
     # ramp_mlit = True
     ramp_mlit = False
 
@@ -533,8 +533,8 @@ elif(experiment == 'wilson_cycle'):
     DeltaT = 0
     # DeltaT = 290 # oC
     
-    preset = True
-    # preset = False
+    # preset = True
+    preset = False
 
     # keel_center = True
     keel_center = False
@@ -572,7 +572,7 @@ elif(experiment == 'wilson_cycle'):
 
     #Convergence criteria
     denok                            = 1.0e-14
-    particles_per_element            = 100
+    particles_per_element            = 50
 
     #Surface constrains
     sp_surface_tracking              = True
@@ -609,8 +609,8 @@ elif(experiment == 'wilson_cycle'):
     # checkered = True
 
     #magmatism
-    magmatism = 'off'
-    # magmatism = 'on'
+    # magmatism = 'off'
+    magmatism = 'on'
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -819,11 +819,11 @@ thickness_air = 40 * 1.0e3
 # thickness of upper crust (m)
 thickness_upper_crust = 20 * 1.0e3
 # thickness of lower crust (m)
-# thickness_lower_crust = 15 * 1.0e3
-thickness_lower_crust = 20 * 1.0e3
+thickness_lower_crust = 15 * 1.0e3
+# thickness_lower_crust = 20 * 1.0e3
 # total thickness of lithosphere (m)
-thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
-# thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
+# thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
+thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
 # thickness_lithospherespheric_mantle = 120 * 1.0e3
 # thickness_lithospherespheric_mantle = 150 * 1.0e3
 
@@ -872,7 +872,7 @@ air = MandyocLayer('air', Air,
 # Dealing with interface geometry  #
 ####################################
 
-if(experiment == 'wilson_cycle' or experiment == 'rifting' or experiment == 'stability'):
+if(experiment == 'accordion' or experiment == 'rifting' or experiment == 'stability'):
     if(seed_in_litho):
         # seed depth bellow base of lower crust (m)
         seed_depth = 6 * 1.0e3 #9 * 1.0e3 #original
@@ -1209,8 +1209,8 @@ if(preset == False):
     # ccapacity = 1250*0.75 #937.5=75% #J/kg/K?
     # ccapacity = 750
 
-    TP = 1262 #mantle potential temperature
-    # TP = 1350
+    # TP = 1262 #mantle potential temperature
+    TP = 1350
     # TP = 1400
     # TP = 1450
 
@@ -1744,7 +1744,7 @@ if(velocity_from_ascii == True):
 
     if(variable_bcv == True):
         
-        if(experiment == 'wilson_cycle'):
+        if(experiment == 'accordion'):
             # var_bcv = f""" 1
             #             40.0 -1.0
 
@@ -1855,7 +1855,7 @@ hypatia = True
 gcloud = False
 
 dirname = '${PWD##*/}'
-if(experiment == 'rifting' or experiment == 'wilson_cycle'):
+if(experiment == 'rifting' or experiment == 'accordion'):
     mandyoc_options = '-seed 0,2 -strain_seed 0.0,1.0'
 else:
     mandyoc_options = '-seed 0 -strain_seed 0.0'

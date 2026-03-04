@@ -47,8 +47,8 @@ print(f"Output path: {output_path}\n")
 plot_isotherms = True
 # plot_isotherms = False
 
-# plot_melt = True
-plot_melt = False
+plot_melt = True
+# plot_melt = False
 
 melt_method = 'dry'
 # melt_method = 'wet'
@@ -77,7 +77,7 @@ datasets = [#Properties from mandyoc. Comment/uncomment to select properties of 
             'pressure',
             'strain',
             'strain_rate',### Read ascii outputs and save them as xarray.Datasets,
-            'surface',
+            # 'surface',
             'temperature',
             'viscosity'
             ]# Read data and convert them to xarray.Dataset
@@ -88,7 +88,7 @@ properties = [#Properties from mandyoc. Comment/uncomment to select which ones y
              'lithology',
 #              'pressure',
             #  'strain',
-             'strain_rate',
+            #  'strain_rate',
             #  'temperature',
             #  'temperature_anomaly',
             #  'surface',
@@ -187,6 +187,9 @@ step = 1
 # end = 31
 # step = 1
 
+topo_from_density=True
+# topo_from_density=False
+
 print("Generating frames...")
 with pymp.Parallel() as p:
     for i in p.range(start, end+step, step):
@@ -199,15 +202,11 @@ with pymp.Parallel() as p:
         for prop in properties:
     #         print(f"Handeling {prop}.", end='\n')
             if(prop != 'surface'): # you can customize
-                if(prop == 'strain_rate'):
-                    Lcraton = 1200.0 #km
-                    xlims = [float(dataset.isel(time=i).lx)/2.0e3 - Lcraton/2 - 50, float(dataset.isel(time=i).lx)/2.0e3 + Lcraton/2 + 50]
-                    ylims = [-210, 40]
-                else:
-                    # xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
-                    ylims = [-float(dataset.isel(time=i).lz) / 1.0e3 + 40, 40]
-                    xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
-                    # ylims = [-400, 40]
+                # xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
+                ylims = [-float(dataset.isel(time=i).lz) / 1.0e3 + 40, 40]
+                xlims = [0, float(dataset.isel(time=i).lx) / 1.0e3]
+                xlims = [1000, 2500]
+                # ylims = [-400, 40]
 
             else:
                 xmin = 0 #+ 200
@@ -218,6 +217,7 @@ with pymp.Parallel() as p:
             if(prop == 'viscosity'):
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
                         plot_isotherms = plot_isotherms,
+                        topo_from_density=topo_from_density,
                         plot_particles = False,
                         particle_size = 0.02,
                         particle_marker = ".",
@@ -229,6 +229,7 @@ with pymp.Parallel() as p:
             else:
                 single_plot(data, prop, xlims, ylims, model_path, output_path,
                             plot_isotherms = plot_isotherms,
+                            topo_from_density=topo_from_density,
                             plot_particles = plot_particles,
                             # particle_size = 0.02,
                             particle_size = 0.2,

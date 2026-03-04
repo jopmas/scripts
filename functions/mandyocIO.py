@@ -3008,7 +3008,7 @@ def single_plot(dataset, prop, xlims, ylims, model_path, output_path,
     plt.rc('xtick', labelsize = label_size)
     plt.rc('ytick', labelsize = label_size)
     
-    fig, ax = plt.subplots(1, 1, figsize=(12, 12*(Lz/Lx)), constrained_layout = True)
+    fig, ax = plt.subplots(1, 1, figsize=(10, 3), constrained_layout = True)
     # fig, ax = plt.subplots(1, 1, figsize=(12, 10), constrained_layout = True)
     #plot Time in Myr
     ax.text(0.85, 1.05, ' {:01} Myr'.format(instant), fontsize = 18, zorder=52, transform=ax.transAxes)
