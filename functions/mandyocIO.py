@@ -1615,7 +1615,7 @@ def plot_tracked_particles_depth_coded(trackdataset, ax, i, hcrust=35.0e3, marke
             elif(cond_lower_2plot_ast[particle] == True):
                 ax.plot(x_track[i, particle]/1.0e3, z_track[i, particle]/1.0e3+h_air/1.0e3, '.', color=color_mlit_lower, markersize=markersize, zorder=60, alpha=particles_alpha)
 
-def plot_ptt_paths_depth_coded(trackdataset, ax, instants=[], scale_correction = 1.0e-3, hcrust=35.0e3, plot_lower_crust_particles=False, plot_mantle_lithosphere_particles=True, plot_asthenosphere_particles=True, color_lower_crust='xkcd:brown', color_mlit_upper='xkcd:cerulean blue', color_mlit_intermediate='xkcd:scarlet', color_mlit_lower='xkcd:dark green'):
+def plot_ptt_paths_depth_coded(trackdataset, ax, instants=[], scale_correction = 1.0e-3, hcrust=35.0e3, alpha=1.0, plot_lower_crust_particles=False, plot_mantle_lithosphere_particles=True, plot_asthenosphere_particles=True, color_lower_crust='xkcd:brown', color_mlit_upper='xkcd:cerulean blue', color_mlit_intermediate='xkcd:scarlet', color_mlit_lower='xkcd:dark green'):
     """
     Plot PTt path of tracked particles in the subplot ax
 
