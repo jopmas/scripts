@@ -271,24 +271,26 @@ experiments = {'rifting': 'Rifting experiment',
                'preliminary': 'LAB (1300 oC) stability',
                }
 
-# scenario_name = '1s_Ho35S1'
-# scenario_name = '1w_Ho35W1'
-# scenario_name = '2s_He35S1'
-# scenario_name = '2w_He35W1'
-# scenario_name = '3s_Ho40S1'
-# scenario_name = '3w_Ho40W1'
-# scenario_name = '4s_Ho35S2'
-# scenario_name = '4w_Ho35W2'
-# scenario_name = '5s_He35S2'
-# scenario_name = '5w_He35W2'
-# scenario_name = '6s_Ho40S2'
-# scenario_name = '6w_Ho40W2'
-# scenario_name = '7s_Ho35S3'
-# scenario_name = '7w_Ho35W3'
-# scenario_name = '8s_He35S3'
-# scenario_name = '8w_He35W3'
-# scenario_name = '9s_Ho40S3'
-scenario_name = '9w_Ho40W3'
+# scenario_name = 'Ho35S1'
+# scenario_name = 'Ho35W1'
+# scenario_name = 'Ho35S2'
+# scenario_name = 'Ho35W2'
+# scenario_name = 'Ho35S3'
+# scenario_name = 'Ho35W3'
+
+# scenario_name = 'He35S1'
+# scenario_name = 'He35W1'
+# scenario_name = 'He35S2'
+# scenario_name = 'He35W2'
+# scenario_name = 'He35S3'
+# scenario_name = 'He35W3'
+
+# scenario_name = 'Ho40S1'
+# scenario_name = 'Ho40W1'
+# scenario_name = 'Ho40S2'
+# scenario_name = 'Ho40W2'
+# scenario_name = 'Ho40S3'
+scenario_name = 'Ho40W3'
 
 
 # ncores = 20
@@ -308,117 +310,117 @@ nodes = (ncores + cores_per_node - 1) // cores_per_node #ceil division
 #Main parameters used to construct param .txt that changes accordind to
 #tectonic regime
 
-if(scenario_name == '1s_Ho35S1'):
+if(scenario_name == 'Ho35S1'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = True
     velocity = 1.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '1w_Ho35W1'):
+if(scenario_name == 'Ho35W1'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = True
     velocity = 1.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
 
-if(scenario_name == '2s_He35S1'):
+if(scenario_name == 'He35S1'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = False
     velocity = 1.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '2w_He35W1'):
+if(scenario_name == 'He35W1'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = False
     velocity = 1.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
 
-if(scenario_name == '3s_Ho40S1'):
+if(scenario_name == 'Ho40S1'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = True
     velocity = 1.0 #cm/yr
     thickness_lower_crust = 20 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '3w_Ho40W1'):
+if(scenario_name == 'Ho40W1'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = True
     velocity = 1.0 #cm/yr
     thickness_lower_crust = 20 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
 
-if(scenario_name == '4s_Ho35S2'):
+if(scenario_name == 'Ho35S2'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = True
     velocity = 2.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '4w_Ho35W2'):
+if(scenario_name == 'Ho35W2'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = True
     velocity = 2.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
 
-if(scenario_name == '5s_He35S2'):
+if(scenario_name == 'He35S2'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = False
     velocity = 2.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '5w_He35W2'):
+if(scenario_name == 'He35W2'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = False
     velocity = 2.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
 
-if(scenario_name == '6s_Ho40S2'):
+if(scenario_name == 'Ho40S2'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = True
     velocity = 2.0 #cm/yr
     thickness_lower_crust = 20 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '6w_Ho40W2'):
+if(scenario_name == 'Ho40W2'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = True
     velocity = 2.0 #cm/yr
     thickness_lower_crust = 20 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
 
-if(scenario_name == '7s_Ho35S3'):
+if(scenario_name == 'Ho35S3'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = True
     velocity = 3.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '7w_Ho35W3'):
+if(scenario_name == 'Ho35W3'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = True
     velocity = 3.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
 
-if(scenario_name == '8s_He35S3'):
+if(scenario_name == 'He35S3'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = False
     velocity = 3.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '8w_He35W3'):
+if(scenario_name == 'He35W3'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = False
     velocity = 3.0 #cm/yr
     thickness_lower_crust = 15 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 85 * 1.0e3 # Use when crustal thickness is 35 km to obtain a total lithosphere thickness of 120 km
 
-if(scenario_name == '9s_Ho40S3'):
+if(scenario_name == 'Ho40S3'):
     lower_crust_effective_viscosity_scale_factor = 10.0
     homogeneous_mlit = True
     velocity = 3.0 #cm/yr
     thickness_lower_crust = 20 * 1.0e3 #m
     thickness_lithospherespheric_mantle = 80 * 1.0e3 #Use when crustal thickness is 40 km to obtain a total lithosphere thickness of 120 km
-if(scenario_name == '9w_Ho40W3'):
+if(scenario_name == 'Ho40W3'):
     lower_crust_effective_viscosity_scale_factor = 1.0
     homogeneous_mlit = True
     velocity = 3.0 #cm/yr
@@ -502,6 +504,7 @@ if(experiment == 'rifting'):
     #magmatism
     # magmatism = 'off'
     magmatism = 'on'
+    magmatism_extraction = 'off'
 
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
@@ -542,7 +545,8 @@ if(experiment == 'rifting'):
     # Nz = 151  #
     # Nz = 201
     # Nz = 351
-    Nz = 801
+    Nz = 401
+    # Nz = 801
 
     if(seed_in_litho):
         # seed depth bellow base of lower crust (m)
@@ -928,6 +932,7 @@ non_linear_method                   = on            # ok
 adiabatic_component                 = on            # ok
 radiogenic_component                = on            # ok
 magmatism                           = {magmatism}           # ok
+magmatism_extraction                = {magmatism_extraction}
 export_lithology = True
 # magmatic_layer = 6
 # Velocity boundary conditions
@@ -1465,7 +1470,7 @@ if(linux):
 if(mac):
     run_mac = f'''
             #!/bin/bash
-            MPI_PATH=$HOME/opt/petsc/arch-label-optimized/bin
+            MPI_PATH=$HOME/opt/petsc/arch-v3.24.6-optimized/bin
             MANDYOC_PATH=$HOME/opt/mandyoc/bin/mandyoc
             NUMBER_OF_CORES=12
             MANDYOC_OPTIONS='{mandyoc_options}'
@@ -1537,7 +1542,7 @@ if(mac):
             #SBATCH --nodes=2
             #SBATCH --cpus-per-task={str(int(ncores/2))}
             #SBATCH --time 192:00:00 #16horas/"2-" para 2 dias com max 8 dias
-            #SBATCH --job-name mandyoc-jpms
+            #SBATCH --job-name {dirname}-jpms
             #SBATCH --output slurm_%j.log #ou FD.out/ %j pega o id do job
             #SBATCH --mail-type=BEGIN,FAIL,END
             #SBATCH --mail-user=joao.macedo.silva@usp.br
@@ -1607,8 +1612,10 @@ if(hypatia):
     #SBATCH --ntasks={str(int(ncores))}
     #SBATCH --nodes={str(int(nodes))}
     #SBATCH --cpus-per-task=1
+    #SBATCH --hint=nomultithread
+    #SBATCH --exclude=f001
     #SBATCH --time 72:00:00 # 16 horas; poderia ser “2-” para 2 dias; máximo “8-”
-    #SBATCH --job-name mandyoc-jpms
+    #SBATCH --job-name {scenario_name}-jpms
     #SBATCH --output slurm_%j.log
     #SBATCH --error=log_error_%j.log
     #SBATCH --no-requeue
@@ -1622,7 +1629,7 @@ if(hypatia):
     PETSC_DIR='{main_folders}/opt/petsc'
     PETSC_ARCH='optimized-v3.24.1-mpich'
 
-    MANDYOC='{main_folders}/opt/mandyoc_old/bin/mandyoc'
+    MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
     MANDYOC_OPTIONS='{mandyoc_options}'
 
     #run mandyoc
@@ -1630,18 +1637,18 @@ if(hypatia):
 
     conda activate mpy
     #Creating directories for the output files
-    bash mv /home/jpmacedo/opt/mv-updated.sh
+    bash /home/jpmacedo/opt/mv-updated.sh
 
     #Creating netdf files
     julia -t {str(int(ncores))} /home/jpmacedo/opt/convertNETCDF_v2.jl {current_dir}
     julia -t {str(int(ncores))} /home/jpmacedo/opt/LithoNETCDF_v2.jl {current_dir}
 
-    python /home/jpmacedo/opt/track_particles_v3.py {current_dir} 0
+    # python /home/jpmacedo/opt/track_particles_v3.py {current_dir} 0
     zip {dirname}.zip *.nc
 
     #run of auxiliary scripts to zip and clean the folder
-    # bash zipper.sh
-    # bash clean.sh
+    bash zipper.sh
+    bash clean.sh
     '''
     with open('run_hypatia.sh', 'w') as f:
         for line in run_hypatia.split('\n'):

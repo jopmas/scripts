@@ -56,7 +56,12 @@ take_specific_time = False
 
 #Set to True to scenarios of groups 2 5 and 8
 # take_asthenosphere = True
-take_asthenosphere = False
+# take_asthenosphere = False
+
+if('He' in model_name):
+    take_asthenosphere = True
+else:
+    take_asthenosphere = False
 
 #select the extension rate:
 if('W1' in model_name or 'S1' in model_name):
@@ -73,11 +78,11 @@ if(v==1):
     idx = (np.abs(Tdataset.time.values - instant_to_take)).argmin()
     step_final = Tdataset.steps.values[idx] 
 if(v==2):
-    instant_to_take = 20 #Myr 
+    instant_to_take = 40#20 #Myr 
     idx = (np.abs(Tdataset.time.values - instant_to_take)).argmin()
     step_final = Tdataset.steps.values[idx]
 if(v==3):
-    instant_to_take = 8.55 #Myr
+    instant_to_take = 40#8.55 #Myr
     idx = (np.abs(Tdataset.time.values - instant_to_take)).argmin()
     step_final = Tdataset.steps.values[idx]
 
