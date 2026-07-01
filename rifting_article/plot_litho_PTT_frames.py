@@ -326,15 +326,18 @@ with pymp.Parallel() as p:
     for i in p.range(start, end-step, step):
         data = dataset.isel(time=i)
         for prop in properties:
-            fig, axs = plt.subplots(2, 2, figsize=(12, 6), constrained_layout=True, gridspec_kw={'width_ratios': [1, 0.4]})
+            fig, axs = plt.subplots(3, 2, figsize=(12, 10), constrained_layout=True, gridspec_kw={'width_ratios': [1, 0.4]})
             gs = axs[0, 0].get_gridspec()
 
             # Remove os eixos da segunda linha
             axs[1, 0].remove()
             axs[1, 1].remove()
+            axs[2, 0].remove()
+            axs[2, 1].remove()
 
             # Cria um eixo ocupando toda a segunda linha
             ax3 = fig.add_subplot(gs[1, :])
+            ax4 = fig.add_subplot(gs[2, :])
 
             current_time = float(data.time.values)
             # xlims = [0, float(data.lx) / 1.0e3]
@@ -372,6 +375,13 @@ with pymp.Parallel() as p:
                 ax3.imshow(data, aspect='auto', extent=(0, Lx/1000, -Lz/1000+40, 40), cmap=cmap, vmin=0, vmax=5, alpha=1.0)            
                 ax3.imshow(np.log10(dataset.strain.isel(time=i)[::-1,:]), extent=(0, Lx/1000, -Lz/1000+40, 40), cmap="Greys", vmin=-0.5, vmax=0.9, alpha=0.2)
                 ax3.contour(xx, zz+40, dataset.temperature.isel(time=i), levels=[500, 600, 700, 800, 900, 1300], colors='r', linewidths=1.0)
+
+                ax4.imshow(data, aspect='auto', extent=(0, Lx/1000, -Lz/1000+40, 40), cmap=cmap, vmin=0, vmax=5, alpha=1.0)            
+                ax4.imshow(np.log10(dataset.strain.isel(time=i)[::-1,:]), extent=(0, Lx/1000, -Lz/1000+40, 40), cmap="Greys", vmin=-0.5, vmax=0.9, alpha=0.2)
+                ax4.contour(xx, zz+40, dataset.temperature.isel(time=i), levels=[500, 600, 700, 800, 900, 1300], colors='r', linewidths=1.0)
+                ax4.set_ylim(-40, 20)
+                ax4.set_xlim(xlims)
+                ax4.set_aspect('auto')
 
                 bbox_to_anchor=(0.90,#horizontal position respective to parent_bbox or "loc" position
                                 0.20,# vertical position
@@ -460,6 +470,10 @@ with pymp.Parallel() as p:
             ax3.set_xlabel('Distance [km]', fontsize=fsize)
             ax3.set_ylabel('Depth [km]', fontsize=fsize)
             ax3.tick_params(axis='both', labelsize=fsize)
+
+            ax4.set_xlabel('Distance [km]', fontsize=fsize)
+            ax4.set_ylabel('Depth [km]', fontsize=fsize)
+            ax4.tick_params(axis='both', labelsize=fsize)
 
             axs[0,1].set_xlim([0, 1500])
             ylims = np.array([0, 4000])/1.0e3
