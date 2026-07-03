@@ -254,10 +254,10 @@ scenario_infos.append(' ')
 scenario_infos.append('Name: ' + path[-1])
 
 #Setting the kind of tectonic scenario
-experiment = 'rifting'
+# experiment = 'rifting'
 # experiment = 'stability'
 # experiment = 'accordion'
-# experiment = 'cratonic_keel'
+experiment = 'cratonic_keel'
 
 experiments = {'rifting': 'Rifting experiment',
                'stability': 'LAB (1300 oC) stability',
@@ -265,8 +265,12 @@ experiments = {'rifting': 'Rifting experiment',
                'cratonic_keel': 'Cratonic Keel',
                }
 
-ncores = 64
-# ncores = 20
+# ncores = 90
+# cores_per_node = 96
+
+
+# #Estimating number of nodes needed according to number of cores
+# nodes = (ncores + cores_per_node - 1) // cores_per_node #ceil division
 
 #Main parameters used to construct param .txt that changes accordind to
 #tectonic regime
@@ -665,7 +669,7 @@ elif(experiment == 'accordion'):
         thickness_seed = 12 * 1.0e3
 
 elif(experiment == 'cratonic_keel'):
-
+    scenario_name = 'CKme'
     mobile_belt = True
     # mobile_belt = False
     shift_mb = 0.0e3
@@ -712,7 +716,8 @@ elif(experiment == 'cratonic_keel'):
     # seed = True
 
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT200_rheol19_c1250_C1_HprodAst/'
-    scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst/'
+    scenario = '/Keel/preliminary/'
+    # scenario = '/Volumes/Joao1TB/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT290_rheol19_c1250_C1_HprodAst'
     # scenario = '/Doutorado/cenarios/mandyoc/stable/lit80km/stable_PT350_rheol19_c1250_C1_HprodAst/'
 
     #Convergence criteria
@@ -731,8 +736,8 @@ elif(experiment == 'cratonic_keel'):
     #External inputs: bc velocity, velocity field, precipitation and
     #climate change
     
-    ast_wind                         = True
-    # ast_wind                         = False
+    # ast_wind                         = True
+    ast_wind                         = False
 
     velocity = 1.0 #cm/yr
 
@@ -755,13 +760,14 @@ elif(experiment == 'cratonic_keel'):
 
     #step files
     print_step_files                 = True
-    # checkered = False
-    checkered = True
+    checkered = False
+    # checkered = True
 
     #magmatism
-    magmatism = 'off'
-    # magmatism = 'on'
-
+    # magmatism = 'off'
+    magmatism = 'on'
+    magmatism_extraction = 'on'
+    rheology_model = 19
     #velocity bc
     top_normal_velocity                 = 'fixed'         # ok
     top_tangential_velocity             = 'free '         # ok
@@ -832,7 +838,9 @@ thickness_lithosphere = thickness_upper_crust + thickness_lower_crust + thicknes
 asthenosphere = MandyocLayer('asthenosphere', WetOlivine,
                             density=3378.0,
                             effective_viscosity_scale_factor=1.0,
-                            radiogenic_heat_production=7.38e-12)
+                            radiogenic_heat_production=7.38e-12,
+                            # base_depth=0.0e3,
+                            Nx=Nx)
 
 lithospheric_mantle = MandyocLayer('lithospheric mantle', DryOlivine,
                                     density=3354.0,
@@ -846,7 +854,7 @@ lower_crust = MandyocLayer('lower crust', WetQuartz,
                             density=2800.0,
                             # interface=np.ones(Nx) * (thickness_lower_crust + thickness_upper_crust + thickness_air),
                             # effective_viscosity_scale_factor=1.0,
-                            effective_viscosity_scale_factor=10.0,
+                            effective_viscosity_scale_factor=1.0,
                             radiogenic_heat_production=2.86e-10,
                             base_depth=thickness_air+thickness_upper_crust+thickness_lower_crust,
                             Nx=Nx) #0.8e-6 / 2800.0)
@@ -979,7 +987,7 @@ elif(experiment == 'cratonic_keel'):
 
     else:
         lithospheric_mobile_belt = MandyocLayer('mobile belt',
-                                                DryOlivine,
+                                                WetOlivine,
                                                 density=3354.0,
                                                 # interface=np.ones(Nx) * (thickness_lithosphere + thickness_air),
                                                 effective_viscosity_scale_factor=1.0,
@@ -1006,7 +1014,8 @@ elif(experiment == 'cratonic_keel'):
         N_Lmb = int(Lmb//dx)
         # thinning = 50.0e3
         # thinning = 100.0e3
-        thinning = 135.0e3
+        # thinning = 135.0e3
+        thinning = 129.e3 + thickness_lithospherespheric_mantle
 
         Nshift_mb = int(shift_mb//dx)
 
@@ -1106,11 +1115,12 @@ multigrid                           = 1             # ok -> soon to be on the co
 solver                              = direct        # default is direct [direct/iterative]
 denok                               = {denok}       # default is 1.0E-4
 particles_per_element               = {particles_per_element}          # default is 81
+surface_particles_per_element       = 40           # default is 2
 particles_perturb_factor            = 0.7           # default is 0.5 [values are between 0 and 1]
 rtol                                = 1.0e-7        # the absolute size of the residual norm (relevant only for iterative methods), default is 1.0E-5
 RK4                                 = Euler         # default is Euler [Euler/Runge-Kutta]
-Xi_min                              = 1.0e-6       # default is 1.0E-14
-random_initial_strain               = 0.2           # default is 0.0
+Xi_min                              = 1.0e-5       # default is 1.0E-14
+random_initial_strain               = 0.3           # default is 0.0
 pressure_const                      = -1.0          # default is -1.0 (not used) - useful only in horizontal 2D models
 initial_dynamic_range               = True         # default is False [True/False]
 periodic_boundary                   = False         # default is False [True/False]
@@ -1121,18 +1131,16 @@ sea_level                           = 0.0           # default is 0.0
 basal_heat                          = 0.0          # default is -1.0
 # Surface processes
 sp_surface_tracking                 = {sp_surface_tracking}         # default is False [True/False]
-sp_surface_processes                = {sp_surface_processes}         # default is False [True/False]
-sp_dt                               = 1.0e5        # default is 0.0
-sp_d_c                              = 1.0          # default is 0.0
+sp_surface_processes                = {sp_surface_processes}        # default is False [True/False]
 plot_sediment                       = False         # default is False [True/False]
 a2l                                 = True          # default is True [True/False]
-free_surface_stab                   = True          # default is True [True/False]
-theta_FSSA                          = 0.5           # default is 0.5 (only relevant when free_surface_stab = True)
+free_surface_stab                   = True         # default is True [True/False]
+theta_FSSA                          = 0.5          # default is 0.5 (only relevant when free_surface_stab = True)
 # Time constrains
-step_max                            = 800000          # Maximum time-step of the simulation
-time_max                            = {time_max}  #1.0e9     # Maximum time of the simulation [years]
+step_max                            = 800000        # Maximum time-step of the simulation
+time_max                            = {time_max}    # Maximum time of the simulation [years]
 dt_max                              = {dt_max}      # Maximum time between steps of the simulation [years]
-step_print                          = {step_print} #500            # Make file every <step_print>
+step_print                          = {step_print}  # Make file every <step_print>
 sub_division_time_step              = 0.5           # default is 1.0
 initial_print_step                  = 0             # default is 0
 initial_print_max_time              = 1.0e6         # default is 1.0E6 [years]
@@ -1151,11 +1159,10 @@ temperature_from_ascii              = True         # default is False [True/Fals
 velocity_from_ascii                 = {velocity_from_ascii} #False      # default is False [True/False]
 binary_output                       = False         # default is False [True/False]
 sticky_blanket_air                  = True         # default is False [True/False]
-precipitation_profile_from_ascii    = {precipitation_profile_from_ascii}         # default is False [True/False]
-climate_change_from_ascii           = {climate_change_from_ascii}         # default is False [True/False]
+# precipitation_profile_from_ascii    = {precipitation_profile_from_ascii}         # default is False [True/False]
+# climate_change_from_ascii           = {climate_change_from_ascii}         # default is False [True/False]
 print_step_files                    = {print_step_files}          # default is True [True/False]
 checkered                           = {checkered}         # Print one element in the print_step_files (default is False [True/False])
-sp_mode                             = 5             # default is 1 [0/1/2]
 geoq                                = on            # ok
 geoq_fac                            = 100.0           # ok
 # Physical parameters
@@ -1165,11 +1172,14 @@ thermal_diffusivity_coefficient     = 1.0e-6 #0.75e-6       #default is 1.0e-6  
 gravity_acceleration                = 10.0          # ok
 density_mantle                      = 3300.         # ok
 external_heat                       = 0.0e-12       # ok
-heat_capacity                       = 1250          # ok #default is 1250
+heat_capacity                       = 1250.         # ok #default is 1250
 non_linear_method                   = on            # ok
 adiabatic_component                 = on            # ok
 radiogenic_component                = on            # ok
-magmatism                           = {magmatism}   # ok
+magmatism                           = {magmatism}           # ok
+magmatism_extraction                = {magmatism_extraction}
+export_lithology = True
+magmatic_layer = 6
 # Velocity boundary conditions
 top_normal_velocity                 = fixed         # ok
 top_tangential_velocity             = free          # ok
@@ -1186,10 +1196,9 @@ top_temperature                     = {top_temperature}         # ok
 bot_temperature                     = {bot_temperature}         # ok
 left_temperature                    = {left_temperature}         # ok
 right_temperature                   = {right_temperature}         # ok
-rheology_model                      = 19             # ok
+rheology_model                      = {rheology_model}             # ok
 T_initial                           = 3             # ok
 """
-
 # Create the parameter file
 with open("param.txt", "w") as f:
     for line in params.split("\n"):
@@ -1273,6 +1282,7 @@ else:
         else:
             # print('entrei local false')
             external_media = 'Joao_Macedo'
+            # external_media = 'Joao1TB'
             # external_media = 'Joao_Macedo'
             if(path[1] == 'home'):
                 fpath = f"{machine_path}/{external_media}{scenario}"
@@ -1850,7 +1860,8 @@ np.savetxt('infos_'+path[-1] + '.txt', scenario_infos, fmt="%s")
 #Creating run files
 linux = False
 mac = False
-aguia = False
+# aguia = False
+aguia = True
 hypatia = True
 gcloud = False
 
@@ -1950,10 +1961,19 @@ if(mac):
                 f.write(' '.join(line.split()) + '\n')
 
 if(aguia):
+    # ncores = 150
     aguia = 'aguia4'
     # aguia = 'aguia3'
 
     if(aguia == 'aguia4'):
+
+        ncores = 160#90
+        cores_per_node = 20
+
+
+        #Estimating number of nodes needed according to number of cores
+        nodes = (ncores + cores_per_node - 1) // cores_per_node #ceil division
+
         partition = 'SP2'
         main_folders = '/temporario2/8672526'
 
@@ -1965,11 +1985,11 @@ if(aguia):
             #!/usr/bin/bash
 
             #SBATCH --partition={partition}
-            #SBATCH --ntasks=2
-            #SBATCH --nodes=2
-            #SBATCH --cpus-per-task={str(int(ncores/2))}
+            #SBATCH --ntasks={str(int(ncores))}
+            #SBATCH --nodes={nodes}
+            #SBATCH --cpus-per-task=1
             #SBATCH --time 192:00:00 #16horas/"2-" para 2 dias com max 8 dias
-            #SBATCH --job-name mandyoc-jpms
+            #SBATCH --job-name {scenario_name}
             #SBATCH --output slurm_%j.log #ou FD.out/ %j pega o id do job
             #SBATCH --mail-type=BEGIN,FAIL,END
             #SBATCH --mail-user=joao.macedo.silva@usp.br
@@ -1981,44 +2001,9 @@ if(aguia):
 
             $PETSC_DIR/$PETSC_ARCH/bin/mpiexec -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
 
-            DIRNAME={dirname}
-
-            zip $DIRNAME.zip interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
-            zip -u $DIRNAME.zip bc_velocity_*.txt
-            zip -u $DIRNAME.zip density_*.txt
-            zip -u $DIRNAME.zip heat_*.txt
-            zip -u $DIRNAME.zip pressure_*.txt
-            zip -u $DIRNAME.zip sp_surface_global_*.txt
-            zip -u $DIRNAME.zip strain_*.txt
-            zip -u $DIRNAME.zip temperature_*.txt
-            zip -u $DIRNAME.zip time_*.txt
-            zip -u $DIRNAME.zip velocity_*.txt
-            zip -u $DIRNAME.zip viscosity_*.txt
-            zip -u $DIRNAME.zip scale_bcv.txt
-            zip -u $DIRNAME.zip step*.txt
-            zip -u $DIRNAME.zip Phi*.txt
-            zip -u $DIRNAME.zip dPhi*.txt
-            zip -u $DIRNAME.zip X_depletion*.txt
-            zip -u $DIRNAME.zip *.log
-
-            #rm *.log
-            rm vel_bc*
-            rm velz*
-            rm bc_velocity*
-            rm velocity*
-            rm step*
-            rm temperature*
-            rm density*
-            rm viscosity*
-            rm heat*
-            rm strain_*
-            rm time*
-            rm pressure_*
-            rm sp_surface_global*
-            rm scale_bcv.txt
-            rm Phi*
-            rm dPhi*
-            rm X_depletion*
+            bash zipper.sh
+            bash clean.sh
+            
         '''
     with open('run_aguia.sh', 'w') as f:
         for line in run_aguia.split('\n'):
@@ -2029,33 +2014,76 @@ if(aguia):
 
 #hypatia run file
 if(hypatia):
-    main_folders = '/scratch/joao'
+
+    ncores = 90
+    cores_per_node = 96
+
+
+    #Estimating number of nodes needed according to number of cores
+    nodes = (ncores + cores_per_node - 1) // cores_per_node #ceil division
+
+    dirname = '${PWD##*/}'
+    current_dir = '${PWD}'
+    # main_folders = '/scratch/jpmacedo'
+    main_folders = '/home/jpmacedo'
     run_hypatia = f'''
+    #!/usr/bin/env bash
+    #SBATCH --mail-type=BEGIN,END,FAIL         			# Mail events (NONE, BEGIN, END, FAIL, ALL)
+    #SBATCH --mail-user=joao.macedo.silva@usp.br		# Where to send mail
+    #SBATCH --ntasks={str(int(ncores))}
+    #SBATCH --nodes={str(int(nodes))}
+    #SBATCH --cpus-per-task=1
+    #SBATCH --hint=nomultithread
+    #SBATCH --exclude=f001
+    #SBATCH --time 72:00:00 # 16 horas; poderia ser “2-” para 2 dias; máximo “8-”
+    #SBATCH --job-name {scenario_name}-jpms
+    #SBATCH --output slurm_%j.log
+    #SBATCH --error=log_error_%j.log
+    #SBATCH --no-requeue
+
+    module purge
+    module load gcc/13.2.0-gcc-8.5.0-tnbqzki
+    module load openmpi/5.0.3-gcc-8.5.0-no4tqjk
+    module load cmake/3.27.9-gcc-8.5.0-33534nt
+
+    #Setup of Mandyoc variables:
+    PETSC_DIR='{main_folders}/opt/petsc'
+    PETSC_ARCH='optimized-v3.24.1-mpich'
+
+    MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
+    MANDYOC_OPTIONS='{mandyoc_options}'
+
+    #run mandyoc
+    mpirun -n ${{SLURM_NTASKS}} --map-by :OVERSUBSCRIBE ${{MANDYOC}} ${{MANDYOC_OPTIONS}}
+
+    conda activate mpy
+    #Creating directories for the output files
+    bash /home/jpmacedo/opt/mv-updated.sh
+
+    #Creating netdf files
+    julia -t {str(int(ncores))} /home/jpmacedo/opt/convertNETCDF_v2.jl {current_dir}
+    julia -t {str(int(ncores))} /home/jpmacedo/opt/LithoNETCDF_v2.jl {current_dir}
+
+    # python /home/jpmacedo/opt/track_particles_v3.py {current_dir} 0
+    zip {dirname}.zip *.nc
+
+    #run of auxiliary scripts to zip and clean the folder
+    bash zipper.sh
+    bash clean.sh
+    '''
+    with open('run_hypatia.sh', 'w') as f:
+        for line in run_hypatia.split('\n'):
+            line = line.strip()
+            if len(line):
+                f.write(' '.join(line.split()) + '\n')
+
+
+zipper = f'''
         #!/usr/bin/env bash
-        #SBATCH --mail-type=BEGIN,END,FAIL         			# Mail events (NONE, BEGIN, END, FAIL, ALL)
-        #SBATCH --mail-user=joao.macedo.silva@usp.br		# Where to send mail
-        #SBATCH --ntasks={str(int(ncores))}
-        #SBATCH --nodes=1
-        #SBATCH --cpus-per-task=1
-        #SBATCH --time 72:00:00 # 16 horas; poderia ser “2-” para 2 dias; máximo “8-”
-        #SBATCH --job-name mandyoc-jpms
-        #SBATCH --output slurm_%j.log
-
-        #run the application:
-        PETSC_DIR='{main_folders}/opt/petsc'
-        PETSC_ARCH='arch-label-optimized/bin/mpirun'
-        MANDYOC='{main_folders}/opt/mandyoc/bin/mandyoc'
-        MANDYOC_OPTIONS='{mandyoc_options}'
-        $PETSC_DIR/$PETSC_ARCH -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
-
-
         DIRNAME={dirname}
 
         # Primeiro zipa os arquivos fixos
         zip "$DIRNAME.zip" interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
-
-        # Primeiro zipa os arquivos fixos
-            zip "$DIRNAME.zip" interfaces.txt param.txt input*_0.txt vel_bc.txt velz_bc.txt run*.sh
 
         # Lista de padrões
         patterns=(
@@ -2064,6 +2092,45 @@ if(hypatia):
             "heat_*.txt"
             "pressure_*.txt"
             "sp_surface_global_*.txt"
+            "lithology_*.txt"
+            "strain_*.txt"
+            "temperature_*.txt"
+            "time_*.txt"
+            "velocity_*.txt"
+            "viscosity_*.txt"
+            "scale_bcv.txt"
+            "step*.txt"
+            "Phi*.txt"
+            "dPhi*.txt"
+            "X_depletion*.txt"
+            "*.bin*.txt"
+            "bc*-1.txt"
+            "*.log"
+            # "_*.nc"
+            )
+
+        # Faz um loop e usa find para evitar o erro "argument list too long"
+        for pat in "${{patterns[@]}}"; do
+            find . -maxdepth 1 -type f -name "$pat" -exec zip -u "$DIRNAME.zip" {{}} +
+        done
+    '''
+with open('zipper.sh', 'w') as f:
+    for line in zipper.split('\n'):
+        line = line.strip()
+        if len(line):
+            f.write(' '.join(line.split()) + '\n')
+
+clean = f'''
+        #!/usr/bin/env bash
+
+        # Lista de padrões
+        patterns=(
+            "bc_velocity_*.txt"
+            "density_*.txt"
+            "heat_*.txt"
+            "pressure_*.txt"
+            "sp_surface_global_*.txt"
+            "lithology_*.txt"
             "strain_*.txt"
             "temperature_*.txt"
             "time_*.txt"
@@ -2078,27 +2145,20 @@ if(hypatia):
             "bc*-1.txt"
             )
 
-        # Faz um loop e usa find para evitar o erro "argument list too long"
-        for pat in "${{patterns[@]}}"; do
-            find . -maxdepth 1 -type f -name "$pat" -exec zip -u "$DIRNAME.zip" {{}} +
-        done
-
         # Para cada padrão, procurar e remover com segurança
         for pat in "${{patterns[@]}}"; do
             find . -maxdepth 1 -type f -name "$pat" -exec rm -f {{}} +
         done
-        '''
-    with open('run_hypatia.sh', 'w') as f:
-        for line in run_hypatia.split('\n'):
-            line = line.strip()
-            if len(line):
-                f.write(' '.join(line.split()) + '\n')
-
-
+    '''
+with open('clean.sh', 'w') as f:
+    for line in clean.split('\n'):
+        line = line.strip()
+        if len(line):
+            f.write(' '.join(line.split()) + '\n')
 
 #zip input files
 filename = 'inputs_'+path[-1]+'.zip'
-files_list = ' infos*.txt interfaces.txt param.txt input*_0.txt run*.sh vel*.txt scale_bcv.txt *.png precipitation.txt climate.txt'
+files_list = ' infos*.txt interfaces.txt param.txt input*_0.txt run*.sh vel*.txt scale_bcv.txt *.png precipitation.txt climate.txt zipper.sh clean.sh'
 os.system('zip '+filename+files_list)
 
 scenario_infos = ['MODEL INFORMATION:']
@@ -2106,6 +2166,7 @@ scenario_infos.append(' ')
 scenario_infos.append(f'Saving input files at: {path[-1]}')
 scenario_infos.append(f'Experiment: {experiment}')
 scenario_infos.append(f'Chosen number of cores:  {ncores}')
+scenario_infos.append(f'Estimated number of nodes: {nodes}')
 
 
 scenario_infos.append(' ')
@@ -2185,6 +2246,7 @@ np.savetxt('infos_'+path[-1] + '.txt', scenario_infos, fmt="%s")
 
 print(f'Experiment: {experiments[experiment]}')
 print(f'Chosen number of cores: {ncores}')
+print(f'Estimated number of nodes: {nodes}')
 
 print(' ')
 print('Scale factors (C):')
