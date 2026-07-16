@@ -115,6 +115,17 @@ class DryQuartz:
         self.activation_energy = 0.0
         self.activation_volume = 0.0
 
+class Basalt:
+    """
+    Basalt rheological properties
+    """
+    def __init__(self):
+        self.name = 'basalt'
+        self.pre_exponential_constant = 8.574e-28
+        self.power_law_exponent = 4.0
+        self.activation_energy = 222.0e3
+        self.activation_volume = 0.0
+
 class Plagioclase:
     """
     Plagioclase rheological properties (Shelton and Tullis, 1981)
@@ -822,6 +833,8 @@ X, Z = np.meshgrid(x, z)
 
 # thickness of sticky air layer (m)
 thickness_air = 40 * 1.0e3
+# thickness of basalt layer (m)
+thickness_basalt = 0.0e3
 # thickness of upper crust (m)
 thickness_upper_crust = 20 * 1.0e3
 # thickness of lower crust (m)
@@ -866,6 +879,13 @@ upper_crust = MandyocLayer('upper crust', WetQuartz,
                             radiogenic_heat_production=9.26e-10,
                             base_depth=thickness_air+thickness_upper_crust,
                             Nx=Nx)#2.5e-6 / 2700.0)
+
+basalt = MandyocLayer('basalt', Basalt,
+                        density=2900.0,
+                        effective_viscosity_scale_factor=1.0,
+                        radiogenic_heat_production=9.0e-11,
+                        base_depth=thickness_air+thickness_basalt,
+                        Nx=Nx)
 
 air = MandyocLayer('air', Air,
                     density=1.0,
@@ -983,7 +1003,7 @@ elif(experiment == 'cratonic_keel'):
         Nshift = int(shift_craton//dx)
         lithospheric_mantle.interface[Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = air.base_depth + thickening
 
-        layers = [asthenosphere, lithospheric_mantle, lower_crust, upper_crust, air]
+        layers = [asthenosphere, lithospheric_mantle, lower_crust, upper_crust, basalt, air]
 
     else:
         lithospheric_mobile_belt = MandyocLayer('mobile belt',
@@ -1015,7 +1035,7 @@ elif(experiment == 'cratonic_keel'):
         # thinning = 50.0e3
         # thinning = 100.0e3
         # thinning = 135.0e3
-        thinning = 129.e3 + thickness_lithospherespheric_mantle
+        thinning = 125.0e3 + thickness_lithospherespheric_mantle
 
         Nshift_mb = int(shift_mb//dx)
 
@@ -1040,9 +1060,9 @@ elif(experiment == 'cratonic_keel'):
             lower_crust.interface[Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = air.base_depth #- thinning_lower_crust #right side
 
             upper_crust.interface[0 : Nx//2 - Ncraton//2 - Nlength_non_cratonic + Nshift] = air.base_depth #- thinning_upper_crust #left side
-            upper_crust.interface[Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = air.base_depth #- thinning_upper_crust #right side
+            upper_crust.interface[Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = air.base_depth #- thinning_upper_crust #right side 
 
-        layers = [asthenosphere, lithospheric_mantle, lithospheric_mobile_belt, lower_crust, upper_crust, air]
+        layers = [asthenosphere, lithospheric_mantle, lithospheric_mobile_belt, lower_crust, upper_crust, basalt, air]
 
 ##################################################
 # Save interfaces.txt to be used in Mandyoc code #
@@ -1179,7 +1199,7 @@ radiogenic_component                = on            # ok
 magmatism                           = {magmatism}           # ok
 magmatism_extraction                = {magmatism_extraction}
 export_lithology = True
-magmatic_layer = 6
+magmatic_layer = 5 #6 for rifting
 # Velocity boundary conditions
 top_normal_velocity                 = fixed         # ok
 top_tangential_velocity             = free          # ok
@@ -1980,9 +2000,11 @@ if(aguia):
     if(aguia == 'aguia3'):
         partition = 'SP3'
         main_folders =  '/scratch/8672526'
-
+    current_dir = '${PWD}'
+    dirname = '${PWD##*/}'
     run_aguia = f'''
             #!/usr/bin/bash
+            module load Miniconda
 
             #SBATCH --partition={partition}
             #SBATCH --ntasks={str(int(ncores))}
@@ -2002,8 +2024,17 @@ if(aguia):
             $PETSC_DIR/$PETSC_ARCH/bin/mpiexec -n {str(int(ncores))} $MANDYOC $MANDYOC_OPTIONS
 
             bash zipper.sh
+            bash /temporario2/8672526/opt/mv-updated.sh
+            #Creating netdf files
+            julia -t {str(int(ncores))} /temporario2/8672526/opt/convertNETCDF_v2.jl {current_dir}
+            julia -t {str(int(ncores))} /temporario2/8672526/opt/LithoNETCDF_v2.jl {current_dir}
+
+            python /temporario2/8672526/opt/frames_generator.py
+
+            bash zipper.sh
+            zip {dirname}.zip *.nc
             bash clean.sh
-            
+        
         '''
     with open('run_aguia.sh', 'w') as f:
         for line in run_aguia.split('\n'):
@@ -2091,8 +2122,8 @@ zipper = f'''
             "density_*.txt"
             "heat_*.txt"
             "pressure_*.txt"
-            "sp_surface_global_*.txt"
-            "lithology_*.txt"
+            "surface*.txt"
+            "litho*.txt"
             "strain_*.txt"
             "temperature_*.txt"
             "time_*.txt"
