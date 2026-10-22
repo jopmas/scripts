@@ -945,7 +945,16 @@ if(experiment == 'accordion' or experiment == 'rifting' or experiment == 'stabil
             - thickness_seed // 2
         )
 
-        layers = [asthenosphere, lithospheric_mantle, seed_base, seed_top, lower_crust, upper_crust, air]
+        upper_lithospheric_mantle = MandyocLayer('lithospheric mantle', DryOlivine,
+                                                        density=3354.0,
+                                                        effective_viscosity_scale_factor=0.25,
+                                                        radiogenic_heat_production=9.0e-12,
+                                                        base_depth=thickness_air+thickness_upper_crust+thickness_lower_crust+seed_depth,
+                                                        Nx=Nx)
+        
+
+        layers = [asthenosphere, lithospheric_mantle, seed_base, upper_lithospheric_mantle, lower_crust, upper_crust, air]
+        interfaces = [asthenosphere, lithospheric_mantle, seed_base, seed_top, lower_crust, upper_crust, air]
     else:
         layers = [asthenosphere, lithospheric_mantle, lower_crust, upper_crust, air]
 
@@ -1004,6 +1013,7 @@ elif(experiment == 'cratonic_keel'):
         lithospheric_mantle.interface[Nx//2 - Ncraton//2 + Nshift : Nx//2 + Ncraton//2 + Nshift] = air.base_depth + thickening
 
         layers = [asthenosphere, lithospheric_mantle, lower_crust, upper_crust, basalt, air]
+        interfaces = [asthenosphere, lithospheric_mantle, lower_crust, upper_crust, basalt, air]
 
     else:
         lithospheric_mobile_belt = MandyocLayer('mobile belt',
@@ -1063,6 +1073,7 @@ elif(experiment == 'cratonic_keel'):
             upper_crust.interface[Nx//2 + Ncraton//2 + Nlength_non_cratonic + Nshift : Nx] = air.base_depth #- thinning_upper_crust #right side 
 
         layers = [asthenosphere, lithospheric_mantle, lithospheric_mobile_belt, lower_crust, upper_crust, basalt, air]
+        interfaces = [asthenosphere, lithospheric_mantle, lithospheric_mobile_belt, lower_crust, upper_crust, basalt, air]
 
 ##################################################
 # Save interfaces.txt to be used in Mandyoc code #
@@ -1093,7 +1104,7 @@ with open("interfaces.txt", "w") as f:
             f.write(f"{' '.join(line.split())}\n")
 
     # layer interfaces
-    data = -1 * np.array(tuple(layer.interface for layer in layers[1::])).T
+    data = -1 * np.array(tuple(layer.interface for layer in interfaces[1::])).T
     np.savetxt(f, data, fmt="%.1f")
 
 ###################
