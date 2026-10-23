@@ -1,0 +1,50 @@
+SCENARIO INFOS:
+ 
+Name: compression
+N cores: 90
+ 
+Domain parameters:
+	Lx: 1600.0 km
+	Lz: 400.0 km
+	Nx: 801
+	Nz: 201
+Resolution dx x dz: 2.0 x 2.0 km2
+ 
+Time limit: 60.0 Myr
+Layers (bottom to top) from compression.svg, thickness at x = 400 km:
+	0: asthenosphere (wet_olivine): h = 300.0 km, C = 1.0, rho = 3378.0 kg/m3, H = 0 W/kg
+	1: lithospheric_mantle (dry_olivine): h = 0.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	2: oceanic_lithospheric_mantle (dry_olivine): h = 53.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	3: oceanic_crust (wet_quartz): h = 7.0 km, C = 100.0, rho = 2800.0 kg/m3, H = 6.786e-11 W/kg
+	4: weak_seed (dry_olivine): h = 0.0 km, C = 0.1, rho = 3330.0 kg/m3, H = 0 W/kg
+	5: lithospheric_mantle (dry_olivine): h = 0.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	6: lower_cratonic_lithospheric_mantle (dry_olivine): h = 0.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	7: upper_cratonic_lithospheric_mantle (dry_olivine): h = 0.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	8: lower_crust (wet_quartz): h = 0.0 km, C = 100.0, rho = 2800.0 kg/m3, H = 6.786e-11 W/kg
+	9: upper_crust (wet_quartz): h = 0.0 km, C = 1.0, rho = 2700.0 kg/m3, H = 6.185e-10 W/kg
+	10: decolement (wet_quartz): h = 0.0 km, C = 0.1, rho = 2350.0 kg/m3, H = 4.63e-10 W/kg
+	11: sediments (wet_quartz): h = 0.0 km, C = 1.0, rho = 2700.0 kg/m3, H = 4.63e-10 W/kg
+	12: air (air): h = 40.0 km, C = 1.0, rho = 1.0 kg/m3, H = 0 W/kg
+	lithosphere: 60.0 km
+	magmatic layer: 11 (sediments)
+Temperature and YSE profiles in numerical_setup.png:
+	Oceanic (60 km): x = 392 km
+	Non-cratonic (120 km): x = 1052 km
+	Lower cratonic (245 km): x = 1400 km
+ 
+Preset of initial temperature field: False
+Surface process: False
+Numerical experiment: compression
+Velocity field: True
+inital velocity: 1.0 cm/yr
+	moving boundary: left, constant velocity down to 80 km below the surface
+Variable velocity field: False
+Climate change: False
+Periodic Boundary: False
+Initial temperature field setup:
+	Preset of initial temperature field: False
+	Increase in mantle basal temperature (Ta): 0 oC
+	Assumed mantle Potential Temperature for diffusive model: 1400 oC
+ 
+magmatism: off, extraction: off, Ts0: 1080 oC
+rheology model in param file: 19
