@@ -1274,6 +1274,7 @@ axsf.set_ylabel('$\Phi_{\mathrm{eff}}$', fontsize=fisize)
 axsf.tick_params(labelsize=fisize)
 
 axsfC = axsf.twinx()
+axsfC.patch.set_visible(False) #the background of the twin of an inset axes would hide the curve (matplotlib >= 3.11)
 axsfC.set_ylim([0, 17])
 axsfC.set_yticks([2, 15])
 axsfC.set_yticklabels([4, 20])
@@ -1295,7 +1296,7 @@ if(velocity_from_ascii == True):
     crt=0
 
     #Right side velocity arrows
-    axr.fill_betweenx((-z + thickness_sa_profile) / 1.0e3, VX[:, -1]* (100.0*365.0 * 24.0 * 3600.0), 0, color=None, facecolor=None, hatch='---',alpha=0)
+    axr.fill_betweenx((-z + thickness_sa_profile) / 1.0e3, VX[:, -1]* (100.0*365.0 * 24.0 * 3600.0), 0, facecolor='none', edgecolor='k', linewidth=0, hatch='---') #only the hatch (with alpha=0 the hatch is also invisible in matplotlib >= 3.11)
     axr.set_ylim(ylimplot)
     axr.set_yticks([])
     axr.set_xticks([])
@@ -1318,7 +1319,7 @@ if(velocity_from_ascii == True):
                           (1-fac)*2,
                           1))
     
-    axl.fill_betweenx((-z + thickness_sa_profile) / 1.0e3, VX[:, 0]* (100*365 * 24 * 3600), 0, color=None, facecolor=None, hatch='---',alpha=0)
+    axl.fill_betweenx((-z + thickness_sa_profile) / 1.0e3, VX[:, 0]* (100*365 * 24 * 3600), 0, facecolor='none', edgecolor='k', linewidth=0, hatch='---') #only the hatch (with alpha=0 the hatch is also invisible in matplotlib >= 3.11)
 
     axl.set_ylim(-Lz/1000+thickness_sa_profile/1000, 0+thickness_sa_profile/1000)
     axl.set_yticks([])
