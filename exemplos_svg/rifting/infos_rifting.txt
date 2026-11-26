@@ -1,0 +1,41 @@
+SCENARIO INFOS:
+ 
+Name: rifting
+N cores: 90
+ 
+Domain parameters:
+	Lx: 1600.0 km
+	Lz: 300.0 km
+	Nx: 1601
+	Nz: 301
+Resolution dx x dz: 1.0 x 1.0 km2
+ 
+Time limit: 60.0 Myr
+Layers (bottom to top) from rifting.svg, thickness at x = 400 km:
+	0: asthenosphere (wet_olivine): h = 105.0 km, C = 1.0, rho = 3378.0 kg/m3, H = 0 W/kg
+	1: lithospheric_mantle (dry_olivine): h = 120.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	2: weak_seed (wet_quartz): h = 0.0 km, C = 0.1, rho = 2800.0 kg/m3, H = 7.143e-11 W/kg
+	3: lower_crust (wet_quartz): h = 10.0 km, C = 100.0, rho = 2800.0 kg/m3, H = 6.786e-11 W/kg
+	4: upper_crust (wet_quartz): h = 25.0 km, C = 1.0, rho = 2700.0 kg/m3, H = 6.185e-10 W/kg
+	5: air (air): h = 40.0 km, C = 1.0, rho = 1.0 kg/m3, H = 0 W/kg
+	lithosphere: 155.0 km
+	magmatic layer: 4 (upper_crust)
+Temperature and YSE profiles in numerical_setup.png:
+	Lithospheric mantle (155 km): x = 1201 km
+ 
+Preset of initial temperature field: True
+Surface process: False
+Numerical experiment: rifting
+Velocity field: True
+inital velocity: 1.0 cm/yr
+	moving boundary: right, constant velocity down to 175 km below the surface
+Variable velocity field: False
+Climate change: False
+Periodic Boundary: False
+Initial temperature field setup:
+	Preset of initial temperature field: True
+	Preliminary scenario: /Users/joao_macedo/opt/scripts/exemplos_svg/preliminary/_output_temperature.nc (time = 647 Myr), interfaces from /Users/joao_macedo/opt/scripts/exemplos_svg/preliminary/interfaces.txt
+	Reference lithosphere of the preliminary scenario: 120 km
+ 
+magmatism: on, extraction: off, Ts0: 1080 oC
+rheology model in param file: 19

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Example of the quiescence regime: cratonic keel with a mobile belt in the centre of the domain
+     (cratonic_keel experiment of generate_input_files_database.py). No velocity is imposed at the boundaries.
+     4000 x 600 km, 1 user unit = 1 km, page = model domain (see the 'domain' rectangle for Lx, Lz, dx, dz and the experiment).
+     Lithosphere (everywhere): upper crust 20 km, lower crust 15 km, lithospheric mantle 85 km (120 km below the surface).
+     Cratonic keel (x = 1400-2600 km, L_keel = 1200 km): lithospheric mantle down to 290 km below the page top
+       (250 km below the surface, 130 km thicker than outside).
+     Mobile belt (x = 1850-2150 km, L_mb = 300 km): wet olivine filling the thickened part of the keel (h_mb = 130 km).
+     Edges are at x.5 km so they never fall on the grid nodes (1 or 2 km resolution). -->
+<svg
+   width="4000mm"
+   height="600mm"
+   viewBox="0 0 4000 600"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="quiescence.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="litologias">
+    <rect
+       id="asthenosphere"
+       inkscape:label="asthenosphere"
+       x="0"
+       y="0"
+       width="4000"
+       height="600"
+       style="fill:#cfe2cd;stroke:none">
+      <title
+         id="title1">Asthenosphere</title>
+      <desc
+         id="desc1">wet olivine
+C = 1.0
+rho = 3378.0
+H = 7.38e-12</desc>
+    </rect>
+    <path
+       id="lithospheric_mantle"
+       inkscape:label="lithospheric_mantle"
+       d="M -10,0 H 4010 V 160 H 2600.5 V 290 H 1399.5 V 160 H -10 Z"
+       style="fill:#9bc29b;stroke:none">
+      <title
+         id="title2">Lithospheric mantle</title>
+      <desc
+         id="desc2">dry olivine
+C = 1.0
+rho = 3354.0
+H = 9.0e-12
+h = 85 km</desc>
+    </path>
+    <rect
+       id="mobile_belt"
+       inkscape:label="mobile_belt"
+       x="1849.5"
+       y="160"
+       width="301"
+       height="130"
+       style="fill:#b7d3ad;stroke:none">
+      <title
+         id="title3">Mobile belt</title>
+      <desc
+         id="desc3">wet olivine
+C = 1.0
+rho = 3354.0
+H = 9.0e-12
+h = 130 km</desc>
+    </rect>
+    <rect
+       id="lower_crust"
+       inkscape:label="lower_crust"
+       x="-10"
+       y="0"
+       width="4020"
+       height="75"
+       style="fill:#f0d1bc;stroke:none">
+      <title
+         id="title4">Lower crust</title>
+      <desc
+         id="desc4">wet quartz
+C = 1.0
+rho = 2800.0
+H = 2.86e-10
+h = 15 km</desc>
+    </rect>
+    <rect
+       id="upper_crust"
+       inkscape:label="upper_crust"
+       x="-10"
+       y="0"
+       width="4020"
+       height="60"
+       style="fill:#e49c7c;stroke:none">
+      <title
+         id="title5">Upper crust</title>
+      <desc
+         id="desc5">wet quartz
+C = 1.0
+rho = 2700.0
+H = 9.26e-10
+h = 20 km</desc>
+    </rect>
+    <rect
+       id="air"
+       inkscape:label="air"
+       x="-10"
+       y="0"
+       width="4020"
+       height="40"
+       style="fill:#ffffff;stroke:none">
+      <title
+         id="title6">Sticky air</title>
+      <desc
+         id="desc6">air
+C = 1.0
+rho = 1.0
+H = 0.0
+h = 40 km</desc>
+    </rect>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_domain"
+     inkscape:label="dominio">
+    <rect
+       id="domain"
+       inkscape:label="domain"
+       x="0"
+       y="0"
+       width="4000"
+       height="600"
+       style="fill:none;stroke:#ff0000;stroke-width:1">
+      <title
+         id="title_domain">Model domain</title>
+      <desc
+         id="desc_domain">Lx = 4000 km
+Lz = 600 km
+dx = 2 km
+dz = 2 km
+regime = quiescence
+magmatism = off
+magmatism_extraction = off
+magmatism_Ts0 = 1080
+preset_initial_temperature = ../preliminary</desc>
+    </rect>
+  </g>
+</svg>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Rifting scenario of generate_input_files_rft_melt.py. 1 user unit = 1 km; page = model domain (1600 x 300 km). -->
+<!-- Example of the rifting regime (rift_melt setup): extension at 1 cm/yr, right boundary moving. -->
+<svg
+   width="1600mm"
+   height="300mm"
+   viewBox="0 0 1600 300"
+   version="1.1"
+   id="svg1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns="http://www.w3.org/2000/svg">
+  <g inkscape:groupmode="layer" id="layer1" inkscape:label="litologias">
+    <rect id="asthenosphere" inkscape:label="asthenosphere" x="0" y="0" width="1600" height="300" style="fill:#cfe2cd;stroke:none">
+      <title id="title1">Asthenosphere</title>
+      <desc id="desc1">wet olivine
+C = 1.0
+rho = 3378.0
+H = 0.0</desc>
+    </rect>
+    <rect id="lithospheric_mantle" inkscape:label="lithospheric_mantle" x="0" y="0" width="1600" height="195" style="fill:#9bc29b;stroke:none">
+      <title id="title2">Lithospheric mantle</title>
+      <desc id="desc2">dry olivine
+C = 1.0
+rho = 3330.0
+H = 0.0</desc>
+    </rect>
+    <rect id="lower_crust" inkscape:label="lower_crust" x="0" y="0" width="1600" height="75" style="fill:#f0d1bc;stroke:none">
+      <title id="title3">Lower crust</title>
+      <desc id="desc3">wet quartz
+C = 100.0
+rho = 2800.0
+H = 0.19e-6 / 2800.0</desc>
+    </rect>
+    <rect id="upper_crust" inkscape:label="upper_crust" x="0" y="0" width="1600" height="65" style="fill:#e49c7c;stroke:none">
+      <title id="title4">Upper crust</title>
+      <desc id="desc4">wet quartz
+C = 1.0
+rho = 2700.0
+H = 1.67e-6 / 2700.0</desc>
+    </rect>
+    <rect id="air" inkscape:label="air" x="0" y="0" width="1600" height="40" style="fill:#ffffff;stroke:none">
+      <title id="title5">Sticky air</title>
+      <desc id="desc5">air
+C = 1.0
+rho = 1.0
+H = 0.0</desc>
+    </rect>
+    <rect id="weak_seed" inkscape:label="weak_seed" x="796.5" y="69" width="6" height="6" style="fill:#000000;stroke:none">
+      <title id="title6">Weak seed</title>
+      <desc id="desc6">wet quartz
+C = 0.1
+rho = 2800.0
+H = 0.2e-6 / 2800.0</desc>
+    </rect>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_domain"
+     inkscape:label="dominio">
+    <rect
+       id="domain"
+       inkscape:label="domain"
+       x="0"
+       y="0"
+       width="1600"
+       height="300"
+       style="fill:none;stroke:#ff0000;stroke-width:1">
+      <title
+         id="title_domain">Model domain</title>
+      <desc
+         id="desc_domain">Lx = 1600 km
+Lz = 300 km
+dx = 1 km
+dz = 1 km
+regime = rifting
+velocity = 1 cm/yr
+moving_boundary = right
+magmatism = on
+magmatism_extraction = off
+magmatism_Ts0 = 1080
+preset_initial_temperature = ../preliminary</desc>
+    </rect>
+  </g>
+</svg>

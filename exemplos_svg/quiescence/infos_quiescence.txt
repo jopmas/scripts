@@ -1,0 +1,41 @@
+SCENARIO INFOS:
+ 
+Name: quiescence
+N cores: 90
+ 
+Domain parameters:
+	Lx: 4000.0 km
+	Lz: 600.0 km
+	Nx: 2001
+	Nz: 301
+Resolution dx x dz: 2.0 x 2.0 km2
+ 
+Time limit: 1000.0 Myr
+Layers (bottom to top) from quiescence.svg, thickness at x = 1000 km:
+	0: asthenosphere (wet_olivine): h = 440.0 km, C = 1.0, rho = 3378.0 kg/m3, H = 7.38e-12 W/kg
+	1: mobile_belt (wet_olivine): h = 0.0 km, C = 1.0, rho = 3354.0 kg/m3, H = 9e-12 W/kg
+	2: lithospheric_mantle (dry_olivine): h = 85.0 km, C = 1.0, rho = 3354.0 kg/m3, H = 9e-12 W/kg
+	3: lower_crust (wet_quartz): h = 15.0 km, C = 1.0, rho = 2800.0 kg/m3, H = 2.86e-10 W/kg
+	4: upper_crust (wet_quartz): h = 20.0 km, C = 1.0, rho = 2700.0 kg/m3, H = 9.26e-10 W/kg
+	5: air (air): h = 40.0 km, C = 1.0, rho = 1.0 kg/m3, H = 0 W/kg
+	lithosphere: 120.0 km
+	magmatic layer: 4 (upper_crust)
+Temperature and YSE profiles in numerical_setup.png:
+	Lithospheric mantle (120 km): x = 698 km
+	Lithospheric mantle (250 km): x = 1624 km
+	Mobile belt (250 km): x = 2000 km
+ 
+Preset of initial temperature field: True
+Surface process: False
+Numerical experiment: quiescence
+Velocity field: False
+Variable velocity field: False
+Climate change: False
+Periodic Boundary: False
+Initial temperature field setup:
+	Preset of initial temperature field: True
+	Preliminary scenario: /Users/joao_macedo/opt/scripts/exemplos_svg/preliminary/_output_temperature.nc (time = 647 Myr), interfaces from /Users/joao_macedo/opt/scripts/exemplos_svg/preliminary/interfaces.txt
+	Reference lithosphere of the preliminary scenario: 120 km
+ 
+magmatism: off, extraction: off, Ts0: 1080 oC
+rheology model in param file: 19

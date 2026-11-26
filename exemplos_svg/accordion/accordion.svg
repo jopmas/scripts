@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Rift between two cratons (M300, generate_input_files_db_newthermal_oct26_NO_H_MANTLE.py). 1600 x 400 km.
+     1 user unit = 1 km; page = model domain (Nx = 801, Nz = 201 in the original script).
+     Crust (everywhere): sediments 3 km, decolement 1 km, upper crust 21 km, lower crust 10 km. Sticky air 40 km.
+     Non-cratonic lithospheric mantle 85 km between x = 400 and 1198 km (L_nc = 800 km).
+     Cratonic lithospheric mantle on both sides: upper 85 km + lower 125 km (cratonic lithosphere 245 km).
+     Weak seed: 6 nodes x 6 km (12 x 6 km with dx = 2 km) at x = 800 km, at the base of the lower crust.
+     All units but the asthenosphere have h, so the scenario also works with another Lz (the asthenosphere fills the rest). -->
+<!-- Example of the accordion regime (M300 setup): extension, convergence, quiescence (quiescence_time) and extension again. -->
+<svg
+   width="1600mm"
+   height="400mm"
+   viewBox="0 0 1600 400"
+   version="1.1"
+   id="svg1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns="http://www.w3.org/2000/svg">
+  <g inkscape:groupmode="layer" id="layer1" inkscape:label="litologias">
+    <rect id="asthenosphere" inkscape:label="asthenosphere" x="0" y="0" width="1600" height="400" style="fill:#cfe2cd;stroke:none">
+      <title id="title1">Asthenosphere</title>
+      <desc id="desc1">wet olivine
+C = 1.0
+rho = 3378.0
+H = 0.0</desc>
+    </rect>
+    <rect id="lower_cratonic_mantle_left" inkscape:label="lower_cratonic_lithospheric_mantle" x="-10" y="0" width="409.5" height="285" style="fill:#a3b391;stroke:none">
+      <title id="title2">Lower cratonic lith. mantle</title>
+      <desc id="desc2">dry olivine
+C = 1.0
+rho = 3330.0
+H = 0.0
+h = 125 km</desc>
+    </rect>
+    <rect id="lower_cratonic_mantle_right" inkscape:label="lower_cratonic_lithospheric_mantle" x="1199.5" y="0" width="410.5" height="285" style="fill:#a3b391;stroke:none">
+      <title id="title3">Lower cratonic lith. mantle</title>
+      <desc id="desc3">dry olivine
+C = 1.0
+rho = 3330.0
+H = 0.0
+h = 125 km</desc>
+    </rect>
+    <rect id="upper_cratonic_mantle_left" inkscape:label="upper_cratonic_lithospheric_mantle" x="-10" y="0" width="409.5" height="160" style="fill:#b3c2a2;stroke:none">
+      <title id="title4">Upper cratonic lith. mantle</title>
+      <desc id="desc4">dry olivine
+C = 1.0
+rho = 3330.0
+H = 0.0
+h = 85 km</desc>
+    </rect>
+    <rect id="upper_cratonic_mantle_right" inkscape:label="upper_cratonic_lithospheric_mantle" x="1199.5" y="0" width="410.5" height="160" style="fill:#b3c2a2;stroke:none">
+      <title id="title5">Upper cratonic lith. mantle</title>
+      <desc id="desc5">dry olivine
+C = 1.0
+rho = 3330.0
+H = 0.0
+h = 85 km</desc>
+    </rect>
+    <rect id="lithospheric_mantle" inkscape:label="lithospheric_mantle" x="399.5" y="0" width="800" height="160" style="fill:#9bc29b;stroke:none">
+      <title id="title6">Non-cratonic lith. mantle</title>
+      <desc id="desc6">dry olivine
+C = 1.0
+rho = 3330.0
+H = 0.0
+h = 85 km</desc>
+    </rect>
+    <rect id="lower_crust" inkscape:label="lower_crust" x="0" y="0" width="1600" height="75" style="fill:#f0d1bc;stroke:none">
+      <title id="title7">Lower crust</title>
+      <desc id="desc7">wet quartz
+C = 100.0
+rho = 2800.0
+H = 0.19e-6 / 2800.0
+h = 10 km</desc>
+    </rect>
+    <rect id="upper_crust" inkscape:label="upper_crust" x="0" y="0" width="1600" height="65" style="fill:#e49c7c;stroke:none">
+      <title id="title8">Upper crust</title>
+      <desc id="desc8">wet quartz
+C = 1.0
+rho = 2700.0
+H = 1.67e-6 / 2700.0
+h = 21 km</desc>
+    </rect>
+    <rect id="decolement" inkscape:label="decolement" x="0" y="0" width="1600" height="44" style="fill:#895197;stroke:none">
+      <title id="title9">Decolement</title>
+      <desc id="desc9">wet quartz
+C = 0.1
+rho = 2350.0
+H = 1.25e-6 / 2700.0
+h = 1 km</desc>
+    </rect>
+    <rect id="sediments" inkscape:label="sediments" x="0" y="0" width="1600" height="43" style="fill:#f1b844;stroke:none">
+      <title id="title10">Sediments</title>
+      <desc id="desc10">wet quartz
+C = 1.0
+rho = 2700.0
+H = 1.25e-6 / 2700.0
+h = 3 km</desc>
+    </rect>
+    <rect id="air" inkscape:label="air" x="0" y="0" width="1600" height="40" style="fill:#ffffff;stroke:none">
+      <title id="title11">Sticky air</title>
+      <desc id="desc11">air
+C = 1.0
+rho = 1.0
+H = 0.0
+h = 40 km</desc>
+    </rect>
+    <rect id="weak_seed" inkscape:label="weak_seed" x="793" y="69" width="12" height="6" style="fill:#000000;stroke:none">
+      <title id="title12">Weak seed</title>
+      <desc id="desc12">wet quartz
+C = 0.1
+rho = 2800.0
+H = 0.2e-6 / 2800.0
+h = 6 km</desc>
+    </rect>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_domain"
+     inkscape:label="dominio">
+    <rect
+       id="domain"
+       inkscape:label="domain"
+       x="0"
+       y="0"
+       width="1600"
+       height="400"
+       style="fill:none;stroke:#ff0000;stroke-width:1">
+      <title
+         id="title_domain">Model domain</title>
+      <desc
+         id="desc_domain">Lx = 1600 km
+Lz = 400 km
+dx = 2 km
+dz = 2 km
+regime = accordion
+velocity = 1 cm/yr
+moving_boundary = right
+quiescence_time = 0 Myr
+magmatism = off
+magmatism_extraction = off
+magmatism_Ts0 = 1080</desc>
+    </rect>
+  </g>
+</svg>

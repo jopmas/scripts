@@ -1,0 +1,51 @@
+SCENARIO INFOS:
+ 
+Name: accordion
+N cores: 90
+ 
+Domain parameters:
+	Lx: 1600.0 km
+	Lz: 400.0 km
+	Nx: 801
+	Nz: 201
+Resolution dx x dz: 2.0 x 2.0 km2
+ 
+Time limit: 135.0 Myr
+Extension: 0 - 25.0 Myr
+Convergence: 25.0 - 75.0 Myr
+Time of quiescence: 0.0 Myr (75.0 - 75.0 Myr)
+Second extension: 60.0 Myr (75.0 - 135.0 Myr)
+ 
+Layers (bottom to top) from accordion.svg, thickness at x = 400 km:
+	0: asthenosphere (wet_olivine): h = 240.0 km, C = 1.0, rho = 3378.0 kg/m3, H = 0 W/kg
+	1: lower_cratonic_lithospheric_mantle (dry_olivine): h = 0.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	2: upper_cratonic_lithospheric_mantle (dry_olivine): h = 0.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	3: lithospheric_mantle (dry_olivine): h = 85.0 km, C = 1.0, rho = 3330.0 kg/m3, H = 0 W/kg
+	4: weak_seed (wet_quartz): h = 0.0 km, C = 0.1, rho = 2800.0 kg/m3, H = 7.143e-11 W/kg
+	5: lower_crust (wet_quartz): h = 10.0 km, C = 100.0, rho = 2800.0 kg/m3, H = 6.786e-11 W/kg
+	6: upper_crust (wet_quartz): h = 21.0 km, C = 1.0, rho = 2700.0 kg/m3, H = 6.185e-10 W/kg
+	7: decolement (wet_quartz): h = 1.0 km, C = 0.1, rho = 2350.0 kg/m3, H = 4.63e-10 W/kg
+	8: sediments (wet_quartz): h = 3.0 km, C = 1.0, rho = 2700.0 kg/m3, H = 4.63e-10 W/kg
+	9: air (air): h = 40.0 km, C = 1.0, rho = 1.0 kg/m3, H = 0 W/kg
+	lithosphere: 120.0 km
+	magmatic layer: 8 (sediments)
+Temperature and YSE profiles in numerical_setup.png:
+	Non-cratonic (120 km): x = 596 km
+	Lower cratonic (245 km): x = 1400 km
+ 
+Preset of initial temperature field: False
+Surface process: False
+Numerical experiment: accordion
+Velocity field: True
+inital velocity: 1.0 cm/yr
+	moving boundary: right, constant velocity down to 265 km below the surface
+Variable velocity field: True
+Climate change: False
+Periodic Boundary: False
+Initial temperature field setup:
+	Preset of initial temperature field: False
+	Increase in mantle basal temperature (Ta): 0 oC
+	Assumed mantle Potential Temperature for diffusive model: 1400 oC
+ 
+magmatism: off, extraction: off, Ts0: 1080 oC
+rheology model in param file: 19
