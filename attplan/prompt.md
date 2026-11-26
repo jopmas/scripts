@@ -29,6 +29,15 @@ Para cada cenário do JSON (campo `tab` = nome da aba, `name` = valor da coluna 
 3. Se a aba não existe, crie-a copiando a aba "compression" (duplicateSheet), apague as linhas de dados da cópia,
    renomeie-a para `tab` e escreva as linhas dos cenários dela.
 
+### Modo só hypatia (`"mode": "hypatia_only"` no JSON)
+
+O JSON veio de uma máquina sem as pastas locais: os cenários têm `tab` = null e vêm só dos jobs do hypatia.
+- Procure a linha pelo valor da coluna Cenário em todas as abas. Se não achar, não faça nada (nunca crie linha
+  nem aba); se achar em mais de uma aba, atualize todas e cite isso no resumo.
+- Status: nunca substitua "Pós-processado". `status` = "Rodado" só substitui "Rodando", "Na fila" ou
+  "Inputs prontos". `status` null: não mexa no Status. Fora isso, siga o passo 1.
+- "Tempo total (Myr)" não vem no JSON: para a regra do texto vermelho, use o valor que já está na planilha.
+
 Depois:
 - Em "Tempo atingido (Myr)", deixe o texto vermelho (#c62828) quando o status não for "Rodando" nem "Na fila" e o
   tempo atingido for mais de 2 Myr menor que o tempo total; volte à cor padrão quando isso deixar de valer.

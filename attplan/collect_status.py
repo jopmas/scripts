@@ -14,6 +14,8 @@ import argparse, glob, json, os, re, subprocess, sys
 ROOTS = ['/Volumes/Joao_Macedo/DB_tests_SVG', '/Volumes/Joao_Macedo/tests_rft', '/Volumes/Joao_Macedo/tests_svg',
          '/Volumes/Joao_Macedo/db_testes/CORRECTED']
 CLASSIC_ROOT, CLASSIC_TAB = ROOTS[-1], 'db_tests_classic'  # cenários dos scripts generate_input_files_db_*.py
+# Sem o HD (ex. no Mac mini), attplan.sh define ATTPLAN_HYPATIA_ONLY=1: os cenários vêm só dos jobs no hypatia
+HYPATIA_ONLY = os.environ.get('ATTPLAN_HYPATIA_ONLY') == '1'
 HYPATIA = 'jpmacedo@hypatia.iag.usp.br'
 SACCT_START = '2026-09-01'
 FAILED = ('FAILED', 'CANCELLED', 'TIMEOUT', 'OUT_OF_MEMORY', 'NODE_FAIL', 'PREEMPTED', 'BOOT_FAIL', 'DEADLINE')
@@ -166,10 +168,47 @@ def hypatia_jobs():
     return {'jobs': jobs, 'times': times}, None
 
 
+def hypatia_only_scenarios(hypatia):
+    '''Um cenário por pasta de run no hypatia (último job), sem dados locais: só atualiza linhas existentes.'''
+    last = {}
+    for j in hypatia['jobs']:
+        name = os.path.basename(j['workdir'].rstrip('/'))
+        if name and (name not in last or j['job'] > last[name]['job']):
+            last[name] = j
+    scenarios = []
+    for name, j in sorted(last.items()):
+        state, reached = j['state'], hypatia['times'].get(j['workdir'])
+        if state == 'RUNNING':
+            status = 'Rodando'
+        elif state == 'PENDING':
+            status, reached = 'Na fila', None
+        elif state.startswith(FAILED):
+            status = 'Falhou'
+        elif state == 'COMPLETED':
+            status = 'Rodado'
+        else:
+            status = None
+        scenarios.append({'name': name, 'tab': None, 'update_only': True, 'hypatia_only': True,
+                          'folder': j['workdir'], 'status': status, 'job_id': j['job'], 'hypatia_state': state,
+                          'time_reached_myr': round(reached, 3) if reached is not None else None})
+    return scenarios
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-o', '--output', help='arquivo JSON (padrão: saída padrão)')
     args = parser.parse_args(argv)
+
+    if HYPATIA_ONLY:
+        hypatia, error = hypatia_jobs()
+        result = {'hypatia': 'ok' if hypatia else error, 'mode': 'hypatia_only',
+                  'scenarios': hypatia_only_scenarios(hypatia) if hypatia else []}
+        text = json.dumps(result, ensure_ascii=False, indent=1)
+        if args.output:
+            open(args.output, 'w').write(text)
+        else:
+            print(text)
+        return
 
     scenarios = []
     for root in ROOTS:

@@ -10,6 +10,16 @@ set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PY="$HOME/anaconda3/envs/tapioca/bin/python"
 BASEPY="$HOME/anaconda3/bin/python"   # tem openpyxl
+# Mac mini: miniconda em /opt
+if [ ! -x "$PY" ] && [ -x /opt/miniconda3/envs/tapioca/bin/python ]; then
+    PY=/opt/miniconda3/envs/tapioca/bin/python
+    BASEPY=/opt/miniconda3/envs/mpy/bin/python   # tem openpyxl
+fi
+# Sem o HD Joao_Macedo (ex. no Mac mini): só o estado dos jobs no hypatia, atualizando linhas que já existem
+if [ ! -d /Volumes/Joao_Macedo ]; then
+    export ATTPLAN_HYPATIA_ONLY=1
+    echo "attplan: HD Joao_Macedo ausente; usando só o estado dos jobs no hypatia"
+fi
 XLSX="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Monitor_cenarios_Mandyoc.xlsx"
 STATE="$(mktemp -t attplan).json"
 OUT="$(mktemp -t attplan).txt"
