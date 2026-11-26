@@ -1,0 +1,26 @@
+name: mpy
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - petsc=3.24.5
+  - clang_osx-arm64
+  - clangxx_osx-arm64
+  - pygmt
+  - h5netcdf
+  - pytest
+  - matplotlib
+  - xarray
+  - pyvista
+  - pythreejs
+  - jupyterlab
+  - ipython
+  - scipy
+  - numpy 
+  - ipyvtklink
+  - shapely
+  - astropy
+  - pymp-pypi
+  - numba
+  - cmcrameri
